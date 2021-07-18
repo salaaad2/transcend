@@ -28,14 +28,14 @@ export class AuthenticationService {
             return createdUser;
         } catch (error) {
             if (error?.code === PostgresErrorCode.UniqueViolation) {
-                throw new HttpException('User whit that email already exists', HttpStatus.BAD_REQUEST);
+                throw new HttpException('User whit that username already exists', HttpStatus.BAD_REQUEST);
             }
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    public async getAuthenticatedUser(email: string, plainTextPassword: string) {
+    public async getAuthenticatedUser(username: string, plainTextPassword: string) {
         try {
-            const user = await this.usersService.getByEmail(email);
+            const user = await this.usersService.getByUsername(username);
             await this.verifyPassword(plainTextPassword, user.password);
             user.password = undefined;
             return user;
