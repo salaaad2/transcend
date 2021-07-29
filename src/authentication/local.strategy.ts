@@ -9,11 +9,11 @@ export class LocalStrategy extends
 PassportStrategy(Strategy) {
     constructor(private authenticationService: AuthenticationService) {
         super({
-            usernameField: 'email'
+            usernameField: 'username'
         });
     }
-    async validate(email: string, password: string):
+    async validate(username: string, password: string):
     Promise<User> {
-        return this.authenticationService.getAuthenticatedUser(email, password);
+        return this.authenticationService.getAuthenticatedUser(username, password);
     }
 }
