@@ -4,6 +4,7 @@ import PostsController from './posts.controller';
 import PostsService from './posts.service';
 import Post from './post.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Post])],

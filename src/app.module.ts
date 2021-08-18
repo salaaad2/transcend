@@ -9,6 +9,12 @@ import { ExceptionsLoggerFilter } from './utils/exceptionsLogger.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { UsersModule } from './users/users.module';
+import { ChatGateway } from './chat/chat.gateway';
+import { ChatService } from './chat/chat.service';
+import { ChatModule } from './chat/chat.module';
+import { JwtService } from '@nestjs/jwt';
+
+
 @Module({
   imports: [
     PostsModule,
@@ -27,6 +33,7 @@ import { UsersModule } from './users/users.module';
     DatabaseModule,
     AuthenticationModule,
     UsersModule,
+    ChatModule
   ],
   controllers: [],
   providers: [
@@ -34,6 +41,6 @@ import { UsersModule } from './users/users.module';
       provide: APP_FILTER,
       useClass: ExceptionsLoggerFilter,
     },
-  ],
+  ]
 })
 export class AppModule {}
