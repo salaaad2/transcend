@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
  
-@WebSocketGateway()
+@WebSocketGateway({cors: true, path: "socket.io"})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
@@ -41,5 +41,13 @@ export class ChatGateway implements OnGatewayConnection {
     const messages = await this.chatService.getAllMessages();
  
     socket.emit('send_all_messages', messages);
+  }
+
+  @SubscribeMessage('test')
+  async test1(
+    @MessageBody() content: string
+  )
+  {
+    console.log(content)
   }
 }

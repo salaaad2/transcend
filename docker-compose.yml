@@ -6,11 +6,12 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /Users/tbajrami/goinfre/postgres:/Users/tbajrami/goinfre/postgres
+      - /data/postgres:/data/postgres
     env_file:
       - docker.env
     networks:
       - postgres
+
   pgadmin:
     links:
     - postgres:postgres
@@ -19,11 +20,12 @@ services:
     ports:
     - "8080:80"
     volumes:
-    - /Users/tbajrami/goinfre/pgadmin:/root/.pgadmin
+    - /data/pgadmin:/root/.pgadmin
     env_file:
     - docker.env
     networks:
     - postgres
+
 networks:
   postgres:
     driver: bridge
