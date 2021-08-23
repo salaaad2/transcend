@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
  
-@WebSocketGateway({cors: true, path: "socket.io"})
+@WebSocketGateway({cors: true})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
@@ -45,9 +45,10 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage('test')
   async test1(
-    @MessageBody() content: string
+    @MessageBody() content: string, @ConnectedSocket() socket: Socket
   )
   {
     console.log(content)
+    this.server.emit('test', content);
   }
 }

@@ -13,6 +13,8 @@ import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
 import { ChatModule } from './chat/chat.module';
 import { JwtService } from '@nestjs/jwt';
+import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
+import { join } from 'path';
 
 
 @Module({
@@ -28,7 +30,10 @@ import { JwtService } from '@nestjs/jwt';
       PORT: Joi.number(),
       JWT_SECRET: Joi.string().required(),
       JWT_EXPIRATION_TIME: Joi.string().required()
-    })
+    }),
+  }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
   }),
     DatabaseModule,
     AuthenticationModule,
