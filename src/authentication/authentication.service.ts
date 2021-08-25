@@ -6,6 +6,7 @@ import PostgresErrorCode from '../database/postgressErrrorCodes.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
+import RequestWithUser from "./requestWithUser.interface";
 
 
 @Injectable()
@@ -42,6 +43,8 @@ export class AuthenticationService {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
     public async getAuthenticatedUser(username: string, plainTextPassword: string) {
         try {
             const user = await this.usersService.getByUsername(username);
@@ -68,4 +71,12 @@ export class AuthenticationService {
     public getCookieForLogOut() {
         return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
     }
+
+    async login(user: RequestWithUser) {
+        const payload = { username: user.user.username, sub: user.user.id };
+        return {
+            accessToken: this.jwtService.sign(payload)
+        };
+    }
+
 }

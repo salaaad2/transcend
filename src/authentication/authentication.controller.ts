@@ -1,6 +1,7 @@
 import {
   Body,
   Req,
+  Res,
   Controller,
   HttpCode,
   Post,
@@ -13,6 +14,9 @@ import RequestWithUser from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from '../users/users.service';
+import * as cookieParser from 'cookie-parser';
+import { JwtService } from '@nestjs/jwt';
+
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -33,16 +37,19 @@ export class AuthenticationController {
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
         console.log("In logIn")
-        const {user} = request;
-        const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
-        request.res.setHeader('Set-Cookie', cookie);
-        return user;
+        // const {user} = request;
+        // const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
+        // request.res.setHeader('Set-Cookie', cookie);
+        // console.log(user);
+        // return user;
+        return this.authenticationService.login(request);
     }
-    @UseGuards(JwtAuthenticationGuard)
+
+    @HttpCode(200)
+    @UseGuards(LocalAuthenticationGuard)
     @Post('log-out')
     async logOut(@Req() request: RequestWithUser) {
-        request.res.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
-        return request.res.sendStatus(200);
+        return "";
     }
 
     @UseGuards(JwtAuthenticationGuard)

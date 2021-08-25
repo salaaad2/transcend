@@ -18,8 +18,11 @@ export class ChatGateway implements OnGatewayConnection {
   ) {
   }
 
+  @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
     await this.chatService.getUserFromSocket(socket);
+    console.log('new client connected');
+    socket.emit('connection', null);
   }
 
   @SubscribeMessage('send_message')

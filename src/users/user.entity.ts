@@ -9,7 +9,6 @@ class User {
     @Column({ unique: true })
     public username: string;
 
-
     @Column()
     @Exclude()
     public password: string;
