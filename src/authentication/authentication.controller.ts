@@ -37,26 +37,12 @@ export class AuthenticationController {
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
         console.log("In logIn")
-        // const {user} = request;
-        // const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
-        // request.res.setHeader('Set-Cookie', cookie);
-        // console.log(user);
-        // return user;
         return this.authenticationService.login(request);
     }
 
-    @HttpCode(200)
-    @UseGuards(LocalAuthenticationGuard)
-    @Post('log-out')
-    async logOut(@Req() request: RequestWithUser) {
-        return "";
-    }
-
     @UseGuards(JwtAuthenticationGuard)
-    @Get()
+    @Get('profile')
     authenticate(@Req() request: RequestWithUser) {
-        const user = request.user;
-        user.password = undefined;
-        return user;
+        return request.user;
     }
 }

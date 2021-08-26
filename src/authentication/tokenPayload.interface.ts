@@ -1,5 +1,5 @@
 interface TokenPayload {
-    userId: number;
+    sub: number;
 }
 
 export default TokenPayload;
