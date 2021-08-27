@@ -15,6 +15,7 @@ import { ChatModule } from './chat/chat.module';
 import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { join } from 'path';
+import { AvatarModule } from './avatar/avatar.module';
 
 
 @Module({
@@ -38,7 +39,8 @@ import { join } from 'path';
     DatabaseModule,
     AuthenticationModule,
     UsersModule,
-    ChatModule
+    ChatModule,
+    AvatarModule
   ],
   controllers: [],
   providers: [
