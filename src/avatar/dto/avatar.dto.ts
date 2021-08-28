@@ -1,6 +1,6 @@
 export class AvatarDto {
-    id: number;
-    avatar: Express.Multer.File;
+    userid: number;
+    image: Buffer;
 }
 
 export default AvatarDto;
