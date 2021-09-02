@@ -1,6 +1,6 @@
 export class AvatarDto {
     userid: number;
-    image: Buffer;
+    image: string;
 }
 
 export default AvatarDto;

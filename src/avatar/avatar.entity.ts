@@ -10,8 +10,8 @@ class Avatar {
     @Column()
     public userid: number;
 
-    @Column({type: "bytea"})
-    public image: Buffer;
+    @Column()
+    public image: string;
 }
 
 export default Avatar;

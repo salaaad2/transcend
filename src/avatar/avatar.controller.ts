@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor, MulterModule } from '@nestjs/platform-express';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { AvatarService } from './avatar.service';
@@ -13,16 +12,8 @@ export class AvatarController {
 
     @Post()
     @UseGuards(JwtAuthenticationGuard)
-    @UseInterceptors(FileInterceptor('file'))
-    uploadFile(@UploadedFile() file: Buffer, @Req() req: RequestWithUser) {
-      console.log(file);
-      console.log(req.user.username);
-      const dto = new AvatarDto();
-
-      dto.userid = req.user.id;
-      dto.image = file;
-      console.log(dto);
-      this.avatarService.create(dto);
+    uploadFile(@Body() avatarData: AvatarDto, @Req() req: RequestWithUser) {
+      this.avatarService.create(avatarData);
     }
 
     @Get()
