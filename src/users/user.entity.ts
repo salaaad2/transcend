@@ -12,6 +12,12 @@ class User {
     @Column()
     @Exclude()
     public password: string;
+
+    @Column({default: 0})
+    public wins: number;
+
+    @Column({default: 0})
+    public losses: number;
 }
 
 export default User;
