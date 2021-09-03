@@ -45,4 +45,11 @@ export class AuthenticationController {
     authenticate(@Req() request: RequestWithUser) {
         return request.user;
     }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('profile2')
+    getProfile(@Body() user: {username: string}) {
+        console.log(user.username);
+        return this.usersService.getByUsername(user.username);
+    }
 }
