@@ -18,6 +18,15 @@ class User {
 
     @Column({default: 0})
     public losses: number;
+
+    @Column("text", {array: true, default: []})
+    public friendlist: string[];
+
+    @Column("text", {array: true, default: []})
+    public blocklist: string[];
+
+    @Column({default: 1000})
+    public elo: number;
 }
 
 export default User;

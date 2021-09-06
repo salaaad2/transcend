@@ -8,10 +8,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { async } from 'rxjs';
 import { JwtStrategy } from './jwt.strategy';
+import { AvatarModule } from '../avatar/avatar.module';
+import { MatchModule } from 'src/match/match.module';
 
 @Module({
     imports: [
         UsersModule,
+        AvatarModule,
+        MatchModule,
         PassportModule,
         ConfigModule,
         JwtModule.registerAsync({

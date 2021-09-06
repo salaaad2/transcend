@@ -16,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { join } from 'path';
 import { AvatarModule } from './avatar/avatar.module';
+import { MatchModule } from './match/match.module';
 
 
 @Module({
@@ -40,7 +41,8 @@ import { AvatarModule } from './avatar/avatar.module';
     AuthenticationModule,
     UsersModule,
     ChatModule,
-    AvatarModule
+    AvatarModule,
+    MatchModule
   ],
   controllers: [],
   providers: [

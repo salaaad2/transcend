@@ -7,6 +7,7 @@ import Avatar from './avatar.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Avatar])],
   providers: [AvatarService],
-  controllers: [AvatarController]
+  controllers: [AvatarController],
+  exports: [AvatarService]
 })
 export class AvatarModule {}
