@@ -119,4 +119,21 @@ export class AuthenticationController {
         }
         return ret;
     }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Get('friends')
+    async getFriends(@Req() request: RequestWithUser) {
+        var list = request.user.friendlist;
+        var ret: {username: string, avatar: string, status: string}[] = [];
+        for (let i = 0 ; i < list.length ; i++ ) {
+            var data = await this.usersService.getByUsername(list[i]);
+            var avatar = await this.avatarService.getAvatar(data.id);
+            ret.push({
+                'username': data.username,
+                'avatar': avatar.avatar.image,
+                'status': data.status
+            })
+        }
+        return ret;
+    }
 }

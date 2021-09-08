@@ -1,29 +1,72 @@
 import {
   ConnectedSocket,
   MessageBody, OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { useContainer } from 'class-validator';
 import { Server, Socket } from 'socket.io';
+import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
  
 @WebSocketGateway({cors: true})
-export class ChatGateway implements OnGatewayConnection {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   constructor(
-    private readonly chatService: ChatService
+    private readonly chatService: ChatService,
+    private readonly userService: UsersService
   ) {
   }
 
+  public tab: {[key: string]: Socket} = {}
+
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
-    await this.chatService.getUserFromSocket(socket);
     console.log('new client connected');
     socket.emit('connection', null);
   }
+
+  @SubscribeMessage('disconnect')
+  async handleDisconnect(socket: Socket) {
+    var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    console.log(username + ' disconnected');
+    delete this.tab[username];
+    var user = await this.userService.getByUsername(username);
+    user.status = 'offline';
+    await this.userService.save(user);
+    this.server.emit('status',{username, status:'offline'});
+  }
+
+  @SubscribeMessage('login')
+  async handleLogin(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+    if (!(username in this.tab))
+    {
+      this.tab[username] = socket;
+      console.log(username + ' logged in');
+      var user = await this.userService.getByUsername(username);
+      user.status = 'online';
+      await this.userService.save(user);
+      this.server.emit('status', {username, status:'online'});
+    }
+  }
+
+  @SubscribeMessage('logout')
+  async handleLogout(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+    if ((username in this.tab))
+    {
+      delete this.tab[username];
+      console.log(username + ' logged out');
+      var user = await this.userService.getByUsername(username);
+      user.status = 'offline';
+      await this.userService.save(user);
+      this.server.emit('status', {username, status: 'offline'});
+    }
+  }
+
 
   @SubscribeMessage('send_message')
   async listenForMessages(

@@ -27,6 +27,9 @@ class User {
 
     @Column({default: 1000})
     public elo: number;
+
+    @Column({default: 'offline'})
+    public status: string;
 }
 
 export default User;

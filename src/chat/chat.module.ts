@@ -8,6 +8,7 @@ import { UsersModule } from '../users/users.module'
 import { AppModule } from 'src/app.module';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
     imports: [AuthenticationModule, UsersModule, TypeOrmModule.forFeature([Message])],

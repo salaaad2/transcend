@@ -79,4 +79,8 @@ export class UsersService {
         users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
         return users;
     }
+
+    async save(user: User) {
+        await this.usersRepository.save(user);
+    }
 }
