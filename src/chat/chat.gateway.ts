@@ -1,3 +1,5 @@
+import { StringSchema } from '@hapi/joi';
+import { Param } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody, OnGatewayConnection,
@@ -33,12 +35,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('disconnect')
   async handleDisconnect(socket: Socket) {
     var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    if (username) {
     console.log(username + ' disconnected');
     delete this.tab[username];
     var user = await this.userService.getByUsername(username);
     user.status = 'offline';
     await this.userService.save(user);
     this.server.emit('status',{username, status:'offline'});
+    }
   }
 
   @SubscribeMessage('login')
@@ -70,31 +74,46 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_message')
   async listenForMessages(
-    @MessageBody() content: string,
+    @MessageBody() message: {
+      channel: string,
+      content: string
+    },
     @ConnectedSocket() socket: Socket,
   ) {
-    const author = await this.chatService.getUserFromSocket(socket);
-    const message = await this.chatService.saveMessage(content, author);
-
-    this.server.sockets.emit('receive_message', message);
+    var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    const res = await this.chatService.saveMessage(message, username);
+    console.log(res);
+    this.server.sockets.emit('receive_message', res);
   }
 
   @SubscribeMessage('request_all_messages')
   async requestAllMessages(
-    @ConnectedSocket() socket: Socket,
+    @ConnectedSocket() socket: Socket, 
+    @MessageBody() channel: string
   ) {
-    await this.chatService.getUserFromSocket(socket);
-    const messages = await this.chatService.getAllMessages();
+    const messages = await this.chatService.getAllMessages(channel);
  
+    console.log(messages);
     socket.emit('send_all_messages', messages);
   }
 
-  @SubscribeMessage('test')
-  async test1(
-    @MessageBody() content: string, @ConnectedSocket() socket: Socket
-  )
-  {
-    console.log(content)
-    this.server.emit('test', content);
+  @SubscribeMessage('create_channel')
+  async createChannel(@MessageBody() data: { admin: string, name: string, password: string}) {
+    await this.chatService.createChannel(data);
+    this.server.emit('channel_created', data);
   }
+
+  // @SubscribeMessage('get_channels')
+  // async getChannels() {
+  //   await this.chatService.getChannels();
+  // }
+
+  // @SubscribeMessage('test')
+  // async test1(
+  //   @MessageBody() content: string, @ConnectedSocket() socket: Socket
+  // )
+  // {
+  //   console.log(content)
+  //   this.server.emit('test', content);
+  // }
 }
