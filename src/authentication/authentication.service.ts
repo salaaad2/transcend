@@ -21,8 +21,8 @@ export class AuthenticationService {
         const payload: TokenPayload = this.jwtService.verify(token, {
           secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
         });
-        if (payload.sub) {
-          return this.usersService.getById(payload.sub);
+        if (payload.userId) {
+          return this.usersService.getById(payload.userId);
         }
       }
 
@@ -63,8 +63,8 @@ export class AuthenticationService {
             throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
     }
 
-    public getCookieWithJwtToken(sub: number) {
-        const payload: TokenPayload = { sub };
+    public getCookieWithJwtToken(userId: number) {
+        const payload: TokenPayload = { userId };
         const token = this.jwtService.sign(payload);
         return `Authentication=${token}; HtppOnly; Path=/;Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`;
     }
@@ -76,8 +76,9 @@ export class AuthenticationService {
     async login(req: RequestWithUser) {
         const payload = { username: req.user.username, sub: req.user.id };
         return {
+            id: req.user.id,
+            username: req.user.username,
             accessToken: this.jwtService.sign(payload)
         };
     }
-
 }

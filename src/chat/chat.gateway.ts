@@ -43,6 +43,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.userService.save(user);
     this.server.emit('status',{username, status:'offline'});
     }
+    else
+      console.log('disconnect');
   }
 
   @SubscribeMessage('login')

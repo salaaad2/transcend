@@ -40,15 +40,43 @@ export class AuthenticationController {
     @UseGuards(LocalAuthenticationGuard)
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
-        console.log("In logIn")
-        return this.authenticationService.login(request);
+        const {user} = request;
+        const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
+        request.res.setHeader('Set-Cookie', cookie);
+        return user;
+    }
+
+    @HttpCode(200)
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('log-out')
+    async logOut(@Req() request: RequestWithUser) {
+        const cookie = this.authenticationService.getCookieForLogOut();
+        request.res.setHeader('Set-Cookie', cookie);
+        console.log('ok');
+        return cookie;
     }
 
     @UseGuards(JwtAuthenticationGuard)
-    @Get('profile')
+    @Get()
     authenticate(@Req() request: RequestWithUser) {
-        return request.user;
+        const user = request.user;
+        user.password = undefined;
+        return user;
     }
+
+    // @HttpCode(200)
+    // @UseGuards(LocalAuthenticationGuard)
+    // @Post('log-in')
+    // async logIn(@Req() request: RequestWithUser) {
+    //     console.log("In logIn")
+    //     return this.authenticationService.login(request);
+    // }
+
+    // @UseGuards(JwtAuthenticationGuard)
+    // @Get('profile')
+    // authenticate(@Req() request: RequestWithUser) {
+    //     return request.user;
+    // }
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('profile2')

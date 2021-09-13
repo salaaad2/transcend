@@ -34,9 +34,6 @@ import { MatchModule } from './match/match.module';
       JWT_EXPIRATION_TIME: Joi.string().required()
     }),
   }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-  }),
     DatabaseModule,
     AuthenticationModule,
     UsersModule,
