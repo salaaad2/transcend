@@ -31,6 +31,9 @@ class User {
     @Column({default: 'offline'})
     public status: string;
 
+    @Column({default: ""})
+    public avatar: string;
+
 }
 
 export default User;

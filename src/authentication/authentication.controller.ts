@@ -47,7 +47,7 @@ export class AuthenticationController {
     }
 
     @HttpCode(200)
-    @UseGuards(JwtAuthenticationGuard)
+    // @UseGuards(JwtAuthenticationGuard)
     @Post('log-out')
     async logOut(@Req() request: RequestWithUser) {
         const cookie = this.authenticationService.getCookieForLogOut();
@@ -64,25 +64,10 @@ export class AuthenticationController {
         return user;
     }
 
-    // @HttpCode(200)
-    // @UseGuards(LocalAuthenticationGuard)
-    // @Post('log-in')
-    // async logIn(@Req() request: RequestWithUser) {
-    //     console.log("In logIn")
-    //     return this.authenticationService.login(request);
-    // }
-
-    // @UseGuards(JwtAuthenticationGuard)
-    // @Get('profile')
-    // authenticate(@Req() request: RequestWithUser) {
-    //     return request.user;
-    // }
-
     @UseGuards(JwtAuthenticationGuard)
     @Post('profile2')
     async getProfile(@Body() user: {username: string}, @Req() request: RequestWithUser) {
         var data = await this.usersService.getByUsername(user.username);
-        var avatar = await this.avatarService.getAvatar(data.id);
         var match = await this.matchService.getmatches(user.username);
         var users = await this.usersService.getEveryone();
         users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0));
@@ -92,7 +77,7 @@ export class AuthenticationController {
           "username": data.username,
           "wins": data.wins,
           "losses": data.losses,
-          "avatar": avatar.avatar.image,
+          "avatar": data.avatar,
           "matches": match,
           "elo": data.elo,
           "current": request.user,
@@ -135,13 +120,12 @@ export class AuthenticationController {
         var data = await this.usersService.getEveryone();
         var ret: {id: number, username: string, wins: number, losses: number, avatar: string, elo: number}[] = [];
         for (let i = 0 ; i < data.length ; i++ ) {
-            var avatar = await this.avatarService.getAvatar(data[i].id);
             ret.push({
                 "id": data[i].id,
                 "username": data[i].username,
                 "wins": data[i].wins,
                 "losses": data[i].losses,
-                "avatar": avatar.avatar.image,
+                "avatar": data[i].avatar,
                 "elo": data[i].elo,
             })
         }
@@ -155,13 +139,19 @@ export class AuthenticationController {
         var ret: {username: string, avatar: string, status: string}[] = [];
         for (let i = 0 ; i < list.length ; i++ ) {
             var data = await this.usersService.getByUsername(list[i]);
-            var avatar = await this.avatarService.getAvatar(data.id);
             ret.push({
                 'username': data.username,
-                'avatar': avatar.avatar.image,
+                'avatar': data.avatar,
                 'status': data.status
             })
         }
         return ret;
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('update_avatar')
+    async updateData(@Req() request: RequestWithUser, @Body() data: {data: string}) {
+        console.log(data.data);
+        this.usersService.updateAvatar(request, data.data);
     }
 }

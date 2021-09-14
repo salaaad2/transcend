@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { useContainer } from 'class-validator';
+import { use } from 'passport';
 import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
@@ -25,6 +26,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   public tab: {[key: string]: Socket} = {}
+  public players: string[] = [];
 
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
@@ -103,6 +105,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async createChannel(@MessageBody() data: { admin: string, name: string, password: string}) {
     await this.chatService.createChannel(data);
     this.server.emit('channel_created', data);
+  }
+
+  @SubscribeMessage('newplayer')
+  async newplayer(@MessageBody() playername: string) {
+    this.players.push(playername);
+    console.log(this.players, this.players.length);
+    this.server.emit('nb_players', this.players.length);
+  }
+
+  @SubscribeMessage('player_leave')
+  async playerLeave(@MessageBody() playername: string) {
+    console.log('leave');
+    this.players.splice(this.players.findIndex(element => element == playername));
+    console.log('after leave: ', this.players);
+    this.server.emit('nb_players', this.players.length);
   }
 
   // @SubscribeMessage('get_channels')
