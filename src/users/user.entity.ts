@@ -30,6 +30,7 @@ class User {
 
     @Column({default: 'offline'})
     public status: string;
+
 }
 
 export default User;

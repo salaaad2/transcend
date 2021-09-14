@@ -6,7 +6,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /Users/tbajrami/goinfre/postgres:/Users/tbajrami/goinfre/postgres
+      - $HOME/goinfre/postgres:$HOME/goinfre/postgres
     env_file:
       - docker.env
     networks:
@@ -20,7 +20,7 @@ services:
     ports:
     - "8080:80"
     volumes:
-    - /Users/tbajrami/goinfre/pgadmin:/Users/tbajrami/goinfre/root/.pgadmin
+    - $HOME/goinfre/pgadmin:$HOME/goinfre/root/.pgadmin
     env_file:
     - docker.env
     networks:
