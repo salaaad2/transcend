@@ -31,6 +31,9 @@ class User {
     @Column({default: 'offline'})
     public status: string;
 
+    @Column("text", {array: true, default: []})
+    public chanslist: string[];
+
 }
 
 export default User;
