@@ -84,4 +84,11 @@ export class UsersService {
     async save(user: User) {
         await this.usersRepository.save(user);
     }
+
+    async updateAvatar(req: RequestWithUser, data: string) {
+        const user = await this.usersRepository.findOne({username: req.user.username});
+
+        user.avatar = data;
+        this.usersRepository.save(user);
+    }
 }

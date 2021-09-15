@@ -9,6 +9,9 @@ export class RegisterDto {
     @IsNotEmpty()
     @MinLength(7)
     password: string;
+
+    @IsString()
+    avatar: string;
 }
 
 export default RegisterDto;

@@ -34,6 +34,9 @@ class User {
     @Column("text", {array: true, default: []})
     public chanslist: string[];
 
+    @Column({default: ""})
+    public avatar: string;
+
 }
 
 export default User;
