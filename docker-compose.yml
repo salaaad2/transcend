@@ -7,6 +7,7 @@ services:
       - "5432:5432"
     volumes:
       - $HOME/goinfre/postgres:$HOME/goinfre/postgres
+      - $HOME/gitlab/backend/script:$HOME/script
     env_file:
       - docker.env
     networks:
@@ -25,6 +26,7 @@ services:
     - docker.env
     networks:
     - postgres
+    command: sh -c "$HOME/script/initdb.sh"
 
 networks:
   postgres:
