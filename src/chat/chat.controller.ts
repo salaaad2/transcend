@@ -10,11 +10,11 @@ export class ChatController {
     private readonly chatService: ChatService
     ) {}
 
-    @Get('channels')
-    @UseGuards(JwtAuthenticationGuard)
-    getChannels() {
-      return this.chatService.getChannels();
-    }
+    // @Get('channels')
+    // @UseGuards(JwtAuthenticationGuard)
+    // getChannels() {
+    //   return this.chatService.getChannels();
+    // }
 
     @Post('messages')
     @UseGuards(JwtAuthenticationGuard)

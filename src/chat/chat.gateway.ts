@@ -122,10 +122,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('nb_players', this.players.length);
   }
 
-  // @SubscribeMessage('get_channels')
-  // async getChannels() {
-  //   await this.chatService.getChannels();
-  // }
+   @SubscribeMessage('request_get_channels')
+  async getChannels(@MessageBody() username: string) {
+    const chanlist = await this.chatService.getChannels(username);
+    console.log(chanlist);
+    this.server.emit('send_channels', chanlist);
+   }
 
   // @SubscribeMessage('test')
   // async test1(

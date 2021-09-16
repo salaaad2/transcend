@@ -22,7 +22,6 @@ export class UsersService {
     }
 
     async getByUsername(username: string) {
-        // console.log('username', username);
         const user = await this.usersRepository.findOne({
             username: username });
         if (user) {
@@ -76,7 +75,7 @@ export class UsersService {
     }
 
     async getEveryone() {
-        var users = await this.usersRepository.find();
+        let users = await this.usersRepository.find();
         users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
         return users;
     }

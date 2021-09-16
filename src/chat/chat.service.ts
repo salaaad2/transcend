@@ -51,9 +51,18 @@ export class ChatService {
       return undefined;
   }
 
-  async getChannels() {
-    var list = await this.chanRepository.find();
-    return list;
+  async getChannels(username: string) {
+    const user = this.userService.getByUsername(username);
+    let chanlist: Channel[] = [];
+    const channel = await this.chanRepository.find({select: ['name']});
+    let found;
+    for (const c of (await user).chanslist)
+    {
+      found = channel.find(element => element.name == c);
+      if (found)
+        chanlist.push(found);
+    }
+    return chanlist;
   }
 
   async createChannel(data: { admin: string, name: string, password: string}) {
