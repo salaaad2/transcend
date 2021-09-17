@@ -21,6 +21,8 @@ export class ChatService {
     private messagesRepository: Repository<Message>,
     @InjectRepository(Channel)
     private chanRepository: Repository<Channel>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {
   }
  
@@ -54,7 +56,7 @@ export class ChatService {
   async getChannels(username: string) {
     const user = this.userService.getByUsername(username);
     let chanlist: Channel[] = [];
-    const channel = await this.chanRepository.find({select: ['name']});
+    const channel = await this.chanRepository.find({select: ['name', 'id']});
     let found;
     for (const c of (await user).chanslist)
     {
@@ -71,6 +73,12 @@ export class ChatService {
     channel.admin = data.admin;
     channel.password = data.password;
     channel.message = [];
-    this.chanRepository.save(channel);
+    await this.chanRepository.save(channel);
+  }
+
+  async joinChannel(data: { username: string, channel: string }) {
+    const user = await this.userService.getByUsername(data.username);
+    user.chanslist[user.chanslist.length] = data.channel;
+    await this.usersRepository.save(user);
   }
 }

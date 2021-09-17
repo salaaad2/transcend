@@ -82,8 +82,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       channel: string,
       content: string
     },
-    @ConnectedSocket() socket: Socket,
-  ) {
+    @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     const res = await this.chatService.saveMessage(message, username);
     console.log(res);
@@ -93,48 +92,40 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_all_messages')
   async requestAllMessages(
     @ConnectedSocket() socket: Socket, 
-    @MessageBody() channel: string
-  ) {
+    @MessageBody() channel: string) {
     const messages = await this.chatService.getAllMessages(channel);
- 
-    console.log(messages);
     socket.emit('send_all_messages', messages);
   }
 
-  @SubscribeMessage('create_channel')
+  @SubscribeMessage('request_create_channel')
   async createChannel(@MessageBody() data: { admin: string, name: string, password: string}) {
     await this.chatService.createChannel(data);
     this.server.emit('channel_created', data);
   }
 
-  @SubscribeMessage('newplayer')
-  async newplayer(@MessageBody() playername: string) {
-    this.players.push(playername);
-    console.log(this.players, this.players.length);
-    this.server.emit('nb_players', this.players.length);
-  }
-
-  @SubscribeMessage('player_leave')
-  async playerLeave(@MessageBody() playername: string) {
-    console.log('leave');
-    this.players.splice(this.players.findIndex(element => element == playername));
-    console.log('after leave: ', this.players);
-    this.server.emit('nb_players', this.players.length);
+  @SubscribeMessage('request_join_channel')
+  async joinChannel(@MessageBody() data: { username: string, channel: string}) {
+    await this.chatService.joinChannel(data);
+    const chanlist = await this.chatService.getChannels(data.username);
+    this.server.emit('send_channel_joined', chanlist[chanlist.length - 1]);
   }
 
    @SubscribeMessage('request_get_channels')
   async getChannels(@MessageBody() username: string) {
     const chanlist = await this.chatService.getChannels(username);
-    console.log(chanlist);
     this.server.emit('send_channels', chanlist);
    }
 
-  // @SubscribeMessage('test')
-  // async test1(
-  //   @MessageBody() content: string, @ConnectedSocket() socket: Socket
-  // )
-  // {
-  //   console.log(content)
-  //   this.server.emit('test', content);
-  // }
+  @SubscribeMessage('newplayer')
+  async newplayer(@MessageBody() playername: string) {
+    this.players.push(playername);
+    this.server.emit('nb_players', this.players.length);
+  }
+
+  @SubscribeMessage('player_leave')
+  async playerLeave(@MessageBody() playername: string) {
+    this.players.splice(this.players.findIndex(element => element == playername));
+    this.server.emit('nb_players', this.players.length);
+  }
+
 }
