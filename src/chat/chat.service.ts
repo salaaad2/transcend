@@ -78,6 +78,8 @@ export class ChatService {
 
   async joinChannel(data: { username: string, channel: string }) {
     const user = await this.userService.getByUsername(data.username);
+    if (!await this.chanRepository.findOne({ name: data.channel}) )
+      await this.createChannel({ admin: data.username, name: data.channel, password: "null" });
     user.chanslist[user.chanslist.length] = data.channel;
     await this.usersRepository.save(user);
   }
