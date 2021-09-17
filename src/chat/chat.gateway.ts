@@ -85,7 +85,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     const res = await this.chatService.saveMessage(message, username);
-    console.log(res);
     this.server.sockets.emit('receive_message', res);
   }
 
