@@ -50,12 +50,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(socket: Socket) {
     var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
     if (username) {
-    console.log(username + ' disconnected');
-    delete this.tab[username];
-    var user = await this.userService.getByUsername(username);
-    user.status = 'offline';
-    await this.userService.save(user);
-    this.server.emit('status',{username, status:'offline'});
+      console.log(username + ' disconnected');
+      delete this.tab[username];
+      var user = await this.userService.getByUsername(username);
+      user.status = 'offline';
+      await this.userService.save(user);
+      this.server.emit('status',{username, status:'offline'});
     }
     else
       console.log('disconnect');
@@ -108,7 +108,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() channel: string
   ) {
     const messages = await this.chatService.getAllMessages(channel);
- 
+
     console.log(messages);
     socket.emit('send_all_messages', messages);
   }
@@ -143,7 +143,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.rooms.length == 0) {
       for (var i = 0 ; i < 512 ; i++) {
         this.rooms.push({id: i + 1, Players: ["", ""], 
-        ingame: false, p1position: 40, p2position: 40, ballposition: [50, 50]});
+                         ingame: false, p1position: 40, p2position: 40, ballposition: [50, 50]});
       }
     }
     for (var i = 0; i < this.rooms.length ; i++) {
@@ -164,7 +164,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('game_start')
   async GiveRole(@ConnectedSocket() socket: Socket,
-                @MessageBody() data: {username: string, room: number}) {
+                 @MessageBody() data: {username: string, room: number}) {
     var rm: number = data.room - 1;
     var players: string[] = this.rooms[rm].Players;
     this.rooms[rm].ingame = true;
@@ -178,25 +178,38 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_key')
   async KeyEvent(@ConnectedSocket() socket: Socket,
-                  @MessageBody() data: {key: string, role: string, room: number}) {
+                 @MessageBody() data: {key: string, role: string, room: number}) {
     let current = data.room;
-    if (data.role == 'player1' && data.key == 'ArrowUp' && this.rooms[current].p1position > 0)
+    if (data.role == 'player1' &&
+      data.key == 'ArrowUp' &&
+      this.rooms[current].p1position > 0) {
       --this.rooms[current].p1position;
-    if (data.role == 'player1' && data.key == 'ArrowDown' && this.rooms[current].p1position < 80)
+    }
+    if (data.role == 'player1' &&
+      data.key == 'ArrowDown' &&
+      this.rooms[current].p1position < 80) {
       ++this.rooms[current].p1position;
-    if (data.role == 'player2' && data.key == 'ArrowUp' && this.rooms[current].p2position > 0)
+    }
+    if (data.role == 'player2' &&
+      data.key == 'ArrowUp' &&
+      this.rooms[current].p2position > 0) {
       --this.rooms[current].p2position, 2;
-    if (data.role == 'player2' && data.key == 'ArrowDown' && this.rooms[current].p2position < 80)
+    }
+    if (data.role == 'player2' &&
+      data.key == 'ArrowDown' &&
+      this.rooms[current].p2position < 80) {
       ++this.rooms[current].p2position, 2;
+    }
+
   }
 
   @SubscribeMessage('game_info')
   async GameInfo(@MessageBody() room: number) {
     if (!this.interval[room]) {
-    this.interval[room] = setInterval(() => {
-      this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position, 
-        bp: this.rooms[room].ballposition})
-    }, 20);
+      this.interval[room] = setInterval(() => {
+        this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+                                  bp: this.rooms[room].ballposition})
+      }, 20);
     }
   }
 
