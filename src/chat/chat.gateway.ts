@@ -109,7 +109,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { username: string, channel: string}) {
     await this.chatService.joinChannel(data);
     const chanlist = await this.chatService.getChannels(data.username);
-    this.server.emit('send_channel_joined', chanlist[chanlist.length - 1], data.username);
+    this.server.emit('send_channel_joined', chanlist[chanlist.length - 1]);
   }
 
    @SubscribeMessage( 'request_get_channels')
@@ -126,6 +126,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() channel: string) {
     const clientsList = await this.chatService.getChannelClients(channel);
     socket.emit('send_channel_clients', clientsList);
+  }
+
+  @SubscribeMessage('request_kick_client')
+  async kickClient(@MessageBody() data: { channel: string, username:string, tokick: string }) {
+    try {
+      await this.chatService.kickClient({ channel: data.channel,
+                                          username: data.username,
+                                          tokick: data.tokick});
+      const msg = data.tokick + ' has been kicked from ' + data.channel + ' by ' + data.username;
+      this.server.emit('send_kick_client', data.channel, data.tokick, msg, true);
+    }
+    catch (e) {
+      this.server.emit('send_kick_client', data.channel, data.tokick, e, false)
+    }
   }
 
   @SubscribeMessage('newplayer')

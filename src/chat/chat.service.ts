@@ -98,4 +98,12 @@ export class ChatService {
     user.chanslist[user.chanslist.length] = data.channel;
     await this.usersRepository.save(user);
   }
+
+  async kickClient(data: { channel: string, username: string, tokick: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    if (!chan || chan.admin !== data.username || !chan.clients.includes(data.tokick))
+      throw 'You cannot perform this action';
+    else
+      chan.clients.splice(chan.clients.indexOf(data.username), 1);
+  }
 }
