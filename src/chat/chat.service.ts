@@ -67,19 +67,34 @@ export class ChatService {
     return chanlist;
   }
 
+  async getChannelClients(name: string) {
+      const chan = await this.chanRepository.findOne({name: name});
+    if (chan)
+      return(chan.clients);
+    else
+      return([""]);
+  }
+
   async createChannel(data: { admin: string, name: string, password: string}) {
     const channel = new Channel();
     channel.name = data.name;
     channel.admin = data.admin;
     channel.password = data.password;
+    channel.clients = [data.admin];
     channel.message = [];
     await this.chanRepository.save(channel);
   }
 
   async joinChannel(data: { username: string, channel: string }) {
     const user = await this.userService.getByUsername(data.username);
-    if (!await this.chanRepository.findOne({ name: data.channel}) )
+    const chan = await this.chanRepository.findOne({ name: data.channel});
+    if (!chan)
       await this.createChannel({ admin: data.username, name: data.channel, password: "null" });
+    else if (!chan.clients.includes(data.username))
+    {
+        chan.clients.push(data.username);
+        await this.chanRepository.save(chan);
+    }
     user.chanslist[user.chanslist.length] = data.channel;
     await this.usersRepository.save(user);
   }

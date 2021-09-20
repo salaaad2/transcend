@@ -97,23 +97,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('request_create_channel')
-  async createChannel(@MessageBody() data: { admin: string, name: string, password: string}) {
+  async createChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { admin: string, name: string, password: string}) {
     await this.chatService.createChannel(data);
-    this.server.emit('channel_created', data);
+    socket.emit('channel_created', data);
   }
 
   @SubscribeMessage('request_join_channel')
-  async joinChannel(@MessageBody() data: { username: string, channel: string}) {
+  async joinChannel(
+    @MessageBody() data: { username: string, channel: string}) {
     await this.chatService.joinChannel(data);
     const chanlist = await this.chatService.getChannels(data.username);
-    this.server.emit('send_channel_joined', chanlist[chanlist.length - 1]);
+    this.server.emit('send_channel_joined', chanlist[chanlist.length - 1], data.username);
   }
 
-   @SubscribeMessage('request_get_channels')
-  async getChannels(@MessageBody() username: string) {
+   @SubscribeMessage( 'request_get_channels')
+  async getChannels(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() username: string) {
     const chanlist = await this.chatService.getChannels(username);
-    this.server.emit('send_channels', chanlist);
+    socket.emit('send_channels', chanlist);
    }
+
+  @SubscribeMessage('request_get_channel_clients')
+  async getChannelClients(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() channel: string) {
+    const clientsList = await this.chatService.getChannelClients(channel);
+    socket.emit('send_channel_clients', clientsList);
+  }
 
   @SubscribeMessage('newplayer')
   async newplayer(@MessageBody() playername: string) {
