@@ -14,6 +14,7 @@ import { use } from 'passport';
 import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
+import { PongService } from './pong.service';
 
 interface Room {
   id: number;
@@ -21,7 +22,12 @@ interface Room {
   ingame: boolean;
   p1position: number;
   p2position: number;
-  ballposition: number[];
+  ballposition: {
+    x: number;
+    y: number;
+    dir: number;
+    coeff: number;
+  };
 }
 
 @WebSocketGateway({cors: true})
@@ -32,6 +38,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly chatService: ChatService,
     private readonly userService: UsersService,
+    private readonly pongService: PongService,
   ) {
   }
 
@@ -143,7 +150,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.rooms.length == 0) {
       for (var i = 0 ; i < 512 ; i++) {
         this.rooms.push({id: i + 1, Players: ["", ""], 
-                         ingame: false, p1position: 40, p2position: 40, ballposition: [50, 50]});
+                         ingame: false, p1position: 40, p2position: 40, ballposition: {
+                           x: 50, y: 50, dir: 1, coeff: 2
+                         }
+        });
       }
     }
     for (var i = 0; i < this.rooms.length ; i++) {
@@ -183,22 +193,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (data.role == 'player1' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p1position > 0) {
-      --this.rooms[current].p1position;
+      this.rooms[current].p1position -= 1;
     }
     if (data.role == 'player1' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p1position < 80) {
-      ++this.rooms[current].p1position;
+      this.rooms[current].p1position += 1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p2position > 0) {
-      --this.rooms[current].p2position, 2;
+      this.rooms[current].p2position -= 1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p2position < 80) {
-      ++this.rooms[current].p2position, 2;
+      this.rooms[current].p2position += 1;
     }
 
   }
@@ -207,9 +217,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async GameInfo(@MessageBody() room: number) {
     if (!this.interval[room]) {
       this.interval[room] = setInterval(() => {
+        this.pongService.calculateBallPosition(this.rooms[room]);
         this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
                                   bp: this.rooms[room].ballposition})
-      }, 20);
+      }, 5);
     }
   }
 

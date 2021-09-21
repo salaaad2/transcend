@@ -11,11 +11,12 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { UsersService } from 'src/users/users.service';
 import Channel from './channel.entity';
 import { ChatController } from './chat.controller';
+import { PongService } from './pong.service';
 
 @Module({
         imports: [AuthenticationModule, UsersModule, TypeOrmModule.forFeature([Message]), 
                   TypeOrmModule.forFeature([Channel])],
     controllers: [ChatController],
-      providers: [ChatGateway, ChatService],
+      providers: [ChatGateway, ChatService, PongService],
 })
 export class ChatModule {}

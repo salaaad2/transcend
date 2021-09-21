@@ -33,6 +33,7 @@ export class AuthenticationController {
     @Post('register')
     async register(@Body() registrationData: RegisterDto)
     {
+        console.log('register', registrationData);
         return this.authenticationService.register(registrationData);
     }
 
