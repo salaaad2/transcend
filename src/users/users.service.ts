@@ -77,11 +77,12 @@ export class UsersService {
 
     async getEveryone() {
         var users = await this.usersRepository.find();
-        users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        users = users.sort((a,b) => (a.elo < b.elo) ? 1 : ((b.elo < a.elo) ? -1 : 0))
         return users;
     }
 
     async save(user: User) {
+        console.log('user', user);
         await this.usersRepository.save(user);
     }
 

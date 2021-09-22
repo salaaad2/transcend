@@ -71,7 +71,7 @@ export class AuthenticationController {
         var data = await this.usersService.getByUsername(user.username);
         var match = await this.matchService.getmatches(user.username);
         var users = await this.usersService.getEveryone();
-        users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0));
+        users = users.sort((a,b) => (a.elo < b.elo) ? 1 : ((b.elo < a.elo) ? -1 : 0));
         var rank = users.findIndex((element) => {return (element.username == user.username)});
         var ret = {
           "id": data.id,

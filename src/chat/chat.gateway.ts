@@ -12,16 +12,24 @@ import { useContainer } from 'class-validator';
 import { SocketAddress } from 'net';
 import { use } from 'passport';
 import { Server, Socket } from 'socket.io';
+import { MatchService } from 'src/match/match.service';
 import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
 import { PongService } from './pong.service';
 
 interface Room {
   id: number;
+  start: boolean;
+  end: boolean;
   Players : string[];
   ingame: boolean;
   p1position: number;
   p2position: number;
+  p1score: number;
+  p2score: number;
+  p1direction: number;
+  p2direction: number;
+  countdown: number;
   ballposition: {
     x: number;
     y: number;
@@ -39,13 +47,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService: ChatService,
     private readonly userService: UsersService,
     private readonly pongService: PongService,
+    private readonly matchService: MatchService,
   ) {
   }
 
   public tab: {[key: string]: Socket} = {}
   public players: string[] = [];
-  public rooms: Room[] = [];
+  public rooms: {[key: number]: Room} = {}
   public interval: any[] = [];
+  public id: number = 0;
 
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
@@ -130,6 +140,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async newplayer(@MessageBody() playername: string) {
     this.players.push(playername);
     console.log(this.players, this.players.length);
+    if (this.players.length == 1) {
+      this.id++;
+      this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""], 
+                       ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
+                       p2direction: 0,
+                       p1score: 0, p2score: 0,
+                       countdown: 150, ballposition: {
+                         x: 50, y: 50, dir: 1, coeff: 2
+                       }
+                      })
+    }
     this.server.emit('nb_players', this.players.length);
   }
 
@@ -146,24 +167,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async GameOn(@MessageBody() playername: string) {
     var nb: number = this.players.findIndex(element => element == playername) % 2;
     var index: number = nb % 2;
-    console.log('player: ', playername, index);
-    if (this.rooms.length == 0) {
-      for (var i = 0 ; i < 512 ; i++) {
-        this.rooms.push({id: i + 1, Players: ["", ""], 
-                         ingame: false, p1position: 40, p2position: 40, ballposition: {
-                           x: 50, y: 50, dir: 1, coeff: 2
-                         }
-        });
-      }
-    }
-    for (var i = 0; i < this.rooms.length ; i++) {
-      if (this.rooms[i].ingame == false) {
-        this.rooms[i].Players[index] = playername;
-        i++;
-        this.server.emit('active_players', {playername, index, i});
-        return ;
-      }
-    }
+    this.rooms[this.id].Players[index] = playername;
+    var id = this.id;
+    this.server.emit('active_players', {playername, index, id});
   }
 
   @SubscribeMessage('rm_from_lobby')
@@ -175,7 +181,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('game_start')
   async GiveRole(@ConnectedSocket() socket: Socket,
                  @MessageBody() data: {username: string, room: number}) {
-    var rm: number = data.room - 1;
+    var rm: number = data.room;
+    console.log('room', this.rooms[rm]);
     var players: string[] = this.rooms[rm].Players;
     this.rooms[rm].ingame = true;
     if (this.rooms[rm].Players[0] == data.username)
@@ -194,23 +201,63 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.key == 'ArrowUp' &&
       this.rooms[current].p1position > 0) {
       this.rooms[current].p1position -= 1;
+        this.rooms[current].p1direction = -1;
     }
     if (data.role == 'player1' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p1position < 80) {
       this.rooms[current].p1position += 1;
+        this.rooms[current].p1direction = 1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p2position > 0) {
       this.rooms[current].p2position -= 1;
+        this.rooms[current].p2direction = -1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p2position < 80) {
       this.rooms[current].p2position += 1;
+        this.rooms[current].p2direction = 1;
+    }
+    if (data.role == 'player1' && data.key == 'f') {
+
+      this.rooms[current].p2score = 5;
+      this.rooms[current].countdown = 100;
+      this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].end = true;
+    }
+    if (data.role == 'player2' && data.key == 'f') {
+      this.rooms[current].p1score = 5;
+      this.rooms[current].countdown = 100;
+      this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].end = true;
+    }
+  }
+
+  @SubscribeMessage('keyup')
+  async KeyUp(@ConnectedSocket() socket: Socket,
+    @MessageBody() data: {key: string, role: string, room: number}) {
+    let current = data.room;
+    console.log(data);
+    if (data.role == 'player1' &&
+      (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
+        this.rooms[current].p1direction = 0;
+    }
+    if (data.role == 'player2' &&
+    (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
+      this.rooms[current].p2direction = 0;
+    }
     }
 
+
+  @SubscribeMessage('countdown')
+  async Countdown(@MessageBody() room: number) {
+    while (this.rooms[room].countdown) {
+      setTimeout(() => this.rooms[room].countdown -= 1);
+      console.log(this.rooms[room].countdown);
+    }
   }
 
   @SubscribeMessage('game_info')
@@ -218,15 +265,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!this.interval[room]) {
       this.interval[room] = setInterval(() => {
         this.pongService.calculateBallPosition(this.rooms[room]);
-        this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+        if (!this.rooms[room].countdown)
+          this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
                                   bp: this.rooms[room].ballposition})
-      }, 5);
+        else
+          this.server.emit('game', {p1score: this.rooms[room].p1score, start: this.rooms[room].start,
+            end: this.rooms[room].end,
+            p2score: this.rooms[room].p2score, countdown: this.rooms[room].countdown,
+            p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+            bp: this.rooms[room].ballposition})
+      }, 20);
     }
   }
 
   @SubscribeMessage('stop_info')
   async GameStop(@MessageBody() room: number) {
+    console.log('erase');
     clearInterval(this.interval[room]);
+
+    if (this.rooms[room]) {
+      this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+        bp: this.rooms[room].ballposition, countdown: -1});
+      delete this.rooms[room];
+    }
+  //   this.rooms[room] = {id: this.rooms[room].id, start: false, end: false, Players: ["", ""], 
+  //   ingame: false, p1position: 40, p2position: 40, 
+  //   p1score: 0, p2score: 0,
+  //   countdown: 150, ballposition: {
+  //     x: 50, y: 50, dir: 1, coeff: 2
+  //   }
+  // }
   }
 
   // @SubscribeMessage('get_channels')
