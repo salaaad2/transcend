@@ -20,7 +20,6 @@ export class ChatController {
     @UseGuards(JwtAuthenticationGuard)
     async getMessages(@Body() channel: {channel: string}) {
         const messages = await this.chatService.getAllMessages(channel.channel);
-        console.log(messages);
         return messages;
     }
 }

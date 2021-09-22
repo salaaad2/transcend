@@ -104,7 +104,6 @@ export class ChatService {
   async kickClient(data: { channel: string, username: string, tokick: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.tokick);
-    if (chan.clients.includes(data.tokick))
     if (!chan || chan.admin !== data.username || !chan.clients.includes(data.tokick))
       throw 'You cannot perform this action';
     else

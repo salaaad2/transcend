@@ -52,7 +52,6 @@ export class AuthenticationController {
     async logOut(@Req() request: RequestWithUser) {
         const cookie = this.authenticationService.getCookieForLogOut();
         request.res.setHeader('Set-Cookie', cookie);
-        console.log('ok');
         return cookie;
     }
 
@@ -151,7 +150,6 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('update_avatar')
     async updateData(@Req() request: RequestWithUser, @Body() data: {data: string}) {
-        console.log(data.data);
         this.usersService.updateAvatar(request, data.data);
     }
 }
