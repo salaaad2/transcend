@@ -95,15 +95,27 @@ export class ChatService {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
     }
-    user.chanslist[user.chanslist.length] = data.channel;
+    if (!user.chanslist.includes(data.channel))
+        user.chanslist[user.chanslist.length] = data.channel;
     await this.usersRepository.save(user);
+    return (await this.chanRepository.findOne({ name: data.channel }));
   }
 
   async kickClient(data: { channel: string, username: string, tokick: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.tokick);
+    if (chan.clients.includes(data.tokick))
     if (!chan || chan.admin !== data.username || !chan.clients.includes(data.tokick))
       throw 'You cannot perform this action';
     else
-      chan.clients.splice(chan.clients.indexOf(data.username), 1);
+    {
+      chan.clients.splice(chan.clients.indexOf(data.tokick), 1);
+      if (user)
+      {
+        user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
+        this.usersRepository.save(user);
+      }
+      this.chanRepository.save(chan);
+    }
   }
 }
