@@ -104,13 +104,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('channel_created', data);
   }
 
+  /*
+   * on socket event, try to joinChannel.
+   * If it fails, `chan` will be null
+   */
   @SubscribeMessage('request_join_channel')
   async joinChannel(
-    @MessageBody() data: { username: string, channel: string}) {
+    @MessageBody() data: { username: string, channel: string, password: string}) {
+    console.log(data.username + ' is trying to join ' + data.channel);
     const chan = await this.chatService.joinChannel(data);
-    console.log(data.channel);
     this.server.emit('send_channel_joined', chan.name, data.username);
   }
+    // console.log(data.channel);
 
    @SubscribeMessage( 'request_get_channels')
   async getChannels(
