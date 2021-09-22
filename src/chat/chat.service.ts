@@ -92,12 +92,10 @@ export class ChatService {
   async joinChannel(data: { username: string, channel: string , password: string}) {
     const user = await this.userService.getByUsername(data.username);
     const chan = await this.chanRepository.findOne({ name: data.channel});
-    let auth = false;
 
     if (!chan)
     {
       await this.createChannel({ admin: data.username, name: data.channel, password: data.password });
-      auth = true;
     }
     else if (chan.clients.includes(data.username))
     {
@@ -108,7 +106,6 @@ export class ChatService {
     {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
-        auth = true;
     }
     else
     {
