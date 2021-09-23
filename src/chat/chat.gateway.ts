@@ -119,7 +119,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     else {
       console.log('failed to join channel');
-      this.server.emit('send_join_channel_failed');
+      this.server.emit('send_join_channel_failed', data.channel, data.username);
     }
   }
 

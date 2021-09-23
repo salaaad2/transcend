@@ -13,7 +13,7 @@ class Channel {
   @Column()
   public admin: string;
 
-  @Column()
+  @Column({nullable: true})
   public password: string;
 
   @Column("text", { array: true, default: [""] })
