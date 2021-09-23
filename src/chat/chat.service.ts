@@ -101,19 +101,14 @@ export class ChatService {
     return (await this.chanRepository.findOne({ name: data.channel }));
   }
 
-  async kickClient(data: { channel: string, username: string, tokick: string }) {
+  async leaveChannel(data: { channel: string, username: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
-    const user = await this.userService.getByUsername(data.tokick);
-    if (!chan || chan.admin !== data.username || !chan.clients.includes(data.tokick))
-      throw 'You cannot perform this action';
-    else
+    const user = await this.userService.getByUsername(data.username);
+    if (chan && user)
     {
-      chan.clients.splice(chan.clients.indexOf(data.tokick), 1);
-      if (user)
-      {
-        user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
-        this.usersRepository.save(user);
-      }
+      chan.clients.splice(chan.clients.indexOf(data.username), 1);
+      user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
+      this.usersRepository.save(user);
       this.chanRepository.save(chan);
     }
   }
