@@ -30,6 +30,7 @@ interface Room {
   p1direction: number;
   p2direction: number;
   countdown: number;
+  spectators: string[];
   ballposition: {
     x: number;
     y: number;
@@ -56,6 +57,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public rooms: {[key: number]: Room} = {}
   public interval: any[] = [];
   public id: number = 0;
+
+  /////////////
+  // GENERAL //
+  /////////////
 
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
@@ -104,6 +109,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  //////////
+  // CHAT //
+  //////////
 
   @SubscribeMessage('send_message')
   async listenForMessages(
@@ -136,6 +144,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('channel_created', data);
   }
 
+  ///////////
+  // LOBBY //
+  ///////////
+
   @SubscribeMessage('newplayer')
   async newplayer(@MessageBody() playername: string) {
     this.players.push(playername);
@@ -144,9 +156,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.id++;
       this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""], 
                        ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
-                       p2direction: 0,
-                       p1score: 0, p2score: 0,
-                       countdown: 150, ballposition: {
+                       p2direction: 0, p1score: 0, p2score: 0,
+                       countdown: 150, spectators: [],
+                       ballposition: {
                          x: 50, y: 50, dir: 1, coeff: 2
                        }
                       })
@@ -178,19 +190,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.players.splice(this.players.findIndex(element => element == playername), 1);
   }
 
+  //////////
+  // GAME //
+  //////////
+
   @SubscribeMessage('game_start')
   async GiveRole(@ConnectedSocket() socket: Socket,
                  @MessageBody() data: {username: string, room: number}) {
     var rm: number = data.room;
-    console.log('room', this.rooms[rm]);
-    var players: string[] = this.rooms[rm].Players;
-    this.rooms[rm].ingame = true;
-    if (this.rooms[rm].Players[0] == data.username)
-      socket.emit('role', {players: players, role: 'player1'});
-    else if (this.rooms[rm].Players[1] == data.username)
-      socket.emit('role', {players: players, role: 'player2'});
-    else
-      socket.emit('role', {players: players, role: 'spectator'});
+    if (this.rooms[rm]) {
+      console.log('room', this.rooms[rm]);
+      var players: string[] = this.rooms[rm].Players;
+      this.rooms[rm].ingame = true;
+      if (this.rooms[rm].Players[0] == data.username)
+        socket.emit('role', {players: players, role: 'player1'});
+      else if (this.rooms[rm].Players[1] == data.username)
+        socket.emit('role', {players: players, role: 'player2'});
+      else {
+        socket.emit('role', {players: players, role: 'spectator'});
+        this.rooms[rm].spectators.push(data.username);
+      }
+    }
   }
 
   @SubscribeMessage('send_key')
@@ -201,37 +221,39 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.key == 'ArrowUp' &&
       this.rooms[current].p1position > 0) {
       this.rooms[current].p1position -= 1;
-        this.rooms[current].p1direction = -1;
+      this.rooms[current].p1direction = -1;
     }
     if (data.role == 'player1' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p1position < 80) {
       this.rooms[current].p1position += 1;
-        this.rooms[current].p1direction = 1;
+      this.rooms[current].p1direction = 1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p2position > 0) {
       this.rooms[current].p2position -= 1;
-        this.rooms[current].p2direction = -1;
+      this.rooms[current].p2direction = -1;
     }
     if (data.role == 'player2' &&
       data.key == 'ArrowDown' &&
       this.rooms[current].p2position < 80) {
       this.rooms[current].p2position += 1;
-        this.rooms[current].p2direction = 1;
+      this.rooms[current].p2direction = 1;
     }
     if (data.role == 'player1' && data.key == 'f') {
 
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
       this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
     if (data.role == 'player2' && data.key == 'f') {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
       this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
   }
@@ -279,7 +301,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('stop_info')
-  async GameStop(@MessageBody() room: number) {
+  async GameStop(@MessageBody() room: number, @ConnectedSocket() socket: Socket) {
+    var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    if (this.rooms[room] && 
+      this.rooms[room].Players[0] != username && 
+      this.rooms[room].Players[1] != username)
+    {
+      this.rooms[room].spectators.splice(
+        this.rooms[room].spectators.findIndex((element) => {return (element == username)})
+      )
+      return ;
+    }
     console.log('erase');
     clearInterval(this.interval[room]);
 
@@ -288,26 +320,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         bp: this.rooms[room].ballposition, countdown: -1});
       delete this.rooms[room];
     }
-  //   this.rooms[room] = {id: this.rooms[room].id, start: false, end: false, Players: ["", ""], 
-  //   ingame: false, p1position: 40, p2position: 40, 
-  //   p1score: 0, p2score: 0,
-  //   countdown: 150, ballposition: {
-  //     x: 50, y: 50, dir: 1, coeff: 2
-  //   }
-  // }
   }
 
-  // @SubscribeMessage('get_channels')
-  // async getChannels() {
-  //   await this.chatService.getChannels();
-  // }
+  ///////////////
+  // SPECTATOR //
+  ///////////////
 
-  // @SubscribeMessage('test')
-  // async test1(
-  //   @MessageBody() content: string, @ConnectedSocket() socket: Socket
-  // )
-  // {
-  //   console.log(content)
-  //   this.server.emit('test', content);
-  // }
+  @SubscribeMessage('get_games')
+  async GetGames(@ConnectedSocket() socket: Socket) {
+    socket.emit('live', this.rooms);
+    setInterval(() => {
+      socket.emit('live', this.rooms);
+    }, 2000);
+  }
+
+  @SubscribeMessage('get_spectators')
+  async GetSpectators(@ConnectedSocket() socket: Socket, @MessageBody() room: number) {
+    if (this.rooms[room]) {
+      socket.emit('spectators', this.rooms[room].spectators);
+      setInterval(() => {
+        if (this.rooms[room])
+        socket.emit('spectators', this.rooms[room].spectators);
+      }, 2000)
+    }
+  }
 }

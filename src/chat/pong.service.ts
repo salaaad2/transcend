@@ -16,6 +16,7 @@ interface Room {
     p1direction: number;
     p2direction: number;
     countdown: number;
+    spectators: string[];
     ballposition: {
       x: number;
       y: number;
@@ -87,6 +88,7 @@ export class PongService {
                 {
                     this.matchService.putmatch(room.Players[0], room.Players[1], room.p1score, room.p2score);
                     room.end = true;
+                    room.ingame = false;
                 }
                 room.ballposition.x = 50;
                 room.ballposition.y = 50;
