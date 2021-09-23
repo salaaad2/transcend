@@ -37,11 +37,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('disconnect')
   async handleDisconnect(socket: Socket) {
-    var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    const username = Object.keys(this.tab).find(k => this.tab[k] === socket);
     if (username) {
     console.log(username + ' disconnected');
     delete this.tab[username];
-    var user = await this.userService.getByUsername(username);
+    const user = await this.userService.getByUsername(username);
     user.status = 'offline';
     await this.userService.save(user);
     this.server.emit('status',{username, status:'offline'});
@@ -56,7 +56,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     {
       this.tab[username] = socket;
       console.log(username + ' logged in');
-      var user = await this.userService.getByUsername(username);
+      const user = await this.userService.getByUsername(username);
       user.status = 'online';
       await this.userService.save(user);
       this.server.emit('status', {username, status:'online'});
@@ -69,7 +69,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     {
       delete this.tab[username];
       console.log(username + ' logged out');
-      var user = await this.userService.getByUsername(username);
+      const user = await this.userService.getByUsername(username);
       user.status = 'offline';
       await this.userService.save(user);
       this.server.emit('status', {username, status: 'offline'});
@@ -85,8 +85,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
     @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
-    const res = await this.chatService.saveMessage(message, username);
-    this.server.sockets.emit('receive_message', res);
+    try{
+      const res = await this.chatService.saveMessage(message, username);
+      this.server.sockets.emit('receive_message', res);
+    }
+    catch(e) {
+      socket.emit('send_error', e);
+    }
   }
 
   @SubscribeMessage('request_all_messages')
@@ -97,33 +102,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('send_all_messages', messages);
   }
 
-  @SubscribeMessage('request_create_channel')
-  async createChannel(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { admin: string, name: string, password: string}) {
-    await this.chatService.createChannel(data);
-    socket.emit('channel_created', data);
-  }
-
   /*
    * on socket event, try to joinChannel.
    * If it fails, `chan` will be null
    */
   @SubscribeMessage('request_join_channel')
   async joinChannel(
+    @ConnectedSocket() socket: Socket,
     @MessageBody() data: { username: string, channel: string, password: string}) {
-    console.log(data.username + ' is trying to join ' + data.channel);
-    const chan = await this.chatService.joinChannel(data);
-    if (chan !== null) {
+    try {
+      const chan = await this.chatService.joinChannel(data);
       this.server.emit('send_channel_joined', chan.name, data.username, chan.admin);
     }
-    else {
-      console.log('failed to join channel');
-      this.server.emit('send_join_channel_failed', data.channel, data.username);
+    catch(e) {
+      socket.emit('send_error', e);
     }
   }
 
-   @SubscribeMessage( 'request_get_channels')
+   @SubscribeMessage('request_get_channels')
   async getChannels(
     @ConnectedSocket() socket: Socket,
     @MessageBody() username: string) {
@@ -147,7 +143,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('newplayer')
   async newplayer(@MessageBody() playername: string) {
-    this.players.push(playername);
+    this.players.push(playername) ;
     this.server.emit('nb_players', this.players.length);
   }
 

@@ -36,12 +36,17 @@ export class ChatService {
       'content': content.content
     }
     const channel = await this.chanRepository.findOne({name: content.channel})
-    const message = await this.messagesRepository.create({
-      ...messageDto,
-      channel: channel
-    });
-    await this.messagesRepository.save(message);
-    return message;
+    if (content.content !== "")
+    {
+      const message = this.messagesRepository.create({
+        ...messageDto,
+        channel: channel
+      });
+      await this.messagesRepository.save(message);
+      return message;
+    }
+    else
+      throw 'You cannot send blank message';
   }
 
   async getAllMessages(params: string) {
@@ -95,21 +100,25 @@ export class ChatService {
 
     if (!chan)
     {
+      if (data.channel === "")
+      {
+        throw 'You cannot create a channel with a blank name';
+      }
       await this.createChannel({ admin: data.username, name: data.channel, password: data.password });
     }
     else if (chan.clients.includes(data.username))
     {
-      ;
+      ;// throw 'You are already in ' + data.channel;
     }
     else if ((!chan.clients.includes(data.username)) &&
-      (!chan.password || (chan.password === data.password)) )
+      (!chan.password || (chan.password === data.password)))
     {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
     }
-    else
+    else if (chan.password && chan.password !== data.password)
     {
-      return null;
+      throw 'Wrong password to join ' + data.channel;
     }
     if (!user.chanslist.includes(data.channel))
     {
