@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { StringSchema } from '@hapi/joi';
 import { Param } from '@nestjs/common';
 import {
@@ -104,11 +105,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('channel_created', data);
   }
 
+  /*
+   * on socket event, try to joinChannel.
+   * If it fails, `chan` will be null
+   */
   @SubscribeMessage('request_join_channel')
   async joinChannel(
-    @MessageBody() data: { username: string, channel: string}) {
+    @MessageBody() data: { username: string, channel: string, password: string}) {
+    console.log(data.username + ' is trying to join ' + data.channel);
     const chan = await this.chatService.joinChannel(data);
-    this.server.emit('send_channel_joined', chan.name, data.username, chan.admin);
+    if (chan !== null) {
+      this.server.emit('send_channel_joined', chan.name, data.username, chan.admin);
+    }
+    else {
+      console.log('failed to join channel');
+      this.server.emit('send_join_channel_failed', data.channel, data.username);
+    }
   }
 
    @SubscribeMessage( 'request_get_channels')

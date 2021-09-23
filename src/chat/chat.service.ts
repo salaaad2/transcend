@@ -85,18 +85,36 @@ export class ChatService {
     await this.chanRepository.save(channel);
   }
 
-  async joinChannel(data: { username: string, channel: string }) {
+  /*
+   * lookup user, then find out if he is in a channel
+   * if the chan doesn't exist, create it, if not, join it with the correct password
+   */
+  async joinChannel(data: { username: string, channel: string , password: string}) {
     const user = await this.userService.getByUsername(data.username);
     const chan = await this.chanRepository.findOne({ name: data.channel});
+
     if (!chan)
-      await this.createChannel({ admin: data.username, name: data.channel, password: "null" });
-    else if (!chan.clients.includes(data.username))
+    {
+      await this.createChannel({ admin: data.username, name: data.channel, password: data.password });
+    }
+    else if (chan.clients.includes(data.username))
+    {
+      ;
+    }
+    else if ((!chan.clients.includes(data.username)) &&
+      (!chan.password || (chan.password === data.password)) )
     {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
     }
+    else
+    {
+      return null;
+    }
     if (!user.chanslist.includes(data.channel))
-        user.chanslist[user.chanslist.length] = data.channel;
+    {
+      user.chanslist[user.chanslist.length] = data.channel;
+    }
     await this.usersRepository.save(user);
     return (await this.chanRepository.findOne({ name: data.channel }));
   }
