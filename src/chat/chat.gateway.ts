@@ -112,7 +112,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { username: string, channel: string, password: string}) {
     try {
       const chan = await this.chatService.joinChannel(data);
-      this.server.emit('send_channel_joined', chan.name, data.username, chan.admin);
+      this.server.emit('send_channel_joined', chan.name, data.username, chan.owner, chan.admin);
     }
     catch(e) {
       socket.emit('send_error', e);

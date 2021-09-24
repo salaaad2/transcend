@@ -60,7 +60,7 @@ export class ChatService {
 
   async getChannels(username: string) {
     const user = this.userService.getByUsername(username);
-    let chanlist: Channel[] = [];
+    const chanlist: Channel[] = [];
     const channel = await this.chanRepository.find({select: ['name', 'id']});
     let found;
     for (const c of (await user).chanslist)
@@ -80,12 +80,13 @@ export class ChatService {
       return([""]);
   }
 
-  async createChannel(data: { admin: string, name: string, password: string}) {
+  async createChannel(data: { owner: string, name: string, password: string}) {
     const channel = new Channel();
     channel.name = data.name;
-    channel.admin = data.admin;
+    channel.owner = data.owner;
+    channel.admin = [data.owner];
     channel.password = data.password;
-    channel.clients = [data.admin];
+    channel.clients = [data.owner];
     channel.message = [];
     await this.chanRepository.save(channel);
   }
@@ -104,11 +105,11 @@ export class ChatService {
       {
         throw 'You cannot create a channel with a blank name';
       }
-      await this.createChannel({ admin: data.username, name: data.channel, password: data.password });
+      await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
     }
     else if (chan.clients.includes(data.username))
     {
-      ;// throw 'You are already in ' + data.channel;
+      ;
     }
     else if ((!chan.clients.includes(data.username)) &&
       (!chan.password || (chan.password === data.password)))
@@ -135,8 +136,8 @@ export class ChatService {
     {
       chan.clients.splice(chan.clients.indexOf(data.username), 1);
       user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
-      this.usersRepository.save(user);
-      this.chanRepository.save(chan);
+      await this.usersRepository.save(user);
+      await this.chanRepository.save(chan);
     }
   }
 }

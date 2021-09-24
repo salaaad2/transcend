@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import User from '../users/user.entity';
 import Message from './message.entity';
  
 @Entity()
@@ -11,7 +10,10 @@ class Channel {
   public name: string;
 
   @Column()
-  public admin: string;
+  public owner: string;
+
+  @Column("text", { array: true, default: [""] })
+  public admin: string[];
 
   @Column({nullable: true})
   public password: string;
