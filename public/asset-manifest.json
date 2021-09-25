@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.49d822ff.chunk.css",
+    "main.js": "/static/js/main.fe7050d8.chunk.js",
+    "main.js.map": "/static/js/main.fe7050d8.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.8a0f0d0d.js",
+    "runtime-main.js.map": "/static/js/runtime-main.8a0f0d0d.js.map",
+    "static/css/2.818011ed.chunk.css": "/static/css/2.818011ed.chunk.css",
+    "static/js/2.cbf105ba.chunk.js": "/static/js/2.cbf105ba.chunk.js",
+    "static/js/2.cbf105ba.chunk.js.map": "/static/js/2.cbf105ba.chunk.js.map",
+    "static/js/3.e85563ce.chunk.js": "/static/js/3.e85563ce.chunk.js",
+    "static/js/3.e85563ce.chunk.js.map": "/static/js/3.e85563ce.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.818011ed.chunk.css.map": "/static/css/2.818011ed.chunk.css.map",
+    "static/css/main.49d822ff.chunk.css.map": "/static/css/main.49d822ff.chunk.css.map",
+    "static/js/2.cbf105ba.chunk.js.LICENSE.txt": "/static/js/2.cbf105ba.chunk.js.LICENSE.txt",
+    "static/media/argent.3b9f2230.png": "/static/media/argent.3b9f2230.png",
+    "static/media/ProfileDetailPage.css": "/static/media/ball.86d2a0a2.jpg",
+    "static/media/bronze.6053b75e.png": "/static/media/bronze.6053b75e.png",
+    "static/media/or.a5658128.png": "/static/media/or.a5658128.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.8a0f0d0d.js",
+    "static/css/2.818011ed.chunk.css",
+    "static/js/2.cbf105ba.chunk.js",
+    "static/css/main.49d822ff.chunk.css",
+    "static/js/main.fe7050d8.chunk.js"
+  ]
+}

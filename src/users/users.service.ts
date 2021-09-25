@@ -45,7 +45,7 @@ export class UsersService {
 
     async delFriend(username: string, req: RequestWithUser) {
         const user = await this.usersRepository.findOne({username: req.user.username});
-        for(var i = 0; i < user.friendlist.length; i++) {
+        for(let i = 0; i < user.friendlist.length; i++) {
             if(user.friendlist[i] == username) {
                 user.friendlist.splice(i, 1);
                 break;
@@ -64,7 +64,7 @@ export class UsersService {
 
     async unblock(username: string, req: RequestWithUser) {
         const user = await this.usersRepository.findOne({username: req.user.username});
-        for(var i = 0; i < user.blocklist.length; i++) {
+        for(let i = 0; i < user.blocklist.length; i++) {
             if(user.blocklist[i] == username) {
                 user.blocklist.splice(i, 1);
                 break;
@@ -76,11 +76,12 @@ export class UsersService {
 
     async getEveryone() {
         let users = await this.usersRepository.find();
-        users = users.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        users = users.sort((a,b) => (a.elo < b.elo) ? 1 : ((b.elo < a.elo) ? -1 : 0))
         return users;
     }
 
     async save(user: User) {
+        console.log('user', user);
         await this.usersRepository.save(user);
     }
 

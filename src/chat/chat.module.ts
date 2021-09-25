@@ -12,11 +12,15 @@ import { UsersService } from 'src/users/users.service';
 import Channel from './channel.entity';
 import { ChatController } from './chat.controller';
 import User from 'src/users/user.entity';
+import { PongService } from './pong.service';
+import { MatchService } from 'src/match/match.service';
+import Match from 'src/match/match.entity';
 
 @Module({
-        imports: [AuthenticationModule, UsersModule, TypeOrmModule.forFeature([Message]), 
-                  TypeOrmModule.forFeature([Channel]), TypeOrmModule.forFeature([User])],
-    controllers: [ChatController],
-      providers: [ChatGateway, ChatService],
+  imports: [AuthenticationModule, UsersModule, TypeOrmModule.forFeature([Message]),
+            TypeOrmModule.forFeature([Channel]), TypeOrmModule.forFeature([User]),
+            TypeOrmModule.forFeature([Match])],
+  controllers: [ChatController],
+  providers: [ChatGateway, ChatService, PongService, MatchService],
 })
 export class ChatModule {}

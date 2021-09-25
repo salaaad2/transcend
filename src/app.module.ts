@@ -13,7 +13,7 @@ import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
 import { ChatModule } from './chat/chat.module';
 import { JwtService } from '@nestjs/jwt';
-import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AvatarModule } from './avatar/avatar.module';
 import { MatchModule } from './match/match.module';
@@ -21,6 +21,9 @@ import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     PostsModule,
     ConfigModule.forRoot({
     validationSchema: Joi.object({
