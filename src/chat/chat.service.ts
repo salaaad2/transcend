@@ -168,4 +168,29 @@ export class ChatService {
     else
       throw data.client + ' is not part of ' + data.channel;
   }
+  async muteClient(data: { channel: string, client: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.client);
+    if (chan && user)
+    {
+      if (!chan.mutelist.includes(data.client))
+         chan.mutelist.push((data.client));
+      await this.chanRepository.save(chan);
+    }
+    else
+      throw data.client + ' is not part of ' + data.channel;
+  }
+
+  async unmuteClient(data: { channel: string, client: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.client);
+    if (chan && user)
+    {
+      if (chan.mutelist.includes(data.client))
+        chan.mutelist.splice(chan.mutelist.indexOf(data.client), 1);
+      await this.chanRepository.save(chan);
+    }
+    else
+      throw data.client + ' is not part of ' + data.channel;
+  }
 }

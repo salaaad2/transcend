@@ -112,7 +112,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { username: string, channel: string, password: string}) {
     try {
       const chan = await this.chatService.joinChannel(data);
-      this.server.emit('send_channel_joined', chan.name, data.username, chan.owner, chan.admin);
+      this.server.emit('send_channel_joined', chan.name, data.username, chan.owner,
+                       chan.admin, chan.mutelist, chan.banlist);
     }
     catch(e) {
       socket.emit('send_error', e);
@@ -155,6 +156,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       await this.chatService.demoteClient(data);
       this.server.emit('send_demoted_client', data.channel, data.client);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
+  }
+
+  @SubscribeMessage('request_mute_client')
+  async muteClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, client: string }) {
+    try {
+      await this.chatService.muteClient(data);
+      this.server.emit('send_muted_client', data.channel, data.client);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
+  }
+
+  @SubscribeMessage('request_unmute_client')
+  async unmutedClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, client: string }) {
+    try {
+      await this.chatService.unmuteClient(data);
+      this.server.emit('send_unmuted_client', data.channel, data.client);
     }
     catch(e){
       socket.emit('send_error', e);

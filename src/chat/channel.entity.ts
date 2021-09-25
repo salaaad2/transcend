@@ -15,12 +15,19 @@ class Channel {
   @Column("text", { array: true, default: [""] })
   public admin: string[];
 
+  @Column("text", { array: true, default: [""] })
+  public mutelist: string[];
+
+  @Column("text", { array: true, default: [""] })
+  public banlist: string[];
+
   @Column({nullable: true})
   public password: string;
 
   @Column("text", { array: true, default: [""] })
   public clients: string[];
- 
+
+
   @OneToMany(() => Message, (message: Message) => message.channel, 
   {onDelete: 'CASCADE', onUpdate: 'CASCADE'})
   @JoinColumn()
