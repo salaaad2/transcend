@@ -139,5 +139,33 @@ export class ChatService {
       await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
     }
+    else
+      throw data.username + ' is not part of ' + data.channel;
+  }
+
+  async promoteClient(data: { channel: string, client: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.client);
+    if (chan && user)
+    {
+      if (!chan.admin.includes(data.client))
+         chan.admin.push((data.client));
+      await this.chanRepository.save(chan);
+    }
+    else
+      throw data.client + ' is not part of ' + data.channel;
+  }
+
+  async demoteClient(data: { channel: string, client: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.client);
+    if (chan && user)
+    {
+      if (chan.admin.includes(data.client))
+        chan.admin.splice(chan.admin.indexOf(data.client), 1);
+      await this.chanRepository.save(chan);
+    }
+    else
+      throw data.client + ' is not part of ' + data.channel;
   }
 }

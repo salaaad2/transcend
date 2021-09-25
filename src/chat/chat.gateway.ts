@@ -135,10 +135,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('send_channel_clients', clientsList);
   }
 
+  @SubscribeMessage('request_promote_client')
+  async promoteClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, client: string }) {
+    try {
+      await this.chatService.promoteClient(data);
+      this.server.emit('send_promoted_client', data.channel, data.client);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
+  }
+
+  @SubscribeMessage('request_demote_client')
+  async demoteClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, client: string }) {
+    try {
+      await this.chatService.demoteClient(data);
+      this.server.emit('send_demoted_client', data.channel, data.client);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
+  }
+
   @SubscribeMessage('request_leave_channel')
-  async kickClient(@MessageBody() data: { channel: string, username:string }) {
-    await this.chatService.leaveChannel(data);
-    this.server.emit('send_left_channel', data.channel, data.username);
+  async kickClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, username:string }) {
+    try {
+      await this.chatService.leaveChannel(data);
+      this.server.emit('send_left_channel', data.channel, data.username);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
   }
 
   @SubscribeMessage('newplayer')
