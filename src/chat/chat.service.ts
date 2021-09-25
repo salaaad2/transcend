@@ -111,6 +111,10 @@ export class ChatService {
     {
       ;
     }
+    else if (chan.banlist.includes(data.username))
+    {
+      throw 'You are banned from ' + data.channel;
+    }
     else if ((!chan.clients.includes(data.username)) &&
       (!chan.password || (chan.password === data.password)))
     {
@@ -188,6 +192,24 @@ export class ChatService {
     {
       if (chan.mutelist.includes(data.client))
         chan.mutelist.splice(chan.mutelist.indexOf(data.client), 1);
+      await this.chanRepository.save(chan);
+    }
+    else
+      throw data.client + ' is not part of ' + data.channel;
+  }
+
+  async banClient(data: { channel: string, client: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
+    const user = await this.userService.getByUsername(data.client);
+    if (chan && user)
+    {
+      if (!chan.banlist.includes(data.client))
+         chan.banlist.push((data.client));
+      if (chan.clients.includes(data.client))
+         chan.clients.splice(chan.clients.indexOf(data.client), 1);
+      if (user.chanslist.includes(data.channel))
+        user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
+      await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
     }
     else

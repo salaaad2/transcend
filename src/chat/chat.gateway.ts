@@ -113,7 +113,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const chan = await this.chatService.joinChannel(data);
       this.server.emit('send_channel_joined', chan.name, data.username, chan.owner,
-                       chan.admin, chan.mutelist, chan.banlist);
+                       chan.admin, chan.mutelist);
     }
     catch(e) {
       socket.emit('send_error', e);
@@ -182,6 +182,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       await this.chatService.unmuteClient(data);
       this.server.emit('send_unmuted_client', data.channel, data.client);
+    }
+    catch(e){
+      socket.emit('send_error', e);
+    }
+  }
+
+  @SubscribeMessage('request_ban_client')
+  async banClient(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { channel: string, client: string }) {
+    try {
+      await this.chatService.banClient(data);
+      this.server.emit('send_banned_client', data.channel, data.client);
     }
     catch(e){
       socket.emit('send_error', e);
