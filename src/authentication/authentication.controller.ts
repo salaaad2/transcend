@@ -81,7 +81,8 @@ export class AuthenticationController {
           "matches": match,
           "elo": data.elo,
           "current": request.user,
-          "rank": rank + 1
+          "rank": rank + 1,
+          "friendrequests": data.friendrequests,
         }
         return {ret};
     }
@@ -89,14 +90,16 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('addfriend')
     async addFriend(@Body() user: {username: string}, @Req() request: RequestWithUser) {
-        this.usersService.addFriend(user.username, request);
+        await this.usersService.addFriend(user.username, request.user.username);
+        await this.usersService.addFriend(request.user.username, user.username);
         return (request.user);
     }
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('delfriend')
     async delFriend(@Body() user: {username: string}, @Req() request: RequestWithUser) {
-        this.usersService.delFriend(user.username, request);
+        await this.usersService.delFriend(user.username, request.user.username);
+        await this.usersService.delFriend(request.user.username, user.username);
         return (request.user);
     }
 

@@ -36,15 +36,15 @@ export class UsersService {
         return newUser;
     }
 
-    async addFriend(username: string, req: RequestWithUser) {
-        const user = await this.usersRepository.findOne({username: req.user.username});
+    async addFriend(username: string, f_user: string) {
+        const user = await this.usersRepository.findOne({username: f_user});
         user.friendlist[user.friendlist.length] = username;
         await this.usersRepository.save(user);
         return user.friendlist;
     }
 
-    async delFriend(username: string, req: RequestWithUser) {
-        const user = await this.usersRepository.findOne({username: req.user.username});
+    async delFriend(username: string, f_user: string) {
+        const user = await this.usersRepository.findOne({username: f_user});
         for(let i = 0; i < user.friendlist.length; i++) {
             if(user.friendlist[i] == username) {
                 user.friendlist.splice(i, 1);
@@ -90,5 +90,12 @@ export class UsersService {
 
         user.avatar = data;
         this.usersRepository.save(user);
+    }
+
+    async Request(user: User, param: string, data: string) {
+        if (param == 'friendrequest')
+            user.friendrequests.push(data);
+        await this.usersRepository.save(user);
+        console.log(user.friendrequests);
     }
 }

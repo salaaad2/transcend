@@ -110,6 +110,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('addfriend')
+  async handleAddFriend(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+    const f_socket = this.tab[username];
+    const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    const f_user = await this.userService.getByUsername(username);
+    console.log('add ' + username);
+
+    if (f_socket) {
+      console.log('socket');
+      f_socket.emit('notifications', ['friendrequest', user]);
+      this.userService.Request(f_user, 'friendrequest', user);
+    }
+  }
+
+  @SubscribeMessage('remove_request')
+  async AcceptRequest(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+    socket.emit('notifications', ['removerequest', username]);
+    const f_user = await this.userService.getByUsername(username);
+    f_user.friendrequests.splice(f_user.friendrequests.findIndex(element => {return element == username}, 1));
+  }
+
   //////////
   // CHAT //
   //////////

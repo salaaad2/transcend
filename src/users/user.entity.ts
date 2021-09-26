@@ -37,6 +37,8 @@ class User {
     @Column({default: ""})
     public avatar: string;
 
+    @Column("text", {array: true, default: []})
+    public friendrequests: string[];
 }
 
 export default User;
