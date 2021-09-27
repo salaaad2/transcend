@@ -60,14 +60,14 @@ export class ChatService {
 
   async getChannels(username: string) {
     const user = this.userService.getByUsername(username);
-    const chanlist: Channel[] = [];
+    const chanlist: string[] = [];
     const channel = await this.chanRepository.find({select: ['name', 'id']});
     let found;
     for (const c of (await user).chanslist)
     {
       found = channel.find(element => element.name == c);
       if (found)
-        chanlist.push(found);
+        chanlist.push(found.name);
     }
     return chanlist;
   }
