@@ -36,17 +36,16 @@ export class ChatService {
       'content': content.content
     }
     const channel = await this.chanRepository.findOne({name: content.channel})
-    if (content.content !== "")
-    {
-      const message = this.messagesRepository.create({
-        ...messageDto,
-        channel: channel
-      });
-      await this.messagesRepository.save(message);
-      return message;
-    }
-    else
+    if (!channel)
+      throw 'You must chose a channel first';
+    if (content.content === "")
       throw 'You cannot send blank message';
+    const message = this.messagesRepository.create({
+      ...messageDto,
+      channel: channel
+    });
+    await this.messagesRepository.save(message);
+    return message;
   }
 
   async getAllMessages(params: string) {
@@ -103,6 +102,7 @@ export class ChatService {
     channel.clients = [data.owner];
     channel.message = [];
     await this.chanRepository.save(channel);
+    return channel;
   }
 
   /*
@@ -111,15 +111,15 @@ export class ChatService {
    */
   async joinChannel(data: { username: string, channel: string , password: string}) {
     const user = await this.userService.getByUsername(data.username);
-    const chan = await this.chanRepository.findOne({ name: data.channel});
+    let chan = await this.chanRepository.findOne({ name: data.channel});
 
     if (!chan)
     {
-      if (data.channel === "")
+      if (data.channel === "" || data.channel.includes('&'))
       {
-        throw 'You cannot create a channel with a blank name';
+        throw 'Invalid name of channel';
       }
-      await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
+      chan = await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
     }
     else if (chan.clients.includes(data.username))
     {
@@ -145,6 +145,60 @@ export class ChatService {
     }
     await this.usersRepository.save(user);
     return (await this.chanRepository.findOne({ name: data.channel }));
+  }
+
+  async joinPrivateChannel(data: { src: string, dst: string }) {
+    let name :string = data.src + '&' + data.dst;
+    if (data.src === data.dst)
+      throw 'You cannot speak with yourself';
+    try
+    {
+      const user_src = await this.userService.getByUsername(data.src);
+      const user_dst = await this.userService.getByUsername(data.dst);
+      let chan = await this.chanRepository.findOne({name});
+      if (!chan)
+      {
+        name = data.dst + '&' + data.src;
+        chan = await this.chanRepository.findOne({name});
+      }
+      if (!chan)
+      {
+        if (data.src === "")
+        {
+          throw 'You cannot send a message to a blank name';
+        }
+        name = data.src + '&' + data.dst;
+        chan = await this.createChannel({ owner: data.src, name: name, password: ''});
+        chan.clients.push(data.dst);
+        await this.chanRepository.save(chan);
+      }
+      else if (chan.clients.length === 2 && !chan.clients.includes(data.src))
+        throw 'This is a private channel'
+      else if (chan.clients.includes(data.src) && chan.clients.includes(data.dst))
+      {
+        ;
+      }
+      else
+      {
+        if (!chan.clients.includes(data.src))
+          chan.clients.push(data.src);
+        if(!chan.clients.includes(data.dst))
+          chan.clients.push(data.dst);
+        await this.chanRepository.save(chan);
+      }
+      if (!user_src.private_channels.includes(name))
+        user_src.private_channels[user_src.private_channels.length] = name;
+      if (!user_dst.private_channels.includes(name))
+        user_dst.private_channels[user_dst.private_channels.length] = name;
+      await this.usersRepository.save(user_src);
+      await this.usersRepository.save(user_dst);
+      console.log(chan.clients);
+      return (await this.chanRepository.findOne({name}));
+    }
+    catch(e)
+    {
+      throw data.dst + ' doest not exists';
+    }
   }
 
   async leaveChannel(data: { channel: string, username: string }) {

@@ -190,6 +190,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('request_join_private_channel')
+  async joinPrivateChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { src: string, dst: string }) {
+    try {
+      const chan = await this.chatService.joinPrivateChannel(data);
+      this.server.emit('send_private_channel_joined', data.src, data.dst, chan.name);
+    }
+    catch(e) {
+      socket.emit('send_error', e);
+    }
+  }
+
    @SubscribeMessage('request_get_channels')
   async getChannels(
     @ConnectedSocket() socket: Socket,
