@@ -33,7 +33,6 @@ export class AuthenticationController {
     @Post('register')
     async register(@Body() registrationData: RegisterDto)
     {
-        console.log('register', registrationData);
         return this.authenticationService.register(registrationData);
     }
 
@@ -90,8 +89,11 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('addfriend')
     async addFriend(@Body() user: {username: string}, @Req() request: RequestWithUser) {
+        console.log('users:', user.username, request.user.username);
         await this.usersService.addFriend(user.username, request.user.username);
         await this.usersService.addFriend(request.user.username, user.username);
+        request.user.friendrequests.splice(request.user.friendrequests.findIndex(element => {return element == user.username}, 1));
+        await this.usersService.save(request.user);
         return (request.user);
     }
 

@@ -81,7 +81,6 @@ export class UsersService {
     }
 
     async save(user: User) {
-        console.log('user', user);
         await this.usersRepository.save(user);
     }
 

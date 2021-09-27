@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { StringSchema } from '@hapi/joi';
+import { string, StringSchema } from '@hapi/joi';
 import { Param } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -124,11 +124,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('remove_request')
-  async AcceptRequest(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
-    socket.emit('notifications', ['removerequest', username]);
-    const f_user = await this.userService.getByUsername(username);
-    f_user.friendrequests.splice(f_user.friendrequests.findIndex(element => {return element == username}, 1));
+  // @SubscribeMessage('remove_request')
+  // async AcceptRequest(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+  //   const str = Object.keys(this.tab).find(k => this.tab[k] === socket);
+  //   console.log(str);
+  //   const user = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
+  //   user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == username}, 1));
+  // }
+
+  @SubscribeMessage('accept_friend')
+  async AcceptFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
+    console.log(data.username, data.notif);
+    const f_socket: Socket = this.tab[data.notif];
+    const user = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
+    if (user.friendrequests.length == 0)
+      socket.emit('notifications', ['clear_notifs', ""]);
+    if (f_socket)
+      f_socket.emit('notifications', ['accept_friend', data.username]);
   }
 
   //////////
