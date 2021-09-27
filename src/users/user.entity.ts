@@ -32,7 +32,10 @@ class User {
     public status: string;
 
     @Column("text", {array: true, default: []})
-    public chanslist: string[];
+    public public_channels: string[];
+
+    @Column("text", {array: true, default: []})
+    public private_channels: string[];
 
     @Column({default: ""})
     public avatar: string;

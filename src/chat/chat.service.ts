@@ -63,7 +63,21 @@ export class ChatService {
     const chanlist: string[] = [];
     const channel = await this.chanRepository.find({select: ['name', 'id']});
     let found;
-    for (const c of (await user).chanslist)
+    for (const c of (await user).public_channels)
+    {
+      found = channel.find(element => element.name == c);
+      if (found)
+        chanlist.push(found.name);
+    }
+    return chanlist;
+  }
+
+  async getPrivateChannels(username: string) {
+    const user = this.userService.getByUsername(username);
+    const chanlist: string[] = [];
+    const channel = await this.chanRepository.find({select: ['name', 'id']});
+    let found;
+    for (const c of (await user).private_channels)
     {
       found = channel.find(element => element.name == c);
       if (found)
@@ -125,9 +139,9 @@ export class ChatService {
     {
       throw 'Wrong password to join ' + data.channel;
     }
-    if (!user.chanslist.includes(data.channel))
+    if (!user.public_channels.includes(data.channel))
     {
-      user.chanslist[user.chanslist.length] = data.channel;
+      user.public_channels[user.public_channels.length] = data.channel;
     }
     await this.usersRepository.save(user);
     return (await this.chanRepository.findOne({ name: data.channel }));
@@ -139,7 +153,7 @@ export class ChatService {
     if (chan && user)
     {
       chan.clients.splice(chan.clients.indexOf(data.username), 1);
-      user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
+      user.public_channels.splice(user.public_channels.indexOf(data.channel), 1);
       await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
     }
@@ -207,8 +221,8 @@ export class ChatService {
          chan.banlist.push((data.client));
       if (chan.clients.includes(data.client))
          chan.clients.splice(chan.clients.indexOf(data.client), 1);
-      if (user.chanslist.includes(data.channel))
-        user.chanslist.splice(user.chanslist.indexOf(data.channel), 1);
+      if (user.public_channels.includes(data.channel))
+        user.public_channels.splice(user.public_channels.indexOf(data.channel), 1);
       await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
     }

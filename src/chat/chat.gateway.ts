@@ -198,6 +198,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('send_channels', chanlist);
    }
 
+   @SubscribeMessage('request_get_private_channels')
+  async getPrivateChannels(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() username: string) {
+    const chanlist = await this.chatService.getPrivateChannels(username);
+    socket.emit('send_private_channels', chanlist);
+   }
+
   @SubscribeMessage('request_get_channel_clients')
   async getChannelClients(
     @ConnectedSocket() socket: Socket,
