@@ -1,0 +1,63 @@
+{
+  "name": "overkill-pong",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@dicebear/avatars": "^4.8.6",
+    "@dicebear/avatars-gridy-sprites": "^4.8.6",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^12.20.27",
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9",
+    "axios": "^0.21.1",
+    "bootstrap": "^5.1.0",
+    "dotenv": "^10.0.0",
+    "normalizr": "^3.6.1",
+    "react": "^17.0.2",
+    "react-bootstrap": "^1.6.1",
+    "react-dom": "^17.0.2",
+    "react-file-base64": "^1.0.3",
+    "react-native-base64": "^0.2.1",
+    "react-responsive-canvas": "^1.0.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.3",
+    "react-toastify": "^8.0.2",
+    "socket.io": "^4.1.3",
+    "socket.io-client": "4.1.2",
+    "typescript": "^4.4.3",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "proxy": "http://server:5432",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react-router-dom": "^5.1.8"
+  }
+}

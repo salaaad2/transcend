@@ -1,33 +1,33 @@
 version: "3"
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:latest
+  server:
+    build: ./srcs/server
+    expose:
+      - ${POSTGRES_PORT}
+    environment:
+       POSTGRES_HOST: ${POSTGRES_HOST:-http://localhost:3000}
+       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+       POSTGRES_USER: ${POSTGRES_USER:-admin}
+       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+       POSTGRES_DB: ${POSTGRES_DB:-nestjs}
+       JWT_SECRET: ${JWT_SECRET}
+       JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
     ports:
-      - "5432:5432"
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
-      - $HOME/goinfre/postgres:$HOME/goinfre/postgres
-      - $HOME/gitlab/backend/script:$HOME/script
-    env_file:
-      - docker.env
-    networks:
-      - postgres
+      - $HOME/goinfre/overkillpong/server/src:/srv/app/overkillpong-server/src
+    command: npm run start:dev
 
-  pgadmin:
+  client:
+    build: ./srcs/client
+    environment:
+      - REACT_APP_PORT=${REACT_APP_PORT}
+    expose:
+      - ${REACT_APP_PORT}
+    ports:
+      - ${REACT_APP_PORT}:${REACT_APP_PORT}
+    volumes:
+      - $HOME/goinfre/overkillpong/client/src:/srv/app/overkillpong-client/src
     links:
-    - postgres:postgres
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    ports:
-    - "8080:80"
-    volumes:
-    - $HOME/goinfre/pgadmin:$HOME/goinfre/root/.pgadmin
-    env_file:
-    - docker.env
-    networks:
-    - postgres
-    command: sh -c "$HOME/script/initdb.sh"
-
-networks:
-  postgres:
-    driver: bridge
+      - server
+    command: npm run start

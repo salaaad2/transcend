@@ -1,0 +1,27 @@
+h1 {
+  position: fixed;
+  position: center;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  margin: auto;
+}
+
+html {
+  /* background: url(../media/images/ball.jpg) no-repeat center center fixed; */
+  background: #5aa6e7;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button {
+  position: center;
+}

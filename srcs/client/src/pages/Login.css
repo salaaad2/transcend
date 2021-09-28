@@ -1,0 +1,19 @@
+@media all and (min-width: 500px) {
+    .Login {
+      left      : 50%;
+      top       : 50%;
+      position  : absolute;
+      transform : translate(-50%, -50%);
+      border-left: thick black;
+    }
+  
+    .Login form {
+      margin: 0 auto;
+      max-width: 600px;
+      background-color: 'rgba(52, 52, 52, 0.8)';
+    }
+
+    .Login .textbox {
+      margin-bottom: 20px;
+    }
+  }

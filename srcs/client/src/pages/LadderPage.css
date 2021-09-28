@@ -1,0 +1,30 @@
+#gold {
+    background-color: goldenrod;
+}
+
+#silver {
+    background-color: silver;
+}
+
+#bronze {
+    background-color: brown;
+}
+
+#ladderList a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 12px;
+}
+
+#ladderList a:hover {
+    color: grey;
+}
+
+table {
+    text-align: center;
+}
+
+table p  {
+    margin-bottom: 5px;
+}

@@ -1,0 +1,38 @@
+.profile-head {
+    transform: translateY(5rem)
+}
+
+body {
+    /* background: url(../media/images/ball.jpg) no-repeat center center fixed; */
+    background: #5aa6e7;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+#nomatch {
+    text-align: center;
+    color: grey;
+}
+
+#matchList a {
+    color: white;
+    text-decoration: none;
+    margin-left: 12px;
+}
+
+#matchList a:hover {
+    color: grey;
+}
+
+.btn-profil {
+    padding: 0 6rem 0 6rem;
+}
+
+.btn-profil #marge {
+    margin-bottom: 1rem;
+}
+#valid-request{
+    margin-right: 1rem;
+}
