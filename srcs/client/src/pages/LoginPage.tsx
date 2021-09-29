@@ -14,6 +14,7 @@ import { SocketContext } from '../socket/context'
 import React from 'react';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router';
+import OAuth2Login from 'react-simple-oauth2-login';
 
 function LoginPage(props: any): any {
 
@@ -50,67 +51,28 @@ function LoginPage(props: any): any {
           }})
         }
 
-    function validateForm() {
-      return username.length > 0 && password.length > 0;
+    function makeid(length: number) {
+        let result           = '';
+        let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let charactersLength = characters.length;
+        for ( let i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() *
+                charactersLength));
+        }
+        return result;
     }
 
-    function submitHandler(event:FormEvent) {
-        event.preventDefault();
-        console.log('env', process.env.REACT_APP_BASE_URL);
 
-        AuthService.login(username, password).then(
-        (response) => {
-            setUser(response);
-            socket.emit('login', username);
-        },
-        error => {
-            console.log('error');
-            setError('Wrong credentials provided');
-            }
-        );
-    }
     if (user.id < 0)
       return (
           <div className="Login">
-          <Form onSubmit={submitHandler}>
-            <div className="textbox">
-            <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                autoFocus
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group controlId="password">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form.Group>
-            </div>
-            <Container>
-              <Row>
-                <div style={{color: 'red', paddingBottom: '20px'}}>{error}</div>
-              </Row>
-              <Row>
-                <Col>
-            <Button variant="primary" type="submit" disabled={!validateForm()}>
-              Login
-            </Button>
-              </Col>
-              <Col>
-            <Button href='/#register' variant="link">
-              Register
-            </Button>
-              </Col>
-              </Row>
-            </Container>
-          </Form>
-        </div>
+              <OAuth2Login
+                  authorizationUrl="https://api.intra.42.fr"
+                  responseType="token"
+                  clientId="bd6ff1c4c3e4091081ae555d9885fa7b5a5cb68782cce3890ca445d0afb23dfd"
+                  redirectUri="http://localhost:4000/"
+                  />,
+          </div>
       );
     else
         return (<Redirect to={{ pathname: "/profile/:" + user.username, state: { from: props.location} }} />);
