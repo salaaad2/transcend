@@ -32,6 +32,13 @@ interface Room {
   p2direction: number;
   countdown: number;
   spectators: string[];
+  speed: number;
+  powerups: boolean;
+  powerspecs: {
+    type: number;
+    x: number;
+    y: number;
+  }
   ballposition: {
     x: number;
     y: number;
@@ -120,8 +127,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (f_socket) {
       console.log('socket');
       f_socket.emit('notifications', ['friendrequest', user]);
-      this.userService.Request(f_user, 'friendrequest', user);
     }
+    this.userService.Request(f_user, 'friendrequest', user);
   }
 
   // @SubscribeMessage('remove_request')
@@ -141,6 +148,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.emit('notifications', ['clear_notifs', ""]);
     if (f_socket)
       f_socket.emit('notifications', ['accept_friend', data.username]);
+  }
+
+  @SubscribeMessage('reject_friend')
+  async RejectFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
+    console.log(data.username, data.notif);
+    const user = await this.userService.getByUsername(data.username);
+    user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == data.notif}, 1));
+    this.userService.save(user);
+    if (user.friendrequests.length == 0)
+      socket.emit('notifications', ['clear_notifs', ""]);
+  }
+
+  @SubscribeMessage('gamerequest')
+  async GameRequest(@MessageBody() data: any[], @ConnectedSocket() socket: Socket) {
+    const f_socket: Socket = this.tab[data[0]];
+    const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    
+    console.log(data);
+    f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
   }
 
   //////////
@@ -318,13 +344,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""], 
                        ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
                        p2direction: 0, p1score: 0, p2score: 0,
-                       countdown: 150, spectators: [],
+                       countdown: 150, speed: 1, powerups: false, powerspecs: {
+                         type: 0, x: -100, y: -100
+                       }, spectators: [],
                        ballposition: {
                          x: 50, y: 50, dir: 1, coeff: 2
                        }
                       })
     }
     this.server.emit('nb_players', this.players.length);
+  }
+
+  @SubscribeMessage('newplayer2')
+  async newplayer2(@MessageBody() data: any[]) {
+    const socket1 = this.tab[data[0]];
+    const socket2 = this.tab[data[1]];
+
+    console.log('data:', data);
+    this.id++;
+    this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: [data[0], data[1]], 
+    ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
+    p2direction: 0, p1score: 0, p2score: 0,
+    countdown: 150, speed: data[3], powerups: data[2], powerspecs: {
+      type: 0, x: -100, y: -100
+    },spectators: [],
+    ballposition: {
+      x: 50, y: 50, dir: 1, coeff: 2
+    }
+   })
+   socket1.emit('start_duel', this.id);
+   socket2.emit('start_duel', this.id);
   }
 
   @SubscribeMessage('player_leave')
@@ -448,16 +497,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!this.interval[room]) {
       this.interval[room] = setInterval(() => {
         this.pongService.calculateBallPosition(this.rooms[room]);
+        if (this.rooms[room].powerups)
+          this.pongService.calculatePowerUp(this.rooms[room]);
         if (!this.rooms[room].countdown)
           this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-                                  bp: this.rooms[room].ballposition})
+                                  bp: this.rooms[room].ballposition, pw: this.rooms[room].powerspecs})
         else
           this.server.emit('game', {p1score: this.rooms[room].p1score, start: this.rooms[room].start,
             end: this.rooms[room].end,
             p2score: this.rooms[room].p2score, countdown: this.rooms[room].countdown,
             p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-            bp: this.rooms[room].ballposition})
-      }, 20);
+            bp: this.rooms[room].ballposition, pw: this.rooms[room].powerspecs})
+      }, 10);
     }
   }
 

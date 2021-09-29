@@ -40,6 +40,8 @@ export class UsersService {
         const user = await this.usersRepository.findOne({username: f_user});
         user.friendlist[user.friendlist.length] = username;
         await this.usersRepository.save(user);
+        console.log('user', f_user, ' add ', username);
+        console.log('friendlist: ', user.friendlist);
         return user.friendlist;
     }
 

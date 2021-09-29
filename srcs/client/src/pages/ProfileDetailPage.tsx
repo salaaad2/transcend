@@ -12,7 +12,7 @@ import { SocketContext } from '../socket/context'
 import React from "react";
 import { defaultUser, useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router';
-import { Button, Form } from "react-bootstrap";
+import { Button, Col, Container, Form, FormCheck, Modal, Row } from "react-bootstrap";
 import Avatars from "@dicebear/avatars";
 
 interface IUser2 {
@@ -25,7 +25,12 @@ interface IUser2 {
   friendlist: string[],
   current: {id: number, username: string, friendlist: string[], blocklist: string, wins: number, losses: number},
   elo: number,
-  rank: number
+  rank: number,
+  status: string,
+}
+
+interface IStatus {
+	[username: string]: string
 }
 
 function ProfilePage(props: any) {
@@ -44,53 +49,36 @@ function ProfilePage(props: any) {
   const param: any = useParams();
   const [File, SetFile] = useState([]);
   const [Canvas, setCanvas] = useState<string[]>([]);
+  const [Friends, setFriends] = useState([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [Status, setStatus] = useState<IStatus>({});
   const [Notifications, setNotifications] = useState<string[]>([]);
+  const [modalShow, setModalShow] = useState(false);
+  const [PowerUps, setPowerUps] = useState(false);
+  const [Speed, setSpeed] = useState(1);
 
   let username: string = param.username.substring(1);
   let idMatches = 0;
-  var idNotif = 0;
-  var renderVal = 0;
-  
-  function acceptRequest(notif: string) {
-    console.log('notif: ', notif);
-    axios.post(`/authentication/addfriend`,
-    {username: notif}, 
-    { withCredentials: true }).then(() => {
-      user.friendlist.push(notif);
-      setUser(user);
-      socket.emit('accept_friend', {username, notif});
-      let NotifTemp = [...Notifications];
-      NotifTemp.splice(Notifications.findIndex(element => {return element == notif}), 1);
-      console.log('temp:', NotifTemp);
-      setNotifications(Notifications => {
-        return Notifications = NotifTemp
-      });
+  let idNotif = 0;
+  let renderVal = 0;
+  function ListItem(friends: any) {
       renderVal++;
-    });
-  }
+      return (
+          <tr key={friends.username}>
+            <td>
+              <img src={friends.avatar} width='30px' height='30px' alt=""></img>
+              <a href={'#profile/:' + friends.username}>{friends.username}</a>
+            </td>
+            <td>
+            {username == user.username ?
+              <p className="status-friendslist"><span className={Status[friends.username] == 'online' ? "status green"
+              : Status[friends.username] == 'offline' ? 'status orange' : 'status blue'}>
+              </span>{Status[friends.username]}</p> : <></>}
+            </td>
+          </tr>
+      )
+    }
 
-  function ListNotifs(notif: string) {
-    idNotif++;
-    console.log(notif);
-    return (
-      <tr key={idNotif}>
-        <td>
-          {notif}
-        </td>
-        <td>
-          <svg onClick={(e) => acceptRequest(notif)} color="green" id="valid-request" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-circle" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-          </svg>
-          <svg color="red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-circle" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-          </svg>
-        </td>
-      </tr>
-    )
-  }
 
 	function ListMatches(matches: any) {
     let opponent = (matches.username === username ? true : false);
@@ -138,35 +126,49 @@ function ProfilePage(props: any) {
   }, [Canvas])
 
   useEffect(() => {
-    console.log('useeffect');
       if (user.id > 0)
         socket.emit('login', user.username);
       axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
       .then((response) => {
         if (response.data) {
-          console.log(user.friendlist);
+          console.log('friendlist', response.data.ret.friendlist);
+          console.log('status', response.data.ret.username, response.data.ret.status);
           setMatches(response.data.ret.matches);
           if (response.data.ret.friendrequests.find((element: string) => {return element === user.username}))
             setIsFriend("pending");
-          else if (user.friendlist.find((element: string) => {return (element === username)}))
+          else if (response.data.ret.current.friendlist.find((element: string) => {return (element === username)}))
             setIsFriend("yes");
           setIsBlocked(false);
+          setStatus(Status => ({...Status, [response.data.ret.username]: response.data.ret.status}));
           setnewUser(response.data.ret);
           if (response.data.ret.username == user.username)
             setNotifications(response.data.ret.friendrequests)
           if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
             setIsBlocked(true);
-          console.log('compare:', response.data.ret.current.username, response.data.ret.username);
           setLoading(false);
           setCanvas(['black','white']);
         }})
       .catch((error) => {
-          if (error.response.status == 401) 
+          if (error.response.status == 401)
             props.history.push('/logout')
           else if (error.response.status == 404)
             props.history.push('/profile/:' + user.username);
           setLoading(false);
       })
+      axios.post('http://localhost:3000/authentication/friends', {username: username}, 
+      { withCredentials: true})
+      .then((response) => {
+        if (response.data) {
+          console.log(response.data);
+          setFriends(response.data);
+        console.log('log', user.username, username)
+        if (user.username == username) {
+          for (var i = 0 ; i < response.data.length ; i++) {
+            setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
+          }
+      }
+      }
+      })  
         return () => {
           setMatches([]);
           setIsFriend("");
@@ -176,14 +178,24 @@ function ProfilePage(props: any) {
         }
   }, [username, renderVal]);
 
+  useEffect(() => {
+		socket.on('status', (data: any) => {
+      console.log(data);
+      setStatus(Status => ({...Status, [data.username]: data.status}))
+    })
+    return(() => {
+      socket.off('status');
+    })
+	},[])
+
   function addAsFriend() {
     socket.emit('addfriend', username);
     setIsFriend("pending");
   }
 
   function Unfriend() {
-    axios.post(`/authentication/delfriend`,
-    {username: username}, 
+    axios.post(`/authentication/delfriend`, 
+    {user1: username, user2: user.username}, 
     { withCredentials: true })
     .then((response) => {
       setIsFriend("no");
@@ -212,8 +224,33 @@ function ProfilePage(props: any) {
     setEdit(!Edit);
   }
 
-  function SaveProfile() {
+  function SaveProfile(e: any) {
+    e.preventDefault();
 
+    var file = (File[0] as File);
+    console.log(file);
+
+    if (typeof File[0] === "undefined")
+    {
+      alert("You must choose a file");
+      return ;
+    }
+    if (file.size > 100000)
+    {
+      alert("File must be < 80ko");
+      return ;
+    }
+    Utils.getBase64(File[0]).then(result => {
+    var res = JSON.stringify(result);
+    res = res.substring(1, res.length - 1);
+    setAvatar(res);
+    user.avatar = res;
+    return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_avatar`, 
+    {data: res}, { withCredentials: true })
+    }).then(() => {
+      setTimeout(() => {props.history.push('/')}, 200);
+    })
+    console.log('ok');
   }
 
   function setCanvasColors(e: any) {
@@ -225,6 +262,12 @@ function ProfilePage(props: any) {
       setCanvas(['blue', 'green']);
     else if (e.target.value == 3)
       setCanvas(['yellow', 'purple']);
+  }
+
+  function gameRequest(e: any) {
+    e.preventDefault();
+    
+    socket.emit('gamerequest', [username, PowerUps, Speed]);
   }
 
   if (Error == 401)
@@ -275,6 +318,7 @@ function ProfilePage(props: any) {
                             <div className="col-6 px-4 py-3">
                                 <h5 className="mb-0 text-white text-center">Last Games</h5>
                                 <table id="matchList" className="table table-striped table-dark"><thead>
+                                <tr><td/><td/><td/><td/></tr>
                                     <tr>
                                       <th scope="col">#</th>
                                       <th scope="col">Opponent</th>
@@ -286,13 +330,14 @@ function ProfilePage(props: any) {
                                     })}
                                   </thead></table>
                                   {newUser && !newUser.matches.length ? <p id='nomatch'>No Match</p> : ""}
-                                  <h5 className="mb-0 text-white text-center">Friend Requests</h5>
+                                  <h5 className="mb-0 text-white text-center">Friendlist</h5>
                                   <table id="matchList" className="table table-striped table-dark"><thead>
-                                    {Notifications.map((listvalue) => {
-                                      return (ListNotifs(listvalue))
-                                    })}
+                                      <tr><td/><td/></tr>
+                                      {Friends.map((listvalue) => {
+                                        return (ListItem(listvalue))
+                                      })}
                                   </thead></table>
-                                  {Notifications && !Notifications.length ? <p id='nomatch'>No Friend Request</p> : ""}
+                                  {Friends && !Friends.length ? <p id='nomatch'>No Friends</p> : ""}
                             </div>
                             {newUser.username !== user.username ?
                             <div className="col-6 px-4 py-3">
@@ -302,7 +347,60 @@ function ProfilePage(props: any) {
                                 <button id="marge" type="button" onClick={Unfriend} className="btn btn-outline-primary">Unfriend {newUser.username}</button>}
                                 {!IsBlocked ? <button id="marge" type="button" onClick={Block} className="btn btn-danger">Block</button> 
                                 : <button id="marge" type="button" onClick={Unblock} className="btn btn-outline-danger">Unblock {newUser.username}</button>}
-                                <button id="marge" type="button" className="btn btn-primary">Send Game Request</button>
+                                <button id="marge" type="button" className="btn btn-primary" onClick={() => setModalShow(!modalShow)}>Send Game Request</button>
+                                {modalShow ?
+                                <Form onSubmit={gameRequest} className="text-white">
+                                  <Container>
+                                  <Row>
+                                  <Form.Label>Game Speed</Form.Label>
+                                  <Col>
+                                  <Form.Check
+                                    type="radio"
+                                    label="x0.5"
+                                    name="formHorizontalRadios"
+                                    id="formHorizontalRadios1"
+                                    onClick={() => setSpeed(0.5)}
+                                  />
+                                  </Col>
+                                  <Col>
+                                  <Form.Check
+                                    type="radio"
+                                    label="x1"
+                                    name="formHorizontalRadios"
+                                    id="formHorizontalRadios2"
+                                    onClick={() => setSpeed(1)}
+                                    defaultChecked
+                                  />
+                                  </Col>
+                                  <Col>
+                                  <Form.Check
+                                    type="radio"
+                                    label="x2"
+                                    name="formHorizontalRadios"
+                                    id="formHorizontalRadios3"
+                                    onClick={() => setSpeed(2)}
+                                  />
+                                  </Col>
+                                  </Row>
+                                  <Col>
+                                  <Form.Check
+                                    type="switch"
+                                    id="custom-switch"
+                                    label="Power-ups"
+                                    onClick={() => {setPowerUps(!PowerUps); console.log(PowerUps);}}
+                                  />
+                                  </Col>
+                                  <Row>
+                                  <Col>
+                                  <Button type="submit" className="btn btn-secondary" disabled={Status[username] != 'online' ? true : false}>Send</Button>
+                                  </Col>
+                                  <Col>
+                                  <div style={{color: 'red', paddingBottom: '20px'}}>{Status[username] != 'online' ? "User is offline/in a game" : ""}</div>
+                                  </Col>
+                                  </Row>
+                                  </Container>
+                                </Form>
+                                : <></>}
                                 <button type="button" className="btn btn-primary">Send Message</button>
                               </div>
                             </div> 

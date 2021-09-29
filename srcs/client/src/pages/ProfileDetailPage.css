@@ -11,6 +11,10 @@ body {
     background-size: cover;
 }
 
+.status-friendslist {
+    margin-left: 2rem;
+}
+
 #nomatch {
     text-align: center;
     color: grey;

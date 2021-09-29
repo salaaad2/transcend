@@ -8,6 +8,10 @@
     width: 20%;
   }
 
+.row-height-notif {
+  transform: translate(500%, 0);
+}
+
 .row-chat {
     transform: translate(20%);
     z-index: 0;

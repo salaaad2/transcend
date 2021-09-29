@@ -82,27 +82,31 @@ export class AuthenticationController {
           "current": request.user,
           "rank": rank + 1,
           "friendrequests": data.friendrequests,
+          "friendlist": data.friendlist,
+          "status": data.status,
         }
         return {ret};
     }
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('addfriend')
-    async addFriend(@Body() user: {username: string}, @Req() request: RequestWithUser) {
-        console.log('users:', user.username, request.user.username);
-        await this.usersService.addFriend(user.username, request.user.username);
-        await this.usersService.addFriend(request.user.username, user.username);
-        request.user.friendrequests.splice(request.user.friendrequests.findIndex(element => {return element == user.username}, 1));
-        await this.usersService.save(request.user);
-        return (request.user);
+    async addFriend(@Body() users: {user1: string, user2: string}) {
+        console.log('users:', users.user1, users.user2);
+        await this.usersService.addFriend(users.user1, users.user2);
+        await this.usersService.addFriend(users.user2, users.user1);
+        const user = await this.usersService.getByUsername(users.user1);
+        user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == user.username}, 1));
+        await this.usersService.save(user);
+        return (user);
     }
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('delfriend')
-    async delFriend(@Body() user: {username: string}, @Req() request: RequestWithUser) {
-        await this.usersService.delFriend(user.username, request.user.username);
-        await this.usersService.delFriend(request.user.username, user.username);
-        return (request.user);
+    async delFriend(@Body() users: {user1: string, user2: string}) {
+        console.log(users);
+        await this.usersService.delFriend(users.user1, users.user2);
+        await this.usersService.delFriend(users.user2, users.user1);
+        return ;
     }
 
     @UseGuards(JwtAuthenticationGuard)
@@ -138,9 +142,11 @@ export class AuthenticationController {
     }
 
     @UseGuards(JwtAuthenticationGuard)
-    @Get('friends')
-    async getFriends(@Req() request: RequestWithUser) {
-        var list = request.user.friendlist;
+    @Post('friends')
+    async getFriends(@Body() user: {username: string}) {
+        const user2 = await this.usersService.getByUsername(user.username)
+        var list = user2.friendlist;
+        console.log('list', list);
         var ret: {username: string, avatar: string, status: string}[] = [];
         for (let i = 0 ; i < list.length ; i++ ) {
             var data = await this.usersService.getByUsername(list[i]);

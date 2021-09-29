@@ -7,6 +7,8 @@ import { Redirect  }from 'react-router';
 import { useParams } from 'react-router-dom';
 import './GamePage.css'
 
+
+
 function GamePage(props: any): any {
 
     const socket = React.useContext(SocketContext);
@@ -38,7 +40,7 @@ function GamePage(props: any): any {
         canvas!.height = canvas!.clientHeight;
         ctx = canvas!.getContext("2d");
     
-        ctx!.canvas.height = 3 * canvas!.width / 4;
+        // ctx!.canvas.height = 3 * canvas!.width / 4;
         ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
         w = canvas!.width;
         h = canvas!.height;
@@ -52,7 +54,11 @@ function GamePage(props: any): any {
             {
                 ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
                 ctx!.beginPath();
-                ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
+                ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
+                ctx!.fill();
+                ctx!.fillStyle = data.pw.type == 0 ? 'red' : data.pw.type == 1 ? 'blue' : 'yellow';
+                ctx!.beginPath();
+                ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
                 ctx!.fill();
                 ctx!.stroke();
                 ctx.fillStyle = "black";
@@ -78,6 +84,7 @@ function GamePage(props: any): any {
                     setEnd(true);
                     ctx!.font = '24px serif';
                     ctx!.fillText((data.p1score == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
+                    socket.emit('stop_info', room);
                     setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
                 }
             }
@@ -91,7 +98,6 @@ function GamePage(props: any): any {
         })
         return (() => {
             socket.off('game');
-            socket.emit('stop_info', room);
         })
     }, [])
 
@@ -107,11 +113,14 @@ function GamePage(props: any): any {
     }, [room, socket, user.username])
 
     useEffect(() => {
+        var keyState: any;
         const handleKey = (e: any) => {
             console.log('event', Role);
+
             if (Role === 'player1' ||
                 Role === 'player2') {
-                socket.emit('send_key', {key: e.key, role: Role, room: room});
+                keyState = e.key;
+                // socket.emit('send_key', {key: e.key, role: Role, room: room});
             }
         }
 
@@ -119,15 +128,22 @@ function GamePage(props: any): any {
             console.log('event', Role);
             if (Role === 'player1' ||
                 Role === 'player2') {
-                socket.emit('keyup', {key: e.key, role: Role, room: room});
+                if (keyState == e.key) {
+                    socket.emit('keyup', {key: e.key, role: Role, room: room});
+                    keyState = null;
+                }
             }
         }
 
         window.addEventListener("keydown", handleKey);
         window.addEventListener("keyup", handleKeyup);
+        let interval = setInterval(() => {
+            socket.emit('send_key', {key: keyState, role: Role, room: room})
+        }, 10);
         return(() => {
             window.removeEventListener("keydown", handleKey);
             window.removeEventListener("keyup", handleKeyup);
+            clearInterval(interval);
         })
     }, [Players, Role, room, socket])
 
@@ -170,7 +186,7 @@ function GamePage(props: any): any {
                         </div>
                     </div>
                     <div className="col-10 row-game">
-                        {!End ? <canvas ref={canvasRef}></canvas> : 
+                        {!End ? <canvas id="bgCanvas" ref={canvasRef}></canvas> : 
                         Scores[0] == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`}
                     </div>
                 </div>
