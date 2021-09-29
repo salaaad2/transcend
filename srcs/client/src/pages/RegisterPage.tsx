@@ -39,9 +39,12 @@ function RegisterPage(props: any) {
         },
         error => {
               error.toString();
-              console.log(error.response.data.message);
-              setError(error.response.data.message);
-            }
+            /* if (error && error.response)
+             * {
+             *     console.log(error.response.data.message);
+             *     setError(error.response.data.message);
+             * } */
+        }
         );
     }
 

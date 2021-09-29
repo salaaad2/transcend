@@ -1,33 +1,54 @@
 version: "3"
 services:
+
+  postgres:
+    image: postgres:latest
+    environment:
+       POSTGRES_USER: ${POSTGRES_USER:-admin}
+       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+       POSTGRES_DB: ${POSTGRES_DB:-nestjs}
+       PG_DATA: /var/lib/postgresql/data
+       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    volumes:
+      - $HOME/goinfre/pgdata:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+
   server:
     build: ./srcs/server
     expose:
-      - ${POSTGRES_PORT}
+      - ${PORT}
     environment:
-       POSTGRES_HOST: ${POSTGRES_HOST:-http://localhost:3000}
        POSTGRES_PORT: ${POSTGRES_PORT:-5432}
        POSTGRES_USER: ${POSTGRES_USER:-admin}
        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
        POSTGRES_DB: ${POSTGRES_DB:-nestjs}
+       POSTGRES_HOST: postgres
+       PORT: ${PORT:-3000}
        JWT_SECRET: ${JWT_SECRET}
        JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${PORT}:${PORT}
     volumes:
-      - $HOME/goinfre/overkillpong/server/src:/srv/app/overkillpong-server/src
+      - ./srcs/server/src:/srv/app/overkillpong-server/src
     command: npm run start:dev
+    depends_on:
+      - postgres
 
   client:
     build: ./srcs/client
     environment:
-      - REACT_APP_PORT=${REACT_APP_PORT}
+      REACT_APP_PORT: ${REACT_APP_PORT:-4000}
+      API_HOST: server
+      API_PORT: ${PORT:-3000}
     expose:
       - ${REACT_APP_PORT}
     ports:
       - ${REACT_APP_PORT}:${REACT_APP_PORT}
     volumes:
-      - $HOME/goinfre/overkillpong/client/src:/srv/app/overkillpong-client/src
+      - ./srcs/client/src:/srv/app/overkillpong-client/src
+      - ./srcs/client/public:/srv/app/overkillpong-client/public
+      - ./srcs/client/public-chat:/srv/app/overkillpong-client/public-chat
     links:
       - server
     command: npm run start

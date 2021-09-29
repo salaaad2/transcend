@@ -8,6 +8,8 @@ COPY package-lock.json /srv/app/overkillpong-client
 
 RUN npm install
 
-COPY . /srv/app/overkillpong-client
+COPY . .
+
+EXPOSE 4000
 
 CMD [ "npm", "start" ]
