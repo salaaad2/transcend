@@ -25,7 +25,7 @@ function LoginPage(props: any): any {
 
     function getAvatar() {
       // Utils.intercept401(props);
-      return axios.get('api/avatar',
+      return axios.get('/avatar',
       { withCredentials: true})
       .then((response) => {
         if (response.data.avatar) {
@@ -45,7 +45,7 @@ function LoginPage(props: any): any {
           }
           console.log('avatar1', str);
           user.avatar = str;
-          return axios.post('api/avatar',
+          return axios.post(`/avatar`,
           data, { withCredentials: true})
           }})
         }

@@ -54,7 +54,7 @@ function ProfilePage(props: any) {
   
   function acceptRequest(notif: string) {
     console.log('notif: ', notif);
-    axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/addfriend`, 
+    axios.post(`/authentication/addfriend`,
     {username: notif}, 
     { withCredentials: true }).then(() => {
       user.friendlist.push(notif);
@@ -141,7 +141,7 @@ function ProfilePage(props: any) {
     console.log('useeffect');
       if (user.id > 0)
         socket.emit('login', user.username);
-      axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/profile2`, {username: username}, { withCredentials: true })
+      axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
       .then((response) => {
         if (response.data) {
           console.log(user.friendlist);
@@ -182,7 +182,7 @@ function ProfilePage(props: any) {
   }
 
   function Unfriend() {
-    axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/delfriend`, 
+    axios.post(`/authentication/delfriend`,
     {username: username}, 
     { withCredentials: true })
     .then((response) => {
@@ -191,7 +191,7 @@ function ProfilePage(props: any) {
   }
 
   function Block() {
-    axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/block`, 
+    axios.post(`/authentication/block`,
     {username: username}, 
     { withCredentials: true })
     .then((response) => {
@@ -200,7 +200,7 @@ function ProfilePage(props: any) {
   }
 
   function Unblock() {
-    axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/unblock`, 
+    axios.post(`/authentication/unblock`,
     {username: username}, 
     { withCredentials: true })
     .then((response) => {

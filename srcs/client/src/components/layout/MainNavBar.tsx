@@ -55,7 +55,7 @@ function MainNavBar(props: any) {
       res = res.substring(1, res.length - 1);
       setAvatar(res);
       user.avatar = res;
-      return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_avatar`, 
+      return axios.post(`/authentication/update_avatar`,
       {data: res}, { withCredentials: true })
       })
       console.log('ok');
@@ -63,7 +63,7 @@ function MainNavBar(props: any) {
 
     useEffect(() => {
       console.log('use2');
-      axios.get(`${process.env.REACT_APP_BASE_URL}/authentication`, 
+      axios.get(`/authentication`,
       { withCredentials: true }).then((response) => {
         console.log('use3');
         if (response.data && response.data.friendrequests.length != 0) {

@@ -14,7 +14,7 @@ function Logout(props: any) {
         console.log('logout');
         socket.emit('logout', user.username);
         socket.off();
-        axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/log-out`, {})
+        axios.post(`/authentication/log-out`, {})
         .then((response) => {
             console.log(response.data);
             setUser(defaultUser);

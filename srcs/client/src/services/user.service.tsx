@@ -2,19 +2,18 @@ import axios from 'axios'
 import authHeader from './auth-header'
 
 
-const API_URL = 'http://localhost:3000/'
 
 class UserService {
    async  getPublicContent() {
-        return await axios.get(API_URL + 'all');
+        return await axios.get('/all');
     }
 
     async getUserBoard() {
-        return await axios.get(API_URL + 'user');
+        return await axios.get('/user');
     }
 
     async getCurrentUser() {
-        return await axios.get(API_URL + 'authentication/profile')
+        return await axios.get('/authentication/profile')
         .then(response => {
             if (response.data.username) {
                 localStorage.setItem("user", JSON.stringify(response.data));
