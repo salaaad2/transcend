@@ -1,20 +1,16 @@
 import { FormEvent, useState } from 'react';
-import AuthService from '../services/auth.service'
-import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import "./Login.css"
 import axios from 'axios';
-import Utils from '../components/utils/utils'
 import { createAvatar } from '@dicebear/avatars';
 import * as style from '@dicebear/avatars-gridy-sprites';
 import { SocketContext } from '../socket/context'
 import React from 'react';
 import { useUser } from '../components/context/UserAuthContext';
-import { Redirect } from 'react-router';
-import OAuth2Login from 'react-simple-oauth2-login';
+import { Redirect } from 'react-router-dom';
 
 function LoginPage(props: any): any {
 
@@ -66,12 +62,32 @@ function LoginPage(props: any): any {
     if (user.id < 0)
       return (
           <div className="Login">
-              <OAuth2Login
-                  authorizationUrl="https://api.intra.42.fr"
-                  responseType="token"
-                  clientId="bd6ff1c4c3e4091081ae555d9885fa7b5a5cb68782cce3890ca445d0afb23dfd"
-                  redirectUri="http://localhost:4000/"
-                  />,
+              <Container>
+                  <Row>
+                      <Col>
+                          <Button variant="primary" type="submit" onClick={(e) => {
+                              e.preventDefault();
+                              const client_id = 'bd6ff1c4c3e4091081ae555d9885fa7b5a5cb68782cce3890ca445d0afb23dfd';
+                              const redirect_uri = 'http://localhost:4000/';
+                              const state = makeid(42);
+                              const response_type = 'code';
+                              const url = 'https://api.intra.42.fr/oauth/authorize?client_id=' +
+                                          client_id + '&redirect_uri=' + redirect_uri +
+                                          '&state=' + state + '&response_type=' + response_type;
+                              axios.get(url, {
+                                  withCredentials: true
+                              })
+                                    .catch(function(err) {
+                                        alert(err);
+                                    })
+                                   .then(function(response) {
+                                       console.log(response);
+                                   });
+                          }}>Login
+                          </Button>
+                      </Col>
+                  </Row>
+              </Container>
           </div>
       );
     else

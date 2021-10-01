@@ -12,13 +12,16 @@ import { AuthenticationService } from './authentication.service';
 import { AvatarService } from '../avatar/avatar.service';
 import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
+import RequestApi42 from './requestApi42.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from '../users/users.service';
 import * as cookieParser from 'cookie-parser';
 import { JwtService } from '@nestjs/jwt';
 import { MatchService } from 'src/match/match.service';
-
+import { response } from 'express';
+// import fetch from 'node-fetch';
+import axios from 'axios';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -40,7 +43,7 @@ export class AuthenticationController {
     @UseGuards(LocalAuthenticationGuard)
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
-        const {user} = request;
+        const { user } = request;
         const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
         request.res.setHeader('Set-Cookie', cookie);
         return user;
@@ -55,13 +58,13 @@ export class AuthenticationController {
         return cookie;
     }
 
-    @UseGuards(JwtAuthenticationGuard)
-    @Get()
-    authenticate(@Req() request: RequestWithUser) {
-        const user = request.user;
-        user.password = undefined;
-        return user;
-    }
+    // @UseGuards(JwtAuthenticationGuard)
+    // @Get()
+    // authenticate(@Req() request: RequestWithUser) {
+    //     const user = request.user;
+    //     user.password = undefined;
+    //     return user;
+    // }
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('profile2')

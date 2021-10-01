@@ -10,6 +10,7 @@ import { async } from 'rxjs';
 import { JwtStrategy } from './jwt.strategy';
 import { AvatarModule } from '../avatar/avatar.module';
 import { MatchModule } from 'src/match/match.module';
+import fetch from "node-fetch";
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { MatchModule } from 'src/match/match.module';
         MatchModule,
         PassportModule,
         ConfigModule,
+
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
