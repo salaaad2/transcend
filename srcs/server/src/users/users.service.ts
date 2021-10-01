@@ -21,6 +21,14 @@ export class UsersService {
         throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
     }
 
+    async getBy42Id(api42Id: string) {
+        const user = await this.usersRepository.findOne({
+            api_42_id: api42Id });
+        if (user)
+            return user;
+        throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
+    }
+
     async getByUsername(username: string) {
         const user = await this.usersRepository.findOne({
             username: username });

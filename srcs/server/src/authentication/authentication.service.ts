@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from '../users/users.service';
 import RegisterDto from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -79,5 +79,14 @@ export class AuthenticationService {
             username: req.user.username,
             accessToken: this.jwtService.sign(payload)
         };
+    }
+
+    async findUserFromApi42Id(api42Id: string): Promise<any> {
+        const user = await this.usersService.getBy42Id(api42Id);
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+
+        return user;
     }
 }

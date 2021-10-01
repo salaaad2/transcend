@@ -12,16 +12,14 @@ import { AuthenticationService } from './authentication.service';
 import { AvatarService } from '../avatar/avatar.service';
 import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
-import RequestApi42 from './requestApi42.interface';
-import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from '../users/users.service';
 import * as cookieParser from 'cookie-parser';
 import { JwtService } from '@nestjs/jwt';
 import { MatchService } from 'src/match/match.service';
-import { response } from 'express';
+import { Response } from 'express';
 // import fetch from 'node-fetch';
-import axios from 'axios';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -40,13 +38,22 @@ export class AuthenticationController {
     }
 
     @HttpCode(200)
-    @UseGuards(LocalAuthenticationGuard)
-    @Post('log-in')
-    async logIn(@Req() request: RequestWithUser) {
-        const { user } = request;
-        const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
-        request.res.setHeader('Set-Cookie', cookie);
-        return user;
+    @UseGuards(AuthGuard('42'))
+    @Get('log-in')
+    async logIn(@Req() req: any): Promise<any> {
+        return req.user;
+    }
+
+    @Get('redirect')
+    @UseGuards(AuthGuard('42'))
+    async redirect(@Req() req:any, @Res({passthrough: true}) res:Response) {
+        if (req.user) {
+            const token = await this.authenticationService.login(req.user);
+            res.cookie('access_token', token.accessToken, {
+                httpOnly: false,
+            });
+            res.status(302).redirect('https://localhost:4000/');
+        }
     }
 
     @HttpCode(200)

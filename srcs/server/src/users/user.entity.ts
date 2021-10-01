@@ -7,6 +7,9 @@ class User {
     public id: number;
 
     @Column({ unique: true })
+    public api_42_id: string;
+
+    @Column({ unique: true })
     public username: string;
 
     @Column()

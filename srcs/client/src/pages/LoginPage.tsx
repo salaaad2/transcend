@@ -67,23 +67,11 @@ function LoginPage(props: any): any {
                       <Col>
                           <Button variant="primary" type="submit" onClick={(e) => {
                               e.preventDefault();
-                              const client_id = 'bd6ff1c4c3e4091081ae555d9885fa7b5a5cb68782cce3890ca445d0afb23dfd';
-                              const redirect_uri = 'http://localhost:4000/';
-                              const state = makeid(42);
-                              const response_type = 'code';
-                              const url = 'https://api.intra.42.fr/oauth/authorize?client_id=' +
-                                          client_id + '&redirect_uri=' + redirect_uri +
-                                          '&state=' + state + '&response_type=' + response_type;
-                              axios.get(url, {
-                                  withCredentials: true
-                              })
-                                    .catch(function(err) {
-                                        alert(err);
-                                    })
-                                   .then(function(response) {
-                                       console.log(response);
-                                   });
-                          }}>Login
+                              axios.get('/authentication/log-in')
+                              .catch(function(err) {
+                                  alert(err);
+                              });
+                          }}>42 Login
                           </Button>
                       </Col>
                   </Row>
