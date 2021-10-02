@@ -128,7 +128,7 @@ function ProfilePage(props: any) {
   useEffect(() => {
       if (user.id > 0)
         socket.emit('login', user.username);
-      axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
+       axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
       .then((response) => {
         if (response.data) {
           console.log('friendlist', response.data.ret.friendlist);
@@ -163,7 +163,7 @@ function ProfilePage(props: any) {
           setFriends(response.data);
         console.log('log', user.username, username)
         if (user.username == username) {
-          for (var i = 0 ; i < response.data.length ; i++) {
+          for (let i = 0 ; i < response.data.length ; i++) {
             setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
           }
       }

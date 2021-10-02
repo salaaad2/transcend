@@ -26,7 +26,8 @@ export class UsersService {
             api_42_id: api42Id });
         if (user)
             return user;
-        throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
+        else
+            return undefined;
     }
 
     async getByUsername(username: string) {

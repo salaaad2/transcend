@@ -96,7 +96,6 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('addfriend')
     async addFriend(@Body() users: {user1: string, user2: string}) {
-        console.log('users:', users.user1, users.user2);
         await this.usersService.addFriend(users.user1, users.user2);
         await this.usersService.addFriend(users.user2, users.user1);
         const user = await this.usersService.getByUsername(users.user1);
@@ -108,7 +107,6 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('delfriend')
     async delFriend(@Body() users: {user1: string, user2: string}) {
-        console.log(users);
         await this.usersService.delFriend(users.user1, users.user2);
         await this.usersService.delFriend(users.user2, users.user1);
         return ;
@@ -151,7 +149,6 @@ export class AuthenticationController {
     async getFriends(@Body() user: {username: string}) {
         const user2 = await this.usersService.getByUsername(user.username)
         let list = user2.friendlist;
-        console.log('list', list);
         let ret: {username: string, avatar: string, status: string}[] = [];
         for (let i = 0 ; i < list.length ; i++ ) {
             let data = await this.usersService.getByUsername(list[i]);

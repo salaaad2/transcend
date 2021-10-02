@@ -43,17 +43,15 @@ export class AuthenticationService {
     }
 
     async findUserFromApi42Id(data:any): Promise<any> {
-        try {
             console.log('DATA.ID ======= ' + data.id);
-            const user = await this.usersService.getBy42Id(data.id);
-            return user;
-        }
-        catch(e)
+        const user = await this.usersService.getBy42Id(data.id);
+        if (!user && data.login !== undefined)
         {
             return (this.usersService.create({
                 username: data.login,
                 api_42_id: data.id
             }))
         }
+        return user;
     }
 }
