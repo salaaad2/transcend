@@ -6,8 +6,7 @@ import PostgresErrorCode from '../database/postgressErrrorCodes.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
-import RequestWithUser from "./requestWithUser.interface";
-
+import User from '../users/user.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -19,47 +18,11 @@ export class AuthenticationService {
 
     public async getUserFromAuthenticationToken(token: string) {
         const payload: TokenPayload = this.jwtService.verify(token, {
-          secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
+            secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
         });
         if (payload.userId) {
-          return this.usersService.getById(payload.userId);
+            return this.usersService.getById(payload.userId);
         }
-      }
-
-    public async register(registrationData: RegisterDto)
-    {
-        const hashedPassword = await bcrypt.hash(registrationData.password, 10);
-        try {
-            const createdUser = await this.usersService.create({
-                ...registrationData,
-                password: hashedPassword
-            });
-            createdUser.password = undefined;
-            return createdUser;
-        } catch (error) {
-            if (error?.code === PostgresErrorCode.UniqueViolation) {
-                throw new HttpException('User whit that username already exists', HttpStatus.BAD_REQUEST);
-            }
-            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    public async getAuthenticatedUser(username: string, plainTextPassword: string) {
-        try {
-            const user = await this.usersService.getByUsername(username);
-            await this.verifyPassword(plainTextPassword, user.password);
-            user.password = undefined;
-            return user;
-        } catch (error) {
-            throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
-        const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
-        if (!isPasswordMatching)
-            throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
     }
 
     public getCookieWithJwtToken(userId: number) {
@@ -72,21 +35,25 @@ export class AuthenticationService {
         return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
     }
 
-    async login(req: RequestWithUser) {
-        const payload = { username: req.user.username, sub: req.user.id };
+    login(user: User): { acess_token: string } {
+        const payload = { username: user.username, sub: user.id };
         return {
-            id: req.user.id,
-            username: req.user.username,
-            accessToken: this.jwtService.sign(payload)
+            acess_token: this.jwtService.sign(payload),
         };
     }
 
-    async findUserFromApi42Id(api42Id: string): Promise<any> {
-        const user = await this.usersService.getBy42Id(api42Id);
-        if (!user) {
-            throw new UnauthorizedException();
+    async findUserFromApi42Id(data:any): Promise<any> {
+        try {
+            console.log('DATA.ID ======= ' + data.id);
+            const user = await this.usersService.getBy42Id(data.id);
+            return user;
         }
-
-        return user;
+        catch(e)
+        {
+            return (this.usersService.create({
+                username: data.login,
+                api_42_id: data.id
+            }))
+        }
     }
 }

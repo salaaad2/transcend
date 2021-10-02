@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
-import { LocalAuthenticationGuard } from 'src/authentication/localAuthentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { ChatService } from './chat.service';
 

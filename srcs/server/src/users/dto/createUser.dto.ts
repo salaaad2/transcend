@@ -1,6 +1,6 @@
 export class CreateUserDto {
     username: string;
-    password: string;
+    api_42_id: string;
 }
 
 export default CreateUserDto;

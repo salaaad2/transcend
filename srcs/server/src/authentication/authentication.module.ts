@@ -1,17 +1,15 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module, HttpModule} from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { UsersModule } from '../users/users.module';
 import { AuthenticationController } from './authentication.controller';
+import { SessionSerializer } from './serializer';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './local.strategy';
 import { Api42Strategy } from './api42.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { async } from 'rxjs';
 import { JwtStrategy } from './jwt.strategy';
 import { AvatarModule } from '../avatar/avatar.module';
 import { MatchModule } from 'src/match/match.module';
-import fetch from "node-fetch";
 
 @Module({
     imports: [
@@ -34,7 +32,7 @@ import fetch from "node-fetch";
             }),
         }),
     ],
-    providers: [AuthenticationService, LocalStrategy, JwtStrategy, Api42Strategy],
+    providers: [AuthenticationService, JwtStrategy, Api42Strategy, SessionSerializer],
     controllers: [AuthenticationController],
     exports: [AuthenticationService]
 })

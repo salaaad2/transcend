@@ -10,16 +10,12 @@ import {
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { AvatarService } from '../avatar/avatar.service';
-import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from '../users/users.service';
-import * as cookieParser from 'cookie-parser';
-import { JwtService } from '@nestjs/jwt';
 import { MatchService } from 'src/match/match.service';
 import { Response } from 'express';
-// import fetch from 'node-fetch';
-import { AuthGuard } from '@nestjs/passport';
+import { Api42AuthGuard, Api42AuthenticatedGuard } from './api42.guard';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -31,33 +27,40 @@ export class AuthenticationController {
         private readonly matchService: MatchService
     ) {}
 
-    @Post('register')
-    async register(@Body() registrationData: RegisterDto)
-    {
-        return this.authenticationService.register(registrationData);
-    }
-
-    @HttpCode(200)
-    @UseGuards(AuthGuard('42'))
+    @UseGuards(Api42AuthGuard)
     @Get('log-in')
-    async logIn(@Req() req: any): Promise<any> {
-        return req.user;
-    }
+    logIn(@Req() req:any) {}
 
+    @UseGuards(Api42AuthGuard)
     @Get('redirect')
-    @UseGuards(AuthGuard('42'))
     async redirect(@Req() req:any, @Res({passthrough: true}) res:Response) {
         if (req.user) {
-            const token = await this.authenticationService.login(req.user);
-            res.cookie('access_token', token.accessToken, {
+            const token = this.authenticationService.login(req.user);
+            res.cookie('access_token', token.acess_token, {
                 httpOnly: false,
             });
+            const cookie = this.authenticationService.getCookieWithJwtToken(req.user.id);
+            req.res.setHeader('Set-Cookie', cookie);
             res.status(302).redirect('https://localhost:4000/');
         }
     }
 
+    @UseGuards(JwtAuthenticationGuard)
+    @Get('logged')
+    async logged(@Req() req:any) {
+        const user = req.user;
+        return user;
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Get()
+    authenticate(@Req() request: RequestWithUser) {
+        const user = request.user;
+        return user;
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
     @HttpCode(200)
-    // @UseGuards(JwtAuthenticationGuard)
     @Post('log-out')
     async logOut(@Req() request: RequestWithUser) {
         const cookie = this.authenticationService.getCookieForLogOut();
@@ -65,23 +68,15 @@ export class AuthenticationController {
         return cookie;
     }
 
-    // @UseGuards(JwtAuthenticationGuard)
-    // @Get()
-    // authenticate(@Req() request: RequestWithUser) {
-    //     const user = request.user;
-    //     user.password = undefined;
-    //     return user;
-    // }
-
     @UseGuards(JwtAuthenticationGuard)
     @Post('profile2')
     async getProfile(@Body() user: {username: string}, @Req() request: RequestWithUser) {
-        var data = await this.usersService.getByUsername(user.username);
-        var match = await this.matchService.getmatches(user.username);
-        var users = await this.usersService.getEveryone();
+        let data = await this.usersService.getByUsername(user.username);
+        let match = await this.matchService.getmatches(user.username);
+        let users = await this.usersService.getEveryone();
         users = users.sort((a,b) => (a.elo < b.elo) ? 1 : ((b.elo < a.elo) ? -1 : 0));
-        var rank = users.findIndex((element) => {return (element.username == user.username)});
-        var ret = {
+        let rank = users.findIndex((element) => {return (element.username == user.username)});
+        let ret = {
           "id": data.id,
           "username": data.username,
           "wins": data.wins,
@@ -136,8 +131,8 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Get('all')
     async getAllUsers() {
-        var data = await this.usersService.getEveryone();
-        var ret: {id: number, username: string, wins: number, losses: number, avatar: string, elo: number}[] = [];
+        let data = await this.usersService.getEveryone();
+        let ret: {id: number, username: string, wins: number, losses: number, avatar: string, elo: number}[] = [];
         for (let i = 0 ; i < data.length ; i++ ) {
             ret.push({
                 "id": data[i].id,
@@ -155,11 +150,11 @@ export class AuthenticationController {
     @Post('friends')
     async getFriends(@Body() user: {username: string}) {
         const user2 = await this.usersService.getByUsername(user.username)
-        var list = user2.friendlist;
+        let list = user2.friendlist;
         console.log('list', list);
-        var ret: {username: string, avatar: string, status: string}[] = [];
+        let ret: {username: string, avatar: string, status: string}[] = [];
         for (let i = 0 ; i < list.length ; i++ ) {
-            var data = await this.usersService.getByUsername(list[i]);
+            let data = await this.usersService.getByUsername(list[i]);
             ret.push({
                 'username': data.username,
                 'avatar': data.avatar,

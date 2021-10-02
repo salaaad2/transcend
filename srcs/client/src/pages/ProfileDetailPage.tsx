@@ -155,7 +155,7 @@ function ProfilePage(props: any) {
             props.history.push('/profile/:' + user.username);
           setLoading(false);
       })
-      axios.post('http://localhost:3000/authentication/friends', {username: username}, 
+      axios.post('/authentication/friends', {username: username},
       { withCredentials: true})
       .then((response) => {
         if (response.data) {

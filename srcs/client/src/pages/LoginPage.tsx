@@ -7,17 +7,11 @@ import "./Login.css"
 import axios from 'axios';
 import { createAvatar } from '@dicebear/avatars';
 import * as style from '@dicebear/avatars-gridy-sprites';
-import { SocketContext } from '../socket/context'
-import React from 'react';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router-dom';
 
 function LoginPage(props: any): any {
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const socket = React.useContext(SocketContext);
     const { user, setUser } = useUser()!;
 
     function getAvatar() {
@@ -32,7 +26,7 @@ function LoginPage(props: any): any {
         }
         else {
           let svg = createAvatar(style, {
-            seed: username
+            seed: user.username
           });
           let encoded = btoa(svg);
           let str = 'data:image/svg+xml;base64,' + encoded;
@@ -40,44 +34,29 @@ function LoginPage(props: any): any {
             "userid": response.data.id,
             "image": str
           }
-          console.log('avatar1', str);
           user.avatar = str;
           return axios.post(`/avatar`,
           data, { withCredentials: true})
           }})
         }
 
-    function makeid(length: number) {
-        let result           = '';
-        let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let charactersLength = characters.length;
-        for ( let i = 0; i < length; i++ ) {
-            result += characters.charAt(Math.floor(Math.random() *
-                charactersLength));
-        }
-        return result;
-    }
-
-
     if (user.id < 0)
-      return (
-          <div className="Login">
-              <Container>
-                  <Row>
-                      <Col>
-                          <Button variant="primary" type="submit" onClick={(e) => {
-                              e.preventDefault();
-                              axios.get('/authentication/log-in')
-                              .catch(function(err) {
-                                  alert(err);
-                              });
-                          }}>42 Login
-                          </Button>
-                      </Col>
-                  </Row>
-              </Container>
-          </div>
-      );
+    {
+        return (
+            <div className="Login">
+                <Container>
+                    <Row>
+                        <Col>
+                            <Button variant="primary" type="submit" onClick={() => {
+                                window.location.href = 'http://localhost:3000/authentication/log-in';
+                            }}>42 Login
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        );
+    }
     else
         return (<Redirect to={{ pathname: "/profile/:" + user.username, state: { from: props.location} }} />);
 }

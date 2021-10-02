@@ -12,10 +12,6 @@ class User {
     @Column({ unique: true })
     public username: string;
 
-    @Column()
-    @Exclude()
-    public password: string;
-
     @Column({default: 0})
     public wins: number;
 
