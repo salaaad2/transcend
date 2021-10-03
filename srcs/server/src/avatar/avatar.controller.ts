@@ -12,13 +12,13 @@ export class AvatarController {
 
     @Post()
     @UseGuards(JwtAuthenticationGuard)
-    uploadFile(@Body() avatarData: AvatarDto, @Req() req: RequestWithUser) {
-      this.avatarService.create(avatarData);
+    async uploadFile(@Body() avatarData: AvatarDto, @Req() req: RequestWithUser) {
+      await this.avatarService.create(avatarData);
     }
 
     @Get()
     @UseGuards(JwtAuthenticationGuard)
-    getAvatar(@Req() req: RequestWithUser) {
-      return this.avatarService.getAvatar(req.user.id);
+    async getAvatar(@Req() req: RequestWithUser) {
+      return await this.avatarService.getAvatar(req.user.id);
     }
 }

@@ -9,24 +9,37 @@ import { createAvatar } from '@dicebear/avatars';
 import * as style from '@dicebear/avatars-gridy-sprites';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router-dom';
+import React from 'react';
+import { useEffect } from 'react';
+import { SocketContext } from '../socket/context';
 
 function LoginPage(props: any): any {
 
     const { user, setUser } = useUser()!;
+    const socket = React.useContext(SocketContext);
 
-    function getAvatar() {
+    useEffect(() => {
+        axios.get('/authentication/logged')
+             .then((res:any) => {
+                 const avatar = getAvatar(res.data.username);
+                 socket.emit('login', res.data.username);
+                 res.data.avatar = avatar;
+                 setUser(res.data);
+             })
+             .catch(() => {})
+    })
+
+    function getAvatar(name:string) {
       // Utils.intercept401(props);
       return axios.get('/avatar',
       { withCredentials: true})
-      .then((response) => {
+      .then((response:any) => {
         if (response.data.avatar) {
-          user.avatar = response.data.avatar.image;
-          console.log('avatar: ', user.avatar);
-          return response.data.avatar;
+          return response.data.avatar.image;
         }
         else {
           let svg = createAvatar(style, {
-            seed: user.username
+            seed: name,
           });
           let encoded = btoa(svg);
           let str = 'data:image/svg+xml;base64,' + encoded;
@@ -34,10 +47,10 @@ function LoginPage(props: any): any {
             "userid": response.data.id,
             "image": str
           }
-          user.avatar = str;
-          return axios.post(`/avatar`,
+          axios.post(`/avatar`,
           data, { withCredentials: true})
-          }})
+          return str;
+      }})
         }
 
     if (user.id < 0)

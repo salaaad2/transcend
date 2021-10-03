@@ -45,7 +45,7 @@ function ProfilePage(props: any) {
   const [DisplayName, setDisplayName] = useState("");
   const [Avatar, setAvatar] = useState("");
   const socket = React.useContext(SocketContext);
-  const { user, setUser } = useUser()!;
+  const { user } = useUser()!;
   const param: any = useParams();
   const [File, SetFile] = useState([]);
   const [Canvas, setCanvas] = useState<string[]>([]);
@@ -126,8 +126,6 @@ function ProfilePage(props: any) {
   }, [Canvas])
 
   useEffect(() => {
-      if (user.id > 0)
-        socket.emit('login', user.username);
        axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
       .then((response) => {
         if (response.data) {

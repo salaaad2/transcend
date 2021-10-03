@@ -63,7 +63,7 @@ export class AuthenticationController {
     @HttpCode(200)
     @Post('log-out')
     async logOut(@Req() request: RequestWithUser) {
-        const cookie = this.authenticationService.getCookieForLogOut();
+        const cookie = await this.authenticationService.getCookieForLogOut();
         request.res.setHeader('Set-Cookie', cookie);
         return cookie;
     }
