@@ -470,7 +470,12 @@ function ProfilePage(props: any) {
                                     </Form.Control>
                                     <canvas ref={canvasRef}></canvas>
                                   </div></div>
-                                  <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button></div>
+                                  <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button>
+                                      <Button className='btn' onClick={(e) => {
+                                          e.preventDefault();
+                                          props.history.push('/profile/:' + user.username + '/otp');
+                                      }}>Activate 2fa</Button>
+                                  </div>
                                 </Form></div></div>}
                                 <img id="white" src={whitetheme} style={{display:"none"}}></img>
                                 <img id="dark" src={darktheme} style={{display:"none"}}></img>
@@ -498,33 +503,3 @@ function ProfilePage(props: any) {
 }
 
 export default ProfilePage;
-
-
-
-/* {otpBox === false ?
- *  <Button className='btn' onClick={(e) => {
- *      e.preventDefault();
- *      setOtpBox(true);
- *  }}>Activate 2fa</Button>
- * :
- *  <Modal size="lg" aria-labelledby="contained-modal-title-vcenter" centered autoFocus>
- *      <Modal.Header closeButton>
- *          <Modal.Title id="contained-modal-title-vcenter">
- *              Modal heading
- *          </Modal.Title>
- *      </Modal.Header>
- *      <Modal.Body>
- *          <h4>Centered Modal</h4>
- *          <p>
- *              Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
- *              dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
- *              consectetur ac, vestibulum at eros.
- *          </p>
- *      </Modal.Body>
- *      <Modal.Footer>
- *          <Button onClick={(e) => {
- *              e.preventDefault();
- *              setOtpBox(false);
- *          }}>Close</Button>
- *      </Modal.Footer>
- *  </Modal>} */

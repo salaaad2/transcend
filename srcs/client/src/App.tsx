@@ -13,6 +13,7 @@ import GamePage from './pages/GamePage';
 import ProfilePage from './pages/ProfileDetailPage';
 import LadderPage from './pages/LadderPage';
 import SpectatorPage from './pages/SpectatorPage';
+import OtpPage from './pages/OtpPage';
 import React, { useEffect } from 'react';
 import { SocketContext } from './socket/context';
 import { useUser } from './components/context/UserAuthContext';
@@ -48,6 +49,7 @@ function App() {
       <HashRouter>
         <div className="content">
           <Route exact path="/profile/:username" component={ProfilePage}/>
+          <Route exact path="/profile/:username/otp" component={OtpPage}/>
           <Route path="/register" component={RegisterPage}/>
           <Route path="/ladder" component={LadderPage}/>
           <Route path="/login" component={LoginPage}/>
