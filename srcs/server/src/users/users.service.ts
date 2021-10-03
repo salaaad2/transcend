@@ -30,6 +30,19 @@ export class UsersService {
             return undefined;
     }
 
+    async setOtpSecret(secret: string, userId: number) {
+        return this.usersRepository.update(userId, {
+            otpSecret: secret
+        });
+    }
+
+    async turnOnOtp(userId: number) {
+        return this.usersRepository.update(userId, {
+            isOtpEnabled: true
+        });
+    }
+
+
     async getByUsername(username: string) {
         const user = await this.usersRepository.findOne({
             username: username });

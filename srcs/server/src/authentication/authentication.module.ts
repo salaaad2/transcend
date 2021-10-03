@@ -10,6 +10,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { AvatarModule } from '../avatar/avatar.module';
 import { MatchModule } from 'src/match/match.module';
+import { OtpController } from './otp/otp.controller';
+import { otpService } from './otp/otp.service';
+import { OtpStrategy } from './authentication.service';
 
 @Module({
     imports: [
@@ -32,8 +35,8 @@ import { MatchModule } from 'src/match/match.module';
             }),
         }),
     ],
-    providers: [AuthenticationService, JwtStrategy, Api42Strategy, SessionSerializer],
-    controllers: [AuthenticationController],
+    providers: [AuthenticationService, JwtStrategy, Api42Strategy, SessionSerializer, otpService, OtpStrategy],
+    controllers: [AuthenticationController, OtpController],
     exports: [AuthenticationService]
 })
 export class AuthenticationModule {}

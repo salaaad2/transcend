@@ -16,6 +16,7 @@ import { UsersService } from '../users/users.service';
 import { MatchService } from 'src/match/match.service';
 import { Response } from 'express';
 import { Api42AuthGuard, Api42AuthenticatedGuard } from './api42.guard';
+import  OtpGuard from './otp/otp.guard';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -46,6 +47,7 @@ export class AuthenticationController {
     }
 
     @UseGuards(JwtAuthenticationGuard)
+    @UseGuards(OtpGuard)
     @Get('logged')
     async logged(@Req() req:any) {
         const user = req.user;

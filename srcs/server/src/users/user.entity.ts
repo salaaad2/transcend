@@ -9,6 +9,12 @@ class User {
     @Column({ unique: true })
     public api_42_id: string;
 
+    @Column({ default: false })
+    public isOtpEnabled: boolean;
+
+    @Column({ nullable: true })
+    public otpSecret?: string;
+
     @Column({ unique: true })
     public username: string;
 

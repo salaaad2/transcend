@@ -7,6 +7,38 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
 import User from '../users/user.entity';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
+
+@Injectable()
+export class OtpStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-two-factor'
+) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
+        return request?.cookies?.Authentication;
+      }]),
+      secretOrKey: configService.get('JWT_SECRET')
+    });
+  }
+
+  async validate(payload: TokenPayload) {
+    const user = await this.userService.getById(payload.userId);
+    if (!user.isOtpEnabled) {
+      return user;
+    }
+    if (payload.isOtpAuthenticated) {
+      return user;
+    }
+  }
+}
+
 
 @Injectable()
 export class AuthenticationService {
@@ -25,13 +57,16 @@ export class AuthenticationService {
         }
     }
 
-    public getCookieWithJwtToken(userId: number) {
-        const payload: TokenPayload = { userId };
-        const token = this.jwtService.sign(payload);
+    public getCookieWithJwtToken(userId: number, isOtpAuthenticated = false) {
+        const payload: TokenPayload = { userId, isOtpAuthenticated };
+        const token = this.jwtService.sign(payload, {
+            secret: this.configService.get('JWT_SECRET'),
+            expiresIn: `${this.configService.get('JWT_EXPIRATION_TIME')}s`
+        });
         return `Authentication=${token}; HtppOnly; Path=/;Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')};SameSite=Strict`;
     }
 
-    async public getCookieForLogOut() {
+    public async  getCookieForLogOut() {
         return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
     }
 
@@ -43,7 +78,6 @@ export class AuthenticationService {
     }
 
     async findUserFromApi42Id(data:any): Promise<any> {
-            console.log('DATA.ID ======= ' + data.id);
         const user = await this.usersService.getBy42Id(data.id);
         if (!user && data.login !== undefined)
         {
