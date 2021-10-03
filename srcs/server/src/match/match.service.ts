@@ -26,7 +26,6 @@ export class MatchService {
 
     async putmatch(player1: string, player2: string, p1score: number, p2score: number) {
         const match = new Match();
-        console.log('put');
         match.username = player1;
         match.opponent = player2;
         match.points = p1score;
@@ -34,7 +33,6 @@ export class MatchService {
         await this.matchRepository.save(match);
         const user1 = await this.userService.getByUsername(player1);
         const user2 = await this.userService.getByUsername(player2);
-        console.log(user1, user2);
         if (p1score > p2score) {
             user1.wins += 1;
             user2.losses += 1;

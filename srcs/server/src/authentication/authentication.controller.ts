@@ -42,7 +42,10 @@ export class AuthenticationController {
             });
             const cookie = this.authenticationService.getCookieWithJwtToken(req.user.id);
             req.res.setHeader('Set-Cookie', cookie);
-            res.status(302).redirect('https://localhost:4000/');
+            if (req.user.isOtpEnabled === false)
+                res.status(302).redirect('https://localhost:4000/');
+            else
+                res.status(302).redirect('http://localhost:3000/authentication/2fa/authenticate')
         }
     }
 
@@ -164,8 +167,9 @@ export class AuthenticationController {
     }
 
     @UseGuards(JwtAuthenticationGuard)
-    @Post('update_avatar')
-    async updateData(@Req() request: RequestWithUser, @Body() data: {data: string}) {
-        this.usersService.updateAvatar(request, data.data);
+    @Post('update_profile')
+    async updateData(@Body() data: any[]) {
+        console.log(data);
+        await this.usersService.updateProfile(data);
     }
 }

@@ -3,8 +3,8 @@
 }
 
 body {
-    /* background: url(../media/images/ball.jpg) no-repeat center center fixed; */
-    background: #5aa6e7;
+    background: url(../media/images/ball.jpg) no-repeat center center fixed;
+    /* background: #5aa6e7; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

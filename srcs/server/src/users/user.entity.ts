@@ -47,6 +47,9 @@ class User {
 
     @Column("text", {array: true, default: []})
     public friendrequests: string[];
+
+    @Column({default: 0})
+    public theme: number;
 }
 
 export default User;

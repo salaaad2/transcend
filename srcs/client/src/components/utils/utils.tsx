@@ -18,7 +18,9 @@ class Utils {
        });
       }
 
-    getBase64(file: any) {
+    getBase64(file: any | undefined) {
+      if (!file)
+        return ;
         return new Promise(resolve => {
     
           let baseURL: any = "";

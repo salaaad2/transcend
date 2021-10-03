@@ -338,7 +338,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('newplayer')
   async newplayer(@MessageBody() playername: string) {
     this.players.push(playername);
-    console.log(this.players, this.players.length);
     if (this.players.length == 1) {
       this.id++;
       this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""], 
@@ -360,7 +359,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const socket1 = this.tab[data[0]];
     const socket2 = this.tab[data[1]];
 
-    console.log('data:', data);
     this.id++;
     this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: [data[0], data[1]], 
     ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
@@ -378,10 +376,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('player_leave')
   async playerLeave(@MessageBody() playername: string) {
-    console.log('leave: ', playername);
-    console.log('index: ', this.players.findIndex(element => element == playername));
     this.players.splice(this.players.findIndex(element => element == playername), 1);
-    console.log('after leave: ', this.players);
     this.server.emit('nb_players', this.players.length);
   }
 
@@ -396,7 +391,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('rm_from_lobby')
   async RemovePlayers(@MessageBody() playername: string) {
-    console.log('remove');
     this.players.splice(this.players.findIndex(element => element == playername), 1);
   }
 
@@ -409,15 +403,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                  @MessageBody() data: {username: string, room: number}) {
     var rm: number = data.room;
     if (this.rooms[rm]) {
-      console.log('room', this.rooms[rm]);
       var players: string[] = this.rooms[rm].Players;
+      var avatars = [(await this.userService.getByUsername(players[0])).avatar, (await this.userService.getByUsername(players[1])).avatar]
       this.rooms[rm].ingame = true;
       if (this.rooms[rm].Players[0] == data.username)
-        socket.emit('role', {players: players, role: 'player1'});
+        socket.emit('role', {players: players, role: 'player1', avatars: avatars});
       else if (this.rooms[rm].Players[1] == data.username)
-        socket.emit('role', {players: players, role: 'player2'});
+        socket.emit('role', {players: players, role: 'player2', avatars: avatars});
       else {
-        socket.emit('role', {players: players, role: 'spectator'});
+        socket.emit('role', {players: players, role: 'spectator', avatars: avatars});
         this.rooms[rm].spectators.push(data.username);
       }
     }
@@ -427,31 +421,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async KeyEvent(@ConnectedSocket() socket: Socket,
                  @MessageBody() data: {key: string, role: string, room: number}) {
     let current = data.room;
-    if (data.role == 'player1' &&
+    if (this.rooms[current] && data.role == 'player1' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p1position > 0) {
       this.rooms[current].p1position -= 1;
       this.rooms[current].p1direction = -1;
     }
-    if (data.role == 'player1' &&
+    else if (this.rooms[current] && data.role == 'player1' &&
       data.key == 'ArrowDown' &&
-      this.rooms[current].p1position < 80) {
+      this.rooms[current].p1position < 80 - (this.rooms[current].powerspecs.type == -21 ? 10 : 0)) {
       this.rooms[current].p1position += 1;
       this.rooms[current].p1direction = 1;
     }
-    if (data.role == 'player2' &&
+    else if (this.rooms[current] && data.role == 'player2' &&
       data.key == 'ArrowUp' &&
       this.rooms[current].p2position > 0) {
       this.rooms[current].p2position -= 1;
       this.rooms[current].p2direction = -1;
     }
-    if (data.role == 'player2' &&
+    else if (this.rooms[current] && data.role == 'player2' &&
       data.key == 'ArrowDown' &&
-      this.rooms[current].p2position < 80) {
+      this.rooms[current].p2position < 80 - (this.rooms[current].powerspecs.type == -22 ? 10 : 0)) {
       this.rooms[current].p2position += 1;
       this.rooms[current].p2direction = 1;
     }
-    if (data.role == 'player1' && data.key == 'f') {
+    else if (this.rooms[current] && data.role == 'player1' && data.key == 'f') {
 
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
@@ -459,7 +453,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
-    if (data.role == 'player2' && data.key == 'f') {
+    else if (this.rooms[current] && data.role == 'player2' && data.key == 'f') {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
       this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
@@ -468,11 +462,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('quit_game')
+  async QuitGame(@MessageBody() data: any[]) {
+    if (this.rooms[data[1]]) {
+      data[0] == this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
+      this.rooms[data[1]].countdown = 100;
+      this.matchService.putmatch(this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1], this.rooms[data[1]].p1score, this.rooms[data[1]].p2score);
+      this.rooms[data[1]].ingame = false;
+      this.rooms[data[1]].end = true;
+    }
+  }
+
   @SubscribeMessage('keyup')
   async KeyUp(@ConnectedSocket() socket: Socket,
     @MessageBody() data: {key: string, role: string, room: number}) {
     let current = data.room;
-    console.log(data);
     if (data.role == 'player1' &&
       (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
         this.rooms[current].p1direction = 0;
@@ -488,7 +492,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async Countdown(@MessageBody() room: number) {
     while (this.rooms[room].countdown) {
       setTimeout(() => this.rooms[room].countdown -= 1);
-      console.log(this.rooms[room].countdown);
     }
   }
 
@@ -524,7 +527,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       )
       return ;
     }
-    console.log('erase');
     clearInterval(this.interval[room]);
 
     if (this.rooms[room]) {

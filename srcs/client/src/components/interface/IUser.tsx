@@ -11,6 +11,7 @@ interface IUser {
     currentChannel: string;
     chanslist: string[];
     friendrequests: string[];
+    theme: number;
 }
 
 export default IUser;

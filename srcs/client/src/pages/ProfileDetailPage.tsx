@@ -8,6 +8,18 @@ import './ProfileDetailPage.css'
 import orImage from '../media/images/or.png'
 import argentImage from '../media/images/argent.png'
 import bronzeImage from '../media/images/bronze.png'
+import darktheme from '../media/images/dark-theme.png'
+import whitetheme from '../media/images/white-theme.jpg'
+import greentheme from '../media/images/green-theme.jpg'
+import purpletheme from '../media/images/purple-theme.jpg'
+import defaultball from '../media/images/default-ball.png'
+import darkball from '../media/images/dark-ball.png'
+import natureball from '../media/images/nature-ball.png'
+import funkyball from '../media/images/funky-ball.png'
+import defaultpad from '../media/images/default-pad.jpeg'
+import darkpad from '../media/images/dark-pad.jpeg'
+import naturepad from '../media/images/nature-pad.jpeg'
+import funkypad from '../media/images/funky-pad.jpeg'
 import { SocketContext } from '../socket/context'
 import React from "react";
 import { defaultUser, useUser } from '../components/context/UserAuthContext';
@@ -54,13 +66,21 @@ function ProfilePage(props: any) {
   const [Status, setStatus] = useState<IStatus>({});
   const [Notifications, setNotifications] = useState<string[]>([]);
   const [modalShow, setModalShow] = useState(false);
+  const [otpBox, setOtpBox] = useState(false);
   const [PowerUps, setPowerUps] = useState(false);
   const [Speed, setSpeed] = useState(1);
 
   let username: string = param.username.substring(1);
   let idMatches = 0;
-  let idNotif = 0;
-  let renderVal = 0;
+  var idNotif = 0;
+  var renderVal = 0;
+  let canvasColor = [
+    ['black', 'white', '0', 'defaultball', 'defaultpad'],
+    ['white', 'dark', '1', 'darkball', 'darkpad'],
+    ['blue', 'green', '2', 'natureball', 'naturepad'],
+    ['yellow', 'purple', '3', 'funkyball', 'funkypad']
+  ]
+
   function ListItem(friends: any) {
       renderVal++;
       return (
@@ -113,15 +133,21 @@ function ProfilePage(props: any) {
     let ctx = canvas.getContext("2d");
     let w = canvas.width;
     let h = canvas.height;
-    ctx!.fillStyle = Canvas[1];
-    ctx!.fillRect(0, 0, w, h);
+    let img = document.getElementById(Canvas[1]) as CanvasImageSource
+    let ball = document.getElementById(Canvas[3]) as CanvasImageSource
+    let pad = document.getElementById(Canvas[4]) as CanvasImageSource
+    ctx!.drawImage(img, 0, 0, w, h);
+    // ctx!.fillStyle = Canvas[1];
+    // ctx!.fillRect(0, 0, w, h);
     ctx!.fillStyle = Canvas[0];
     ctx!.beginPath();
-    ctx!.arc(w/2 , h/2, w/50, 0, 2 * Math.PI);
-    ctx!.fill();
+    ctx!.drawImage(ball, w/2 , h/2, w/25, w/25);
+    // ctx!.arc(w/2 , h/2, w/50, 0, 2 * Math.PI);
     ctx!.stroke();
-    ctx!.fillRect(w/100, 5 * (h/100), w/40, h/5);
-    ctx!.fillRect(w - w/40 - w/100, 10 * (h/100), w/40, h/5);
+    ctx!.drawImage(pad, w/100, 5 * (h/100), w/40, h/5);
+    // ctx!.fillRect(w/100, 5 * (h/100), w/40, h/5);
+    ctx!.drawImage(pad, w - w/40 - w/100, 10 * (h/100), w/40, h/5);
+    // ctx!.fillRect(w - w/40 - w/100, 10 * (h/100), w/40, h/5);
 
   }, [Canvas])
 
@@ -144,7 +170,7 @@ function ProfilePage(props: any) {
           if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
             setIsBlocked(true);
           setLoading(false);
-          setCanvas(['black','white']);
+          setCanvas(canvasColor[user.theme]);
         }})
       .catch((error) => {
           if (error.response.status == 401)
@@ -224,42 +250,53 @@ function ProfilePage(props: any) {
 
   function SaveProfile(e: any) {
     e.preventDefault();
-
     var file = (File[0] as File);
-    console.log(file);
+    var avatar: boolean = true;
 
     if (typeof File[0] === "undefined")
-    {
-      alert("You must choose a file");
-      return ;
-    }
-    if (file.size > 100000)
+      avatar = false;
+    if (file && file.size > 100000)
     {
       alert("File must be < 80ko");
       return ;
     }
-    Utils.getBase64(File[0]).then(result => {
-    var res = JSON.stringify(result);
-    res = res.substring(1, res.length - 1);
-    setAvatar(res);
-    user.avatar = res;
-    return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_avatar`, 
-    {data: res}, { withCredentials: true })
-    }).then(() => {
+    if (avatar) {
+      Utils.getBase64(File[0])!.then(result => {
+        var res = JSON.stringify(result);
+        res = res.substring(1, res.length - 1);
+        setAvatar(res);
+        user.avatar = res;
+        return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_profile`, 
+        [user.username, res, user.theme], { withCredentials: true })
+        }).then(() => {
+          setTimeout(() => {props.history.push('/')}, 200);
+        })
+    }
+    else {
+      return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_profile`, 
+        [user.username, "", Canvas[2]], { withCredentials: true }).then(() => {
       setTimeout(() => {props.history.push('/')}, 200);
     })
-    console.log('ok');
   }
+}
 
   function setCanvasColors(e: any) {
-    if (e.target.value == 0)
-      setCanvas(['black', 'white']);
-    else if (e.target.value == 1)
-      setCanvas(['white', 'black']);
-    else if (e.target.value == 2)
-      setCanvas(['blue', 'green']);
-    else if (e.target.value == 3)
-      setCanvas(['yellow', 'purple']);
+    if (e.target.value == 0) {
+      setCanvas(canvasColor[0]);
+      // user.theme = 0;
+    }
+    else if (e.target.value == 1) {
+      setCanvas(canvasColor[1]);
+      // user.theme = 1;
+    }
+    else if (e.target.value == 2) {
+      setCanvas(canvasColor[2]);
+      // user.theme = 2;
+    }
+    else if (e.target.value == 3) {
+      setCanvas(canvasColor[3]);
+      // user.theme = 3;
+    }
   }
 
   function gameRequest(e: any) {
@@ -425,7 +462,7 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div className="col-6">
                                     <Form.Label>Select Theme</Form.Label>
-                                    <Form.Control defaultValue="0" as="select" aria-label="Default select example" onChange={(e: any) => setCanvasColors(e)}>
+                                    <Form.Control defaultValue={user.theme} as="select" aria-label="Default select example" onChange={(e: any) => setCanvasColors(e)}>
                                       <option value="0">Default</option>
                                       <option value="1">Dark</option>
                                       <option value="2">Nature</option>
@@ -435,6 +472,18 @@ function ProfilePage(props: any) {
                                   </div></div>
                                   <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button></div>
                                 </Form></div></div>}
+                                <img id="white" src={whitetheme} style={{display:"none"}}></img>
+                                <img id="dark" src={darktheme} style={{display:"none"}}></img>
+                                <img id="green" src={greentheme} style={{display:"none"}}></img>
+                                <img id="purple" src={purpletheme} style={{display:"none"}}></img>
+                                <img id="defaultball" src={defaultball} style={{display:"none"}}></img>
+                                <img id="darkball" src={darkball} style={{display:"none"}}></img>
+                                <img id="natureball" src={natureball} style={{display:"none"}}></img>
+                                <img id="funkyball" src={funkyball} style={{display:"none"}}></img>
+                                <img id="defaultpad" src={defaultpad} style={{display:"none"}}></img>
+                                <img id="darkpad" src={darkpad} style={{display:"none"}}></img>
+                                <img id="naturepad" src={naturepad} style={{display:"none"}}></img>
+                                <img id="funkypad" src={funkypad} style={{display:"none"}}></img>
                           </div>
                       </div>
                   </div>
@@ -449,3 +498,33 @@ function ProfilePage(props: any) {
 }
 
 export default ProfilePage;
+
+
+
+/* {otpBox === false ?
+ *  <Button className='btn' onClick={(e) => {
+ *      e.preventDefault();
+ *      setOtpBox(true);
+ *  }}>Activate 2fa</Button>
+ * :
+ *  <Modal size="lg" aria-labelledby="contained-modal-title-vcenter" centered autoFocus>
+ *      <Modal.Header closeButton>
+ *          <Modal.Title id="contained-modal-title-vcenter">
+ *              Modal heading
+ *          </Modal.Title>
+ *      </Modal.Header>
+ *      <Modal.Body>
+ *          <h4>Centered Modal</h4>
+ *          <p>
+ *              Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+ *              dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+ *              consectetur ac, vestibulum at eros.
+ *          </p>
+ *      </Modal.Body>
+ *      <Modal.Footer>
+ *          <Button onClick={(e) => {
+ *              e.preventDefault();
+ *              setOtpBox(false);
+ *          }}>Close</Button>
+ *      </Modal.Footer>
+ *  </Modal>} */

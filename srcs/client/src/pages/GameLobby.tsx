@@ -39,10 +39,14 @@ function GameLobby(props: any): any {
 
     if (user.id > 0)
         return (
-            <div>
+            <>
                 <MainNavBar />
-                {isWaiting ? <div>YOU ARE WAITING</div> : <div></div>}
-            </div>
+                {isWaiting ? 
+                <div className="waiting-div d-flex align-items-center">
+                <div className="spinner-border" style={{width: '3rem', height: '3rem'}} role="status"></div>
+                <strong className="waiting">Waiting for opponent...</strong>
+              </div> : <></>}
+            </>
         )
     else
     {

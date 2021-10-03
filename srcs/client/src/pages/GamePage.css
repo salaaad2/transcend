@@ -17,3 +17,13 @@ canvas {
     width: 100%;
     position: fixed;
 }
+
+.waiting {
+    margin-left: 1.2rem;
+}
+
+.waiting-div {
+    transform: translate(50%, 120%);
+    font-size: 2rem;
+    margin-right: 24rem;
+}

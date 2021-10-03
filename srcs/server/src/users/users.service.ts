@@ -62,8 +62,6 @@ export class UsersService {
         const user = await this.usersRepository.findOne({username: f_user});
         user.friendlist[user.friendlist.length] = username;
         await this.usersRepository.save(user);
-        console.log('user', f_user, ' add ', username);
-        console.log('friendlist: ', user.friendlist);
         return user.friendlist;
     }
 
@@ -108,10 +106,13 @@ export class UsersService {
         await this.usersRepository.save(user);
     }
 
-    async updateAvatar(req: RequestWithUser, data: string) {
-        const user = await this.usersRepository.findOne({username: req.user.username});
+    async updateProfile(data: any[]) {
+        console.log(data[0]);
+        const user = await this.usersRepository.findOne({username: data[0]});
 
-        user.avatar = data;
+        if (data[1] != "")
+            user.avatar = data[1];
+        user.theme = data[2];
         this.usersRepository.save(user);
     }
 
@@ -119,6 +120,5 @@ export class UsersService {
         if (param == 'friendrequest')
             user.friendrequests.push(data);
         await this.usersRepository.save(user);
-        console.log(user.friendrequests);
     }
 }

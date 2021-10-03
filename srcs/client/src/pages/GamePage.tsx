@@ -5,6 +5,22 @@ import { SocketContext } from '../socket/context';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect  }from 'react-router';
 import { useParams } from 'react-router-dom';
+import Particles from 'react-tsparticles'
+import darktheme from '../media/images/dark-theme.png'
+import whitetheme from '../media/images/white-theme.jpg'
+import greentheme from '../media/images/green-theme.jpg'
+import purpletheme from '../media/images/purple-theme.jpg'
+import defaultball from '../media/images/default-ball.png'
+import darkball from '../media/images/dark-ball.png'
+import natureball from '../media/images/nature-ball.png'
+import funkyball from '../media/images/funky-ball.png'
+import defaultpad from '../media/images/default-pad.jpeg'
+import darkpad from '../media/images/dark-pad.jpeg'
+import naturepad from '../media/images/nature-pad.jpeg'
+import funkypad from '../media/images/funky-pad.jpeg'
+import powerspeed from '../media/images/power-speed.png'
+import powerball from '../media/images/power-ball.png'
+import powerpad from '../media/images/power-pad.png'
 import './GamePage.css'
 
 
@@ -21,11 +37,19 @@ function GamePage(props: any): any {
     const [Scores, setScores] = useState([0, 0])
     const [End, setEnd] = useState(false);
     const [Spectators, setSpectators] = useState<string[]>([]);
+    const [Avatars, setAvatars] = useState<string[]>([]);
     var idTab = 0;
+
     let ctx: any;
     let canvas: any;
     let w: number;
     let h: number;
+    let canvasColor = [
+        ['black', 'white', 'defaultball', 'defaultpad'],
+        ['white', 'dark', 'darkball', 'darkpad'],
+        ['blue', 'green', 'natureball', 'naturepad'],
+        ['yellow', 'purple', 'funkyball', 'funkypad']
+      ]
 
     function ListSpectators(spectator: string) {
         console.log('spect', spectator);
@@ -49,32 +73,50 @@ function GamePage(props: any): any {
 
     useEffect(() => {
         socket.emit('game_info', room);
+        let img = document.getElementById(canvasColor[user.theme][1]) as CanvasImageSource
+        let ball = document.getElementById(canvasColor[user.theme][2]) as CanvasImageSource
+        let pad = document.getElementById(canvasColor[user.theme][3]) as CanvasImageSource
+        let powerSpeed = document.getElementById('powerspeed') as CanvasImageSource
+        let powerBall = document.getElementById('powerball') as CanvasImageSource
+        let powerPad = document.getElementById('powerpad') as CanvasImageSource
         socket.on('game', (data: any) => {
             if (!data.countdown)
             {
                 ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+                ctx!.drawImage(img, 0, 0, w, h);
+                ctx.fillStyle = canvasColor[user.theme][0];
                 ctx!.beginPath();
-                ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
-                ctx!.fill();
-                ctx!.fillStyle = data.pw.type == 0 ? 'red' : data.pw.type == 1 ? 'blue' : 'yellow';
+                // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
+                ctx!.drawImage(ball,
+                            data.bp.x * (w/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
+                            data.bp.y * (h/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
+                            (data.pw.type == -1 ? (w/50) : (w/25)),
+                            (data.pw.type == -1 ? (w/50) : (w/25)));
                 ctx!.beginPath();
-                ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
-                ctx!.fill();
+                ctx!.drawImage((data.pw.type == 0 ? powerSpeed : data.pw.type == 1 ? powerBall : powerPad),
+                            data.pw.x * (w/100) - (w/20), data.pw.y * (h/100) - (w/20), w/10, w/10); 
+                // ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
                 ctx!.stroke();
-                ctx.fillStyle = "black";
-                ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
-                ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
+                ctx.fillStyle = canvasColor[user.theme][0];
+                ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
+                // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
+                ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
+                // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
             }
             else if (data.countdown > 0)
             {
                 ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+                ctx!.drawImage(img, 0, 0, w, h);
+                ctx.fillStyle = canvasColor[user.theme][0];
                 ctx!.beginPath();
-                ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
+                ctx!.drawImage(ball, data.bp.x * (w/100) - (w/50), data.bp.y * (h/100) - (w/50), w/25, w/25);
+                // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
                 ctx!.fill();
                 ctx!.stroke();
-                ctx.fillStyle = "black";
-                ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
-                ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
+                ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5);
+                // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
+                ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
+                // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
                 setScores([data.p1score, data.p2score]);
                 if (!data.start) {
                     ctx!.font = '48px serif';
@@ -98,13 +140,15 @@ function GamePage(props: any): any {
         })
         return (() => {
             socket.off('game');
+            socket.emit('quit_game', [user.username, room]);
         })
     }, [])
 
     useEffect(() => {
         socket.emit('game_start', {username: user.username, room: room});
-        socket.on('role', (data: {players: string[], role: string}) => {
+        socket.on('role', (data: {players: string[], role: string, avatars: string[]}) => {
             setPlayers(data.players);
+            setAvatars(data.avatars);
             setRole(data.role);
         })
         return(() => {
@@ -169,12 +213,22 @@ function GamePage(props: any): any {
                     <div className="col-2 row-height">
                         <hr/>
                         <h5 id='subTitle'>PLAYERS</h5>
-                        <div className="friendlist">
-                            <ul className="ul">
-                                <li><div className="col userinfo">{Players[0]} : {Scores[0]}</div></li>
-                                <li><div className="col userinfo">{Players[1]} : {Scores[1]}</div></li>
-                            </ul>
-                        </div>
+                        <table id="playerList" className="table table-striped table-dark"><thead>
+                            <tr>
+                                <td style={{borderWidth: '1px'}}>
+                                    <img src={Avatars[0]} alt="avatar1" width="30" height="30"/>
+                                    <span style={{marginLeft: '12px'}}>{Players[0]}</span>
+                                </td>
+                                <td style={{borderWidth: '1px'}}><p style={{marginBottom: '0.3rem'}}><strong>{Scores[0]}</strong></p></td>
+                            </tr>
+                            <tr>
+                                <td style={{borderWidth: '1px'}}>
+                                    <img src={Avatars[1]} alt="avatar2" width="30" height="30"/>
+                                    <span style={{marginLeft: '12px'}}>{Players[1]}</span>
+                                </td>
+                                <td style={{borderWidth: '1px'}}><p style={{marginBottom: '0.3rem'}}><strong>{Scores[1]}</strong></p></td>
+                            </tr>
+                        </thead></table>
                         <hr/>
                         <h5 id='subTitle'>VIEWERS</h5>
                         <div className="friendlist">
@@ -187,10 +241,32 @@ function GamePage(props: any): any {
                     </div>
                     <div className="col-10 row-game">
                         {!End ? <canvas id="bgCanvas" ref={canvasRef}></canvas> : 
-                        Scores[0] == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`}
+                            <div className="waiting-div d-flex align-items-center">
+                                {Scores[0] == 5 ? 
+                                    <><img src={Avatars[0]} alt="avatar1" width="120" height="120"/>
+                                    <p className="waiting">{Players[0]} WIN</p></> :
+                                    <><img src={Avatars[1]} alt="avatar2" width="120" height="120"/>
+                                    <p className="waiting">{Players[1]} WIN</p></>}
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
+            <img id="white" src={whitetheme} style={{display:"none"}}></img>
+            <img id="dark" src={darktheme} style={{display:"none"}}></img>
+            <img id="green" src={greentheme} style={{display:"none"}}></img>
+            <img id="purple" src={purpletheme} style={{display:"none"}}></img>
+            <img id="defaultball" src={defaultball} style={{display:"none"}}></img>
+            <img id="darkball" src={darkball} style={{display:"none"}}></img>
+            <img id="natureball" src={natureball} style={{display:"none"}}></img>
+            <img id="funkyball" src={funkyball} style={{display:"none"}}></img>
+            <img id="defaultpad" src={defaultpad} style={{display:"none"}}></img>
+            <img id="darkpad" src={darkpad} style={{display:"none"}}></img>
+            <img id="naturepad" src={naturepad} style={{display:"none"}}></img>
+            <img id="funkypad" src={funkypad} style={{display:"none"}}></img>
+            <img id="powerspeed" src={powerspeed} style={{display:"none"}}></img>
+            <img id="powerball" src={powerball} style={{display:"none"}}></img>
+            <img id="powerpad" src={powerpad} style={{display:"none"}}></img>
         </div>)
     }
     else {
