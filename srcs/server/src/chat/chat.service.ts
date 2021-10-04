@@ -79,12 +79,13 @@ export class ChatService {
         });
       }
       for (const d of data) {
-        this.leaveChannel(d); // TODO: somehow this only makes one person leave
+        await this.leaveChannel(d); // TODO: somehow this only makes one person leave
                               // DONE: await
       }
       const delmsg = await this.messagesRepository.delete({channel: chan});
       const delch = await this.chanRepository.delete({name: chan.name});
-      if (delmsg && delch) {
+      const qwe = await this.chanRepository.save(delch?.raw);
+      if (delmsg && delch && qwe) {
         console.log('channel ' + channame + ' delete successful');
       }
     }
@@ -108,7 +109,7 @@ export class ChatService {
   }
 
   async getAllChannels() {
-    return (this.chanRepository.find());
+    return (await this.chanRepository.find());
   }
 
   async getChannels(username: string) {

@@ -609,6 +609,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             }
         });
         this.props.socket.on('send_destroy_channel', (channel: string) => {
+            this.setState({ chanlist: ''});
             this.props.socket.emit('request_get_channels', this.props.user.username);
         });
         this.props.socket.on('send_channel_clients', (cllist: string[]) => {

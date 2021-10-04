@@ -36,11 +36,9 @@ export class ChatController {
                   password: string,
                   clients: string[]}[] = [];
 
-        console.log('id of ' + request.user.username + ' calling channels : ' + request.user.id);
         if (request.user.username === "admin") {
             const chanlist = await this.chatService.getAllChannels();
             for (const chan of chanlist) {
-                console.log('push ' + chan.name + "'s information");
                 ret.push({
                     "name": chan.name,
                     "owner": chan.owner,
