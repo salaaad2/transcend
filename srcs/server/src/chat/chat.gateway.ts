@@ -258,6 +258,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, client: string }) {
     try {
+      console.log('promoting client' + data.channel + data.client);
       await this.chatService.promoteClient(data);
       this.server.emit('send_promoted_client', data.channel, data.client);
     }

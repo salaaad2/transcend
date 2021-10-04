@@ -624,6 +624,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.sendLeftChannel(channel, username);
         });
         this.props.socket.on('send_promoted_client', (channel: string, username: string) => {
+            console.log('promote this guy');
             this.sendPromotedClient(channel, username);
         });
         this.props.socket.on('send_demoted_client', (channel: string, username: string) => {

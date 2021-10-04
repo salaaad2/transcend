@@ -69,26 +69,16 @@ function AdminPanel(props: any) {
         })
     }
 
-    function setAdmin(adm: any, chan: string) {
-        console.log(adm.innerText);
-        console.log('adm : ' + adm.innerText + 'chan : ' + chan);
-            socket.emit('request_promote_client', {
-                        'channel': adm.innerText,
-                        'admin': adm,
-                }
-            );
-            setLoading(true);
-            Utils.notifySuccess('succesfully set admin' + chan);
+    function setAdmin(adm: HTMLElement | null, chan: string) {
+        socket.emit('request_promote_client', {
+            'channel': chan,
+            'client': adm?.innerText});
+        setLoading(true);
+        Utils.notifySuccess('succesfully set admin' + chan);
     }
 
-    // TODO: use .length like a normal human,
-    // instead of this disgusting workaround
-    // TODO: updateDOmElement before mapping users, yo
-    // isLoading ?
-
-
-
-
+    // DONE : mapping is easy-peasy, yo
+    //
 
     function ListChannels(channels: any) {
         idChan++;
@@ -136,14 +126,11 @@ function AdminPanel(props: any) {
         if (user.id > 0)
             socket.emit('login', user.username);
         Utils.intercept401(props);
-        console.log('on page : ' + user.username);
         axios.post(`${process.env.REACT_APP_BASE_URL}/chat/channels`,
         {username : user.username},
                    {withCredentials: true})
         .then((response) => {
             if (response.data) {
-                console.log('channels : ');
-                console.log(response.data);
                 setChannels(response.data);
                 setLoading(false);
             }
