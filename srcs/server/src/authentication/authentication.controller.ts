@@ -126,8 +126,14 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @Get('all')
     async getAllUsers() {
-        var data = await this.usersService.getEveryone();
-        var ret: {id: number, username: string, wins: number, losses: number, avatar: string, elo: number}[] = [];
+        const data = await this.usersService.getEveryone();
+        const ret: {id: number,
+                  username: string,
+                  wins: number,
+                  losses: number,
+                  avatar: string,
+                  elo: number,
+                  status: string}[] = [];
         for (let i = 0 ; i < data.length ; i++ ) {
             ret.push({
                 "id": data[i].id,
@@ -136,6 +142,7 @@ export class AuthenticationController {
                 "losses": data[i].losses,
                 "avatar": data[i].avatar,
                 "elo": data[i].elo,
+                "status": data[i].status,
             })
         }
         return ret;

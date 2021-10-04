@@ -22,4 +22,59 @@ export class ChatController {
         const messages = await this.chatService.getAllMessages(channel.channel);
         return messages;
     }
+
+    @Post('channels')
+    @UseGuards(JwtAuthenticationGuard)
+    async getChannels(@Body() u: {username: string},
+                      @Req() request: RequestWithUser) {
+
+        let ret: {name: string,
+                  owner: string,
+                  admin: string[],
+                  mutelist: string[],
+                  banlist: string[],
+                  password: string,
+                  clients: string[]}[] = [];
+
+        console.log('id of ' + request.user.username + ' calling channels : ' + request.user.id);
+        if (request.user.username === "admin") {
+            const chanlist = await this.chatService.getAllChannels();
+            for (const chan of chanlist) {
+                console.log('push ' + chan.name + "'s information");
+                ret.push({
+                    "name": chan.name,
+                    "owner": chan.owner,
+                    "admin": chan.admin,
+                    "mutelist": chan.mutelist,
+                    "banlist": chan.banlist,
+                    "password": chan.password,
+                    "clients": chan.clients,
+                });
+            }
+        }
+        return ret;
+    }
+
+    @Post('deletechan')
+    @UseGuards(JwtAuthenticationGuard)
+    async deleteChan(@Body() data: {channel: string},
+                      @Req() request: RequestWithUser) {
+        if (request.user.id !== 1) {
+            return ;
+        }
+        await this.chatService.deleteChannel(data.channel);
+    }
+
+    @Post('setadmin')
+    @UseGuards(JwtAuthenticationGuard)
+    async setadmin(@Body() data: {adm: string,
+                                 chan: string},
+                   @Req() request: RequestWithUser) {
+        console.log('setadmin called. setting ' + data.chan + '\'s admin to ' + data.adm);
+        if (request.user.id !== 1) {
+            return ;
+        }
+        await this.chatService.setAdmin(data);
+    }
+
 }

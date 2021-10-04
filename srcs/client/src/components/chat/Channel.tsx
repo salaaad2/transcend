@@ -608,6 +608,9 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                 this.props.socket.emit('request_get_channel_clients', 'General');
             }
         });
+        this.props.socket.on('send_destroy_channel', (channel: string) => {
+            this.props.socket.emit('request_get_channels', this.props.user.username);
+        });
         this.props.socket.on('send_channel_clients', (cllist: string[]) => {
             this.setState({ cllist: cllist });
         });
@@ -647,6 +650,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.props.socket.removeAllListeners('send_channels');
             this.props.socket.removeAllListeners('send_channel_joined');
             this.props.socket.removeAllListeners('send_channel_clients');
+            this.props.socket.removeAllListeners('send_destroy_channel');
             this.props.socket.removeAllListeners('send_left_channel');
             this.props.socket.removeAllListeners('send_error');
             this.props.socket.removeAllListeners('send_promoted_client');

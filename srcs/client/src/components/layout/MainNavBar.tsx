@@ -21,6 +21,7 @@ function MainNavBar(props: any) {
     let avatar = user.avatar;
     const [Avatar, setAvatar] = useState(avatar);
     const socket = React.useContext(SocketContext);
+    const isAdmin = (user.id === 1);
     const [Notifications, setNotifications] = useState(false);
     const [FriendRequests, setFriendRequests] = useState<string[]>([]);
     const [GameRequests, setGameRequests] = useState<string[]>([]);
@@ -223,6 +224,7 @@ function MainNavBar(props: any) {
                         <NavDropdown.Item href="#spectator">Watch</NavDropdown.Item>
                       </NavDropdown>
                       <Nav.Link href="#chat/:General">Chat</Nav.Link>
+                      {(isAdmin) ? <Nav.Link href="#adminpanel">Admin Panel</Nav.Link> : <div></div>}
                       <Nav.Link href="#ladder">Ladder</Nav.Link>
                     </Nav>
                     <Nav.Link href={profilelink}>

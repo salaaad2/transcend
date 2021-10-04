@@ -168,11 +168,6 @@ function GamePage(props: any): any {
                 <div className="row">
                     <div className="col-2 row-height">
                         <hr/>
-                        <h5 id='subTitle'>Controls</h5>
-                        <ul classname="ul">
-                        <li> <div classname="col controls"> Arrows up/down : move pallet</div></li>
-                        <li> <div classname="col controls"> F : surrender</div></li>
-                        </ul>
                         <h5 id='subTitle'>PLAYERS</h5>
                         <div className="friendlist">
                             <ul className="ul">

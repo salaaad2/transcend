@@ -57,6 +57,60 @@ export class ChatService {
       return undefined;
   }
 
+
+      /*
+       * triggered by post on chat/deletechan as admin
+       * @param chan name
+       * if channel exists, get all users and make them leave
+       */
+
+  async deleteChannel(channame: string) {
+
+    const chan = await this.chanRepository.findOne({ name: channame });
+    const data: {channel: string,
+               username: string}[] = [];
+
+    if (chan) {
+      const clist = await this.getChannelClients(chan.name);
+      for (const client of clist) {
+        data.push({
+          "channel": chan.name,
+          "username": client,
+        });
+      }
+      for (const d of data) {
+        this.leaveChannel(d); // TODO: somehow this only makes one person leave
+                              // DONE: await
+      }
+      const delmsg = await this.messagesRepository.delete({channel: chan});
+      const delch = await this.chanRepository.delete({name: chan.name});
+      if (delmsg && delch) {
+        console.log('channel ' + channame + ' delete successful');
+      }
+    }
+  }
+
+      /*
+       * triggered by post on chat/setAdmin as admin
+       * @param chan name
+       * @param new admin
+       * pretty self explanatory....
+       */
+
+  async setAdmin(data: {chan: string, adm: string}) {
+    const channel = await this.chanRepository.findOne({ name: data.chan });
+    if (channel) {
+      const clist = await this.getChannelClients(channel.name);
+      if (clist.includes(data.adm)) {
+        channel.admin.push(data.adm);
+      }
+    }
+  }
+
+  async getAllChannels() {
+    return (this.chanRepository.find());
+  }
+
   async getChannels(username: string) {
     const user = this.userService.getByUsername(username);
     const chanlist: string[] = [];

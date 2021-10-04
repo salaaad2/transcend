@@ -331,6 +331,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('request_destroy_channel')
+  async destroyChannel(
+    @ConnectedSocket() socket: Socket,
+  @MessageBody() data: {channel: string, id: number}) {
+    try {
+      if (data.id === 1) {
+        this.chatService.deleteChannel(data.channel);
+        this.server.emit('send_destroy_channel', data.channel);
+      }
+    }
+    catch(e) {
+      socket.emit('send error', e);
+    }
+  }
+
   ///////////
   // LOBBY //
   ///////////

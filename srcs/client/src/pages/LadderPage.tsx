@@ -12,7 +12,7 @@ function LadderPage(props: any): any {
 
     const [isLoading, setLoading] = useState(true);
     const [Everyone, setEveryone] = useState([]);
-    var idTab = 0;
+    let idTab = 0;
     const socket = React.useContext(SocketContext);
     const { user } = useUser()!;
 

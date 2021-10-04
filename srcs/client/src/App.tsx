@@ -13,6 +13,7 @@ import GamePage from './pages/GamePage';
 import ProfilePage from './pages/ProfileDetailPage';
 import LadderPage from './pages/LadderPage';
 import SpectatorPage from './pages/SpectatorPage';
+import AdminPanel from './pages/AdminPanel';
 import React, { useEffect } from 'react';
 import { SocketContext } from './socket/context';
 import { useUser } from './components/context/UserAuthContext';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/ladder" component={LadderPage}/>
           <Route path="/login" component={LoginPage}/>
           <Route path="/chat/:id" component={ChatPage}/>
+          <Route path="/adminpanel" component={AdminPanel}/>
           <Route exact path='/game' component={GameLobby}/>
           <Route exact path='/game/:room' component={GamePage}/>
           <Route exact path='/spectator' component={SpectatorPage}/>
