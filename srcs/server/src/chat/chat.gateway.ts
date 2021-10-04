@@ -337,8 +337,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @MessageBody() data: {channel: string, id: number}) {
     try {
       if (data.id === 1) {
-        this.chatService.deleteChannel(data.channel);
         this.server.emit('send_destroy_channel', data.channel);
+      }
+      else {
+        console.log(data);
+        console.log('you are not admin, therefore you cannot delete ' + data.id);
       }
     }
     catch(e) {
