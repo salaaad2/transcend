@@ -63,16 +63,4 @@ export class ChatController {
         await this.chatService.deleteChannel(data.channel);
     }
 
-    @Post('setadmin')
-    @UseGuards(JwtAuthenticationGuard)
-    async setadmin(@Body() data: {adm: string,
-                                 chan: string},
-                   @Req() request: RequestWithUser) {
-        console.log('setadmin called. setting ' + data.chan + '\'s admin to ' + data.adm);
-        if (request.user.id !== 1) {
-            return ;
-        }
-        await this.chatService.setAdmin(data);
-    }
-
 }

@@ -115,6 +115,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             link.href = '#profile/:' + cl;
             link.textContent = cl;
             link.className = 'userinfo';
+            console.log('adminlist : ');
+            console.log(this.state.adminlist);
             if (this.state.toggle === 'public')
             {
                 if (this.state.owner === cl)

@@ -91,23 +91,6 @@ export class ChatService {
     }
   }
 
-      /*
-       * triggered by post on chat/setAdmin as admin
-       * @param chan name
-       * @param new admin
-       * pretty self explanatory....
-       */
-
-  async setAdmin(data: {chan: string, adm: string}) {
-    const channel = await this.chanRepository.findOne({ name: data.chan });
-    if (channel) {
-      const clist = await this.getChannelClients(channel.name);
-      if (clist.includes(data.adm)) {
-        channel.admin.push(data.adm);
-      }
-    }
-  }
-
   async getAllChannels() {
     return (await this.chanRepository.find());
   }
@@ -273,10 +256,12 @@ export class ChatService {
   async promoteClient(data: { channel: string, client: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.client);
+    console.log('promote ' + data.client + ' to admin on channel : ' + data.channel);
     if (chan && user)
     {
       if (!chan.admin.includes(data.client))
          chan.admin.push((data.client));
+      console.log('promoted ' + data.client);
       await this.chanRepository.save(chan);
     }
     else
