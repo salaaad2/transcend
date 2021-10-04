@@ -254,7 +254,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
 
     btnBan(e: Event, chan:string, cl: string) {
         e.preventDefault();
-        this.props.socket.emit('request_ban_client', {
+        this.props.socket.emit('request_ban_from_chan', {
             channel: chan,
             client: cl,
         });

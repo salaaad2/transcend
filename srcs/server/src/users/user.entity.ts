@@ -42,6 +42,9 @@ class User {
 
     @Column("text", {array: true, default: []})
     public friendrequests: string[];
+
+    @Column({default: false})
+    public ismod: boolean;
 }
 
 export default User;

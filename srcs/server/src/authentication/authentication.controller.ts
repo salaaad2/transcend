@@ -171,4 +171,5 @@ export class AuthenticationController {
     async updateData(@Req() request: RequestWithUser, @Body() data: {data: string}) {
         this.usersService.updateAvatar(request, data.data);
     }
+
 }

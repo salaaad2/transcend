@@ -306,7 +306,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('request_ban_client')
+  @SubscribeMessage('request_ban_from_chan')
   async banClient(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, client: string }) {

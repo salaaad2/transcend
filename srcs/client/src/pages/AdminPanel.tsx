@@ -29,25 +29,6 @@ function AdminPanel(props: any) {
     const socket = React.useContext(SocketContext);
     const { user } = useUser()!;
 
-	function ListEveryone(everyone: any) {
-        idUser++;
-        return (
-                <tr key={idUser} id={idUser === 1 ? "gold" : idUser === 2 ? "silver" : idUser === 3 ? "bronze" : ""}>
-                    <th scope='row'>
-                        <p>{idUser}</p>
-                    </th>
-                    <td>
-                        <img src={everyone.avatar} alt="avatar" width="30" height="30"/>
-                        <a href={'#profile/:' + everyone.username}>{everyone.username}</a>
-                    </td>
-                    <td><p>{everyone.status}</p></td>
-                    <td><p>{everyone.wins}</p></td>
-                    <td><p>{everyone.losses}</p></td>
-                    <td><p>{everyone.elo}</p></td>
-                </tr>
-        )
-    }
-
     function deleteChan(chan: string) {
         console.log('trying to delete chan : ' + chan);
         if (chan === 'General') {
@@ -77,6 +58,36 @@ function AdminPanel(props: any) {
         Utils.notifySuccess('succesfully set admin' + chan);
     }
 
+    function banClient(username: string) {
+        socket.emit('request_ban_client', {
+            'username': 'lameassclient'});
+    }
+
+
+	function ListEveryone(everyone: any) {
+        idUser++;
+        return (
+                <tr key={idUser} id={idUser === 1 ? "gold" : idUser === 2 ? "silver" : idUser === 3 ? "bronze" : ""}>
+                    <th scope='row'>
+                        <p>{idUser}</p>
+                    </th>
+                    <td>
+                        <img src={everyone.avatar} alt="avatar" width="30" height="30"/>
+                        <a href={'#profile/:' + everyone.username}>{everyone.username}</a>
+                    </td>
+                    <td><p>{everyone.status}</p></td>
+                    <td><p>{everyone.wins}</p></td>
+                    <td><p>{everyone.losses}</p></td>
+                    <td><p>{everyone.elo}</p></td>
+                    <td><p>
+                    <button type="button" onClick={(e: any) =>
+                        banClient(everyone.username)}
+                        className="btn btn-secondary">{"Ban " + everyone.username}</button>
+                    </p></td>
+                </tr>
+        )
+    }
+
     // DONE : mapping is easy-peasy, yo
     //
 
@@ -89,7 +100,6 @@ function AdminPanel(props: any) {
                     <td><Button type="button" onClick={() =>
                         deleteChan(channels.name)}
                                 className="btn btn-secondary">{"delete " + channels.name}</Button></td>
-                    <div className="adminselect" id="divadminselect">
                     <td>
                         <select id="adminselect">
                         {channels.clients.map((admin: any) => (
@@ -102,8 +112,7 @@ function AdminPanel(props: any) {
                         setAdmin(document.getElementById('adminselect'), channels.name)}
                                 className="btn btn-secondary">{"set as admin " + channels.name}</button>
                     </td>
-                    </div>
-                    <td><p>{channels.admin}</p></td>
+                    <td><p>{channels.owner}</p></td>
                 </tr>
         )
     }
@@ -160,6 +169,7 @@ function AdminPanel(props: any) {
                             <th scope="col">Victories</th>
                             <th scope="col">Defeats</th>
                             <th scope="col">Elo</th>
+                            <th scope="col">Danger Zone</th>
                         </tr>
                         {Everyone.map((listvalue) => {
                             return (ListEveryone(listvalue))
@@ -175,7 +185,7 @@ function AdminPanel(props: any) {
                             <th scope="col">n of users</th>
                             <th scope="col">delete</th>
                             <th scope="col">set admin</th>
-                            <th scope="col">current admin</th>
+                            <th scope="col">owner</th>
                             </tr>
                             {Channels.map((listvalue) => {
                                 return (ListChannels(listvalue));
