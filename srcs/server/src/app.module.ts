@@ -1,7 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PostsModule } from './posts/posts.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { DatabaseModule } from './database/database.module';
@@ -9,22 +6,19 @@ import { ExceptionsLoggerFilter } from './utils/exceptionsLogger.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { UsersModule } from './users/users.module';
-import { ChatGateway } from './chat/chat.gateway';
-import { ChatService } from './chat/chat.service';
+import { ProfileModule } from './profile/profile.module';
 import { ChatModule } from './chat/chat.module';
-import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AvatarModule } from './avatar/avatar.module';
 import { MatchModule } from './match/match.module';
-
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
-    PostsModule,
     ConfigModule.forRoot({
     validationSchema: Joi.object({
       POSTGRES_HOST: Joi.string().required(),
@@ -42,7 +36,9 @@ import { MatchModule } from './match/match.module';
     UsersModule,
     ChatModule,
     AvatarModule,
-    MatchModule
+    MatchModule,
+    ProfileModule,
+    SocketModule
   ],
   controllers: [],
   providers: [

@@ -1,6 +1,3 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { string, StringSchema } from '@hapi/joi';
-import { Param } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody, OnGatewayConnection,
@@ -9,46 +6,15 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { useContainer } from 'class-validator';
-import { SocketAddress } from 'net';
-import { use } from 'passport';
 import { Server, Socket } from 'socket.io';
-import { MatchService } from 'src/match/match.service';
-import { UsersService } from 'src/users/users.service';
-import { ChatService } from './chat.service';
-import { PongService } from './pong.service';
-
-interface Room {
-  id: number;
-  start: boolean;
-  end: boolean;
-  Players : string[];
-  ingame: boolean;
-  p1position: number;
-  p2position: number;
-  p1score: number;
-  p2score: number;
-  p1direction: number;
-  p2direction: number;
-  countdown: number;
-  spectators: string[];
-  speed: number;
-  powerups: boolean;
-  powerspecs: {
-    type: number;
-    x: number;
-    y: number;
-  }
-  ballposition: {
-    x: number;
-    y: number;
-    dir: number;
-    coeff: number;
-  };
-}
+import { MatchService } from '../match/match.service';
+import { UsersService } from '..//users/users.service';
+import { ChatService } from '../chat/chat.service';
+import { PongService } from '../pong/pong.service';
+import { Room } from '../match/room.interface';
 
 @WebSocketGateway({cors: true})
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -66,9 +32,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public interval: any[] = [];
   public id: number = 0;
 
-  /////////////
-  // GENERAL //
-  /////////////
+  /////////////////
+  // Connection //
+  ////////////////
 
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
@@ -117,6 +83,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  ////////////
+  //Profile//
+  //////////
+
   @SubscribeMessage('addfriend')
   async handleAddFriend(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
     const f_socket = this.tab[username];
@@ -130,14 +100,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     this.userService.Request(f_user, 'friendrequest', user);
   }
-
-  // @SubscribeMessage('remove_request')
-  // async AcceptRequest(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
-  //   const str = Object.keys(this.tab).find(k => this.tab[k] === socket);
-  //   console.log(str);
-  //   const user = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
-  //   user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == username}, 1));
-  // }
 
   @SubscribeMessage('accept_friend')
   async AcceptFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
@@ -164,7 +126,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async GameRequest(@MessageBody() data: any[], @ConnectedSocket() socket: Socket) {
     const f_socket: Socket = this.tab[data[0]];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
-    
+
     console.log(data);
     f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
   }
@@ -192,16 +154,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('request_all_messages')
   async requestAllMessages(
-    @ConnectedSocket() socket: Socket, 
+    @ConnectedSocket() socket: Socket,
     @MessageBody() channel: string) {
     const messages = await this.chatService.getAllMessages(channel);
     socket.emit('send_all_messages', messages);
   }
 
-  /*
-   * on socket event, try to joinChannel.
-   * If it fails, `chan` will be null
-   */
   @SubscribeMessage('request_join_channel')
   async joinChannel(
     @ConnectedSocket() socket: Socket,
@@ -340,8 +298,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.players.push(playername);
     if (this.players.length == 1) {
       this.id++;
-      this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""], 
-                       ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
+      this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""],
+                       ingame: false, p1position: 40, p2position: 40, p1direction: 0,
                        p2direction: 0, p1score: 0, p2score: 0,
                        countdown: 150, speed: 1, powerups: false, powerspecs: {
                          type: 0, x: -100, y: -100
@@ -360,8 +318,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const socket2 = this.tab[data[1]];
 
     this.id++;
-    this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: [data[0], data[1]], 
-    ingame: false, p1position: 40, p2position: 40, p1direction: 0, 
+    this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: [data[0], data[1]],
+    ingame: false, p1position: 40, p2position: 40, p1direction: 0,
     p2direction: 0, p1score: 0, p2score: 0,
     countdown: 150, speed: data[3], powerups: data[2], powerspecs: {
       type: 0, x: -100, y: -100
@@ -382,10 +340,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('game_on')
   async GameOn(@MessageBody() playername: string) {
-    var nb: number = this.players.findIndex(element => element == playername) % 2;
-    var index: number = nb % 2;
+    let nb: number = this.players.findIndex(element => element == playername) % 2;
+    let index: number = nb % 2;
     this.rooms[this.id].Players[index] = playername;
-    var id = this.id;
+    let id = this.id;
     this.server.emit('active_players', {playername, index, id});
   }
 
@@ -401,10 +359,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('game_start')
   async GiveRole(@ConnectedSocket() socket: Socket,
                  @MessageBody() data: {username: string, room: number}) {
-    var rm: number = data.room;
+    let rm: number = data.room;
     if (this.rooms[rm]) {
-      var players: string[] = this.rooms[rm].Players;
-      var avatars = [(await this.userService.getByUsername(players[0])).avatar, (await this.userService.getByUsername(players[1])).avatar]
+      let players: string[] = this.rooms[rm].Players;
+      let avatars = [(await this.userService.getByUsername(players[0])).avatar, (await this.userService.getByUsername(players[1])).avatar]
       this.rooms[rm].ingame = true;
       if (this.rooms[rm].Players[0] == data.username)
         socket.emit('role', {players: players, role: 'player1', avatars: avatars});
@@ -517,9 +475,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('stop_info')
   async GameStop(@MessageBody() room: number, @ConnectedSocket() socket: Socket) {
-    var username = Object.keys(this.tab).find(k => this.tab[k] === socket);
-    if (this.rooms[room] && 
-      this.rooms[room].Players[0] != username && 
+    const username = Object.keys(this.tab).find(k => this.tab[k] === socket);
+    if (this.rooms[room] &&
+      this.rooms[room].Players[0] != username &&
       this.rooms[room].Players[1] != username)
     {
       this.rooms[room].spectators.splice(

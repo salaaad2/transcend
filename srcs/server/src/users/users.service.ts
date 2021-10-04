@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from './user.entity';
 import CreateUserDto from './dto/createUser.dto';
-import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Injectable()
 export class UsersService {
@@ -42,7 +41,6 @@ export class UsersService {
         });
     }
 
-
     async getByUsername(username: string) {
         const user = await this.usersRepository.findOne({
             username: username });
@@ -58,44 +56,6 @@ export class UsersService {
         return newUser;
     }
 
-    async addFriend(username: string, f_user: string) {
-        const user = await this.usersRepository.findOne({username: f_user});
-        user.friendlist[user.friendlist.length] = username;
-        await this.usersRepository.save(user);
-        return user.friendlist;
-    }
-
-    async delFriend(username: string, f_user: string) {
-        const user = await this.usersRepository.findOne({username: f_user});
-        for(let i = 0; i < user.friendlist.length; i++) {
-            if(user.friendlist[i] == username) {
-                user.friendlist.splice(i, 1);
-                break;
-            }
-        }
-        await this.usersRepository.save(user);
-        return user.friendlist;
-    }
-
-    async block(username: string, req: RequestWithUser) {
-        const user = await this.usersRepository.findOne({username: req.user.username});
-        user.blocklist[user.blocklist.length] = username;
-        await this.usersRepository.save(user);
-        return user.blocklist;
-    }
-
-    async unblock(username: string, req: RequestWithUser) {
-        const user = await this.usersRepository.findOne({username: req.user.username});
-        for(let i = 0; i < user.blocklist.length; i++) {
-            if(user.blocklist[i] == username) {
-                user.blocklist.splice(i, 1);
-                break;
-            }
-        }
-        await this.usersRepository.save(user);
-        return user.blocklist;
-    }
-
     async getEveryone() {
         let users = await this.usersRepository.find();
         users = users.sort((a,b) => (a.elo < b.elo) ? 1 : ((b.elo < a.elo) ? -1 : 0))
@@ -104,16 +64,6 @@ export class UsersService {
 
     async save(user: User) {
         await this.usersRepository.save(user);
-    }
-
-    async updateProfile(data: any[]) {
-        console.log(data[0]);
-        const user = await this.usersRepository.findOne({username: data[0]});
-
-        if (data[1] != "")
-            user.avatar = data[1];
-        user.theme = data[2];
-        this.usersRepository.save(user);
     }
 
     async Request(user: User, param: string, data: string) {

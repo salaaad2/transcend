@@ -1,21 +1,15 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import Message from './message.entity';
 import User from '../users/user.entity';
-import { Connection, Repository, createConnection } from 'typeorm';
-import { Socket } from 'socket.io';
-import { parse } from 'cookie';
-import { WsException } from '@nestjs/websockets';
+import { Repository } from 'typeorm';
 import Channel from './channel.entity';
 import { UsersService } from 'src/users/users.service';
-import { runInThisContext } from 'vm';
-import RequestWithUser from 'src/authentication/requestWithUser.interface';
- 
+
 @Injectable()
 export class ChatService {
   constructor(
-    private readonly authenticationService: AuthenticationService,
     private readonly userService: UsersService,
     @InjectRepository(Message)
     private messagesRepository: Repository<Message>,
@@ -105,10 +99,6 @@ export class ChatService {
     return channel;
   }
 
-  /*
-   * lookup user, then find out if he is in a channel
-   * if the chan doesn't exist, create it, if not, join it with the correct password
-   */
   async joinChannel(data: { username: string, channel: string , password: string}) {
     const user = await this.userService.getByUsername(data.username);
     let chan = await this.chanRepository.findOne({ name: data.channel});
