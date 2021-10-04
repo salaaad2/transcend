@@ -14,11 +14,11 @@ import ProfilePage from './pages/ProfileDetailPage';
 import LadderPage from './pages/LadderPage';
 import SpectatorPage from './pages/SpectatorPage';
 import OtpPage from './pages/OtpPage';
+import OtpLoginPage from './pages/OtpLoginPage';
 import React, { useEffect } from 'react';
 import { SocketContext } from './socket/context';
 import { useUser } from './components/context/UserAuthContext';
 import Utils from './components/utils/utils';
-
 function App() {
 
   // const socket = React.useContext(SocketContext);
@@ -53,6 +53,7 @@ function App() {
           <Route path="/register" component={RegisterPage}/>
           <Route path="/ladder" component={LadderPage}/>
           <Route path="/login" component={LoginPage}/>
+          <Route path="/otp-login" component={OtpLoginPage}/>
           <Route path="/chat/:id" component={ChatPage}/>
           <Route exact path='/game' component={GameLobby}/>
           <Route exact path='/game/:room' component={GamePage}/>

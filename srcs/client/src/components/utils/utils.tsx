@@ -46,7 +46,7 @@ class Utils {
     notifyErr(msg: string) {
         toast.error(msg, {
             position: "top-right",
-            autoClose: 5000,
+            autoClose: 2000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -58,7 +58,7 @@ class Utils {
     notifyInfo(msg: string) {
         toast(msg,  {
             position: "top-right",
-            autoClose: 5000,
+            autoClose: 2000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -70,7 +70,7 @@ class Utils {
     notifySuccess(msg: string) {
         toast.success(msg,  {
             position: "top-right",
-            autoClose: 5000,
+            autoClose: 2000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,

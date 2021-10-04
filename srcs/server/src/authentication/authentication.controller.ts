@@ -45,7 +45,7 @@ export class AuthenticationController {
             if (req.user.isOtpEnabled === false)
                 res.status(302).redirect('https://localhost:4000/');
             else
-                res.status(302).redirect('http://localhost:3000/authentication/2fa/authenticate')
+                res.status(302).redirect('https://localhost:4000/#/otp-login')
         }
     }
 
