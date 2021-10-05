@@ -29,38 +29,6 @@ function AdminPanel(props: any) {
     const socket = React.useContext(SocketContext);
     const { user } = useUser()!;
 
-    function deleteChan(chan: string) {
-        console.log('trying to delete chan : ' + chan);
-        if (chan === 'General') {
-            Utils.notifyErr('cannot delete general');
-            return ;
-        }
-        axios.post(`${process.env.REACT_APP_BASE_URL}/chat/deletechan`,
-        { channel: chan },
-        { withCredentials: true })
-        .then((response) => {
-            if (response.data) {
-                console.log(response.data);
-            }
-            socket.emit('request_destroy_channel', {
-                'channel': chan,
-                'id': user.id});
-            setLoading(true);
-            Utils.notifySuccess('successfully deleted channel ' + chan);
-        })
-    }
-
-    function setAdmin(adm: any, chan: string) {
-        console.log(adm.innerText);
-        console.log('setting admin : ');
-        /* console.log('setting admin : ' + adm.innerTex†); lolwhat */
-        socket.emit('request_promote_client', {
-            'channel': chan,
-            'client': adm.innerText});
-        setLoading(true);
-        Utils.notifySuccess('succesfully set admin' + chan);
-    }
-
     function reFresh() {
         setLoading(true);
     }
@@ -147,11 +115,43 @@ function AdminPanel(props: any) {
         )
     }
 
+    function deleteChan(chan: string) {
+        console.log('trying to delete chan : ' + chan);
+        if (chan === 'General') {
+            Utils.notifyErr('cannot delete general');
+            return ;
+        }
+        axios.post(`${process.env.REACT_APP_BASE_URL}/chat/deletechan`,
+        { channel: chan },
+        { withCredentials: true })
+        .then((response) => {
+            if (response.data) {
+                console.log(response.data);
+            }
+            socket.emit('request_destroy_channel', {
+                'channel': chan,
+                'id': user.id});
+            setLoading(true);
+            Utils.notifySuccess('successfully deleted channel ' + chan);
+        })
+    }
+
+
+    function setAdmin(adm: any, chan: string) {
+        socket.emit('request_promote_client', {
+            'channel': chan,
+            'client': adm.value});
+        setLoading(true);
+        Utils.notifySuccess('succesfully set admin' + chan);
+    }
+
+
     // DONE : mapping is easy-peasy, yo
     //
 
     function ListChannels(channels: any) {
         idChan++;
+        let strid = idChan.toString();
         return (
                 <tr key={idChan} >
                     <td><p>{channels.name}</p></td>
@@ -160,7 +160,7 @@ function AdminPanel(props: any) {
                         deleteChan(channels.name)}
                                 className="btn btn-secondary">{"delete " + channels.name}</Button></td>
                     <td>
-                        <select id="adminselect">
+                        <select className="adminselect" id={strid}>
                         {channels.clients.map((admin: any) => (
                             <option id={admin.value} value={admin.value}>
                             {admin}
@@ -168,7 +168,7 @@ function AdminPanel(props: any) {
                         ))}
                         </select>
                     <button type="button" onClick={(e: any) =>
-                        setAdmin(document.getElementById('adminselect'), channels.name)}
+                        setAdmin(document.getElementById(strid), channels.name)}
                                 className="btn btn-secondary">{"set as admin " + channels.name}</button>
                     </td>
                     <td><p>{channels.owner}</p></td>

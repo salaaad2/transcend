@@ -167,7 +167,7 @@ function MainNavBar(props: any) {
     }, [])
 
     useEffect(() => {
-        console.log('logout requested by admin');
+        /* console.log('logout requested by admin'); */
         socket.on('log_out', (data: string) => {
         if (data === user.username) {
           console.log('logout');
