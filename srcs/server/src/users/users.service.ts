@@ -107,10 +107,10 @@ export class UsersService {
         await this.usersRepository.save(user);
     }
 
-    async unbanClient(data: {username: string}) {
+    async modClient(data: {username: string, toggle: boolean}) {
         const user = await this.usersRepository.findOne({username: data.username});
 
-        user.isbanned = true;
+        user.ismod = data.toggle;
         await this.usersRepository.save(user);
-    }
+}
 }

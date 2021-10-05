@@ -62,15 +62,36 @@ function AdminPanel(props: any) {
         setLoading(true);
     }
 
+    function modClient(username: string, toggle: boolean) {
+        if (username === 'admin') {
+            Utils.notifyErr( 'who do you think you are ? Some kind of god ?' );
+            return ;
+        }
+        axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/mod_client`,
+        { username: username,
+          toggle: !toggle },
+        { withCredentials: true })
+        .then((response) => {
+            if (response.data) {
+                console.log(response.data);
+            }
+            /* socket.emit('request_destroy_channel', { // LOG OUT USER USING SOCKETS
+             *     'channel': chan,
+             *     'id': user.id}); */
+            setLoading(true);
+            Utils.notifySuccess('successfully modded ' + username);
+        })
+    }
+
     function banClient(username: string, toggle: boolean) {
         if (username === 'admin') {
             Utils.notifyErr( 'cannot ban admin, he is too cool' );
             return ;
         }
+
         axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/ban_client`,
-        { data:
-            {username: username,
-             toggle: !toggle} },
+        { username: username,
+             toggle: !toggle},
         { withCredentials: true })
         .then((response) => {
             if (response.data) {
@@ -104,10 +125,10 @@ function AdminPanel(props: any) {
                     {everyone.ismod ?
                      <button type="button" onClick={(e: any) =>
                         modClient(everyone.username, everyone.ismod)}
-                        className="btn btn-secondary">{"Unban " + everyone.username}</button> :
+                        className="btn btn-secondary">{"unmod " + everyone.username}</button> :
                      <button type="button" onClick={(e: any) =>
                         modClient(everyone.username, everyone.ismod)}
-                        className="btn btn-secondary">{"Ban " + everyone.username}</button> }
+                        className="btn btn-secondary">{"mod " + everyone.username}</button> }
                     {everyone.isbanned ?
                      <button type="button" onClick={(e: any) =>
                         banClient(everyone.username, everyone.isbanned)}

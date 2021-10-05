@@ -42,6 +42,9 @@ export class AuthenticationController {
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
         const {user} = request;
+        if (user.isbanned) {
+            throw new HttpException('You are banned', HttpStatus.FORBIDDEN);
+        }
         const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
         request.res.setHeader('Set-Cookie', cookie);
         return user;
@@ -181,13 +184,25 @@ export class AuthenticationController {
 
     @UseGuards(JwtAuthenticationGuard)
     @Post('ban_client')
-    async banClient(@Req() request: RequestWithUser,
-                    @Body() data: {username: string, toggle: boolean}) {
-        if (request.user.ismod && data.username !== 'admin') {
+    async banClient(@Body() data: {username: string, toggle: boolean},
+                    @Req() request: RequestWithUser) {
+        if (request.user.ismod) {
             console.log('sufficient rights.\n banning : ' + data.username);
             this.usersService.banClient(data);
         } else {
-            throw new HttpException('Insufficient Rights to perform action', HttpStatus.I_AM_A_TEAPOT);
+            throw new HttpException('Insufficient Rights to ban or unban user', HttpStatus.I_AM_A_TEAPOT);
+        }
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('mod_client')
+    async modClient(@Body() data: {username: string, toggle: boolean},
+                    @Req() request: RequestWithUser) {
+        if (request.user.ismod) {
+            console.log('sufficient rights.\n modding : ' + data.username);
+            this.usersService.modClient(data);
+        } else {
+            throw new HttpException('Insufficient Rights to give or take away moderation rights', HttpStatus.I_AM_A_TEAPOT);
         }
     }
 }
