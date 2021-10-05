@@ -10,8 +10,6 @@ export class otpService {
   ) {}
 
     public isOtpCodeValid(otpCode: string, user: User) {
-        console.log('SECRET ' + user.otpSecret);
-        console.log('OTP CODE ' + otpCode);
         return authenticator.verify({
             token: otpCode,
             secret: user.otpSecret

@@ -1,11 +1,9 @@
 import './MainPage.css'
 import { Redirect } from 'react-router';
 import { useUser } from '../components/context/UserAuthContext';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Form, Col, Row, Container, Button } from 'react-bootstrap';
 import { SocketContext } from '../socket/context';
-import Utils from '../components/utils/utils';
-import axios from 'axios';
 import React from 'react';
 function MainPage(props: any) {
 
@@ -18,7 +16,9 @@ function MainPage(props: any) {
         return username.length > 0;
     }
 
-    async function submitHandler() {
+
+    async function submitHandler(e:any) {
+        e.preventDefault();
         socket.emit('request_set_username', {
             username: username,
             realname: user.realname
@@ -32,6 +32,7 @@ function MainPage(props: any) {
             user.username = data.username;
             setUser(user);
             socket.emit('login', data.username);
+            props.history.push('/');
         }
         });
         socket.on('send_error', (err:string) => {

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from './user.entity';
 import CreateUserDto from './dto/createUser.dto';
-import { UsernameDto } from './dto/username.dto';
 
 @Injectable()
 @UseInterceptors(ClassSerializerInterceptor)
@@ -61,8 +60,10 @@ export class UsersService {
         throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
-    async setUsername(@Body() { username }: UsernameDto, realname:string) {
+    async setUsername(realname:string, username:string) {
         const user = await this.getByRealname(realname);
+        if (username.length < 3 || username.length > 12 || !/^[a-zA-Z]*$/.test(username))
+            throw 'Error your username must be between 3 and 12 characters and must contains only letters';
         if (user) {
             if (!await this.usersRepository.findOne({
                 username: username}))

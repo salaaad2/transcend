@@ -24,14 +24,16 @@ export class ChatService {
  
   async saveMessage(content: {
     'channel': string,
-    'content': MessageDto,
+    'content': string
   }, username: string) {
     const channel = await this.chanRepository.findOne({name: content.channel})
     if (!channel)
       throw 'You must chose a channel first';
+    if (content.content.length < 1 || content.content.length > 250)
+      throw 'Error your message must be between 1 and 250 characters and must contains only letters';
     const message = this.messagesRepository.create({
       author: username,
-      content: content.content.message,
+      content: content.content,
       channel: channel
     });
     await this.messagesRepository.save(message);
@@ -95,13 +97,15 @@ export class ChatService {
     return channel;
   }
 
-  async joinChannel(data: { username: string, channel: ChannelDto, password: string}) {
+  async joinChannel(data: { username: string, channel: string, password: string}) {
+    if (data.channel.length < 3 || data.channel.length > 12 || !/^[a-zA-Z]*$/.test(data.channel))
+      throw 'Error your channel\'s name must be between 3 and 12 characters and must contains only letters';
     const user = await this.userService.getByUsername(data.username);
-    let chan = await this.chanRepository.findOne({ name: data.channel.channel});
+    let chan = await this.chanRepository.findOne({ name: data.channel});
 
     if (!chan)
     {
-      chan = await this.createChannel({ owner: data.username, name: data.channel.channel, password: data.password });
+      chan = await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
     }
     else if (chan.clients.includes(data.username))
     {
@@ -121,22 +125,24 @@ export class ChatService {
     {
       throw 'Wrong password to join ' + data.channel;
     }
-    if (!user.public_channels.includes(data.channel.channel))
+    if (!user.public_channels.includes(data.channel))
     {
-      user.public_channels[user.public_channels.length] = data.channel.channel;
+      user.public_channels[user.public_channels.length] = data.channel;
     }
     await this.usersRepository.save(user);
-    return (await this.chanRepository.findOne({ name: data.channel.channel }));
+    return (await this.chanRepository.findOne({ name: data.channel}));
   }
 
-  async joinPrivateChannel(data: { src: string, dst: ChannelDto }) {
+  async joinPrivateChannel(data: { src: string, dst: string }) {
+    if (data.dst.length < 3 || data.dst.length > 12 || !/^[a-zA-Z]*$/.test(data.dst))
+      throw 'Error invalid username';
     let name :string = data.src + '&' + data.dst;
-    if (data.src === data.dst.channel)
+    if (data.src === data.dst)
       throw 'You cannot speak with yourself';
     try
     {
       const user_src = await this.userService.getByUsername(data.src);
-      const user_dst = await this.userService.getByUsername(data.dst.channel);
+      const user_dst = await this.userService.getByUsername(data.dst);
       let chan = await this.chanRepository.findOne({name});
       if (!chan)
       {
@@ -151,12 +157,10 @@ export class ChatService {
         }
         name = data.src + '&' + data.dst;
         chan = await this.createChannel({ owner: data.src, name: name, password: ''});
-        chan.clients.push(data.dst.channel);
+        chan.clients.push(data.dst);
         await this.chanRepository.save(chan);
       }
-      else if (chan.clients.length === 2 && !chan.clients.includes(data.src))
-        throw 'This is a private channel'
-      else if (chan.clients.includes(data.src) && chan.clients.includes(data.dst.channel))
+      else if (chan.clients.includes(data.src) && chan.clients.includes(data.dst))
       {
         ;
       }
@@ -164,8 +168,8 @@ export class ChatService {
       {
         if (!chan.clients.includes(data.src))
           chan.clients.push(data.src);
-        if(!chan.clients.includes(data.dst.channel))
-          chan.clients.push(data.dst.channel);
+        if(!chan.clients.includes(data.dst))
+          chan.clients.push(data.dst);
         await this.chanRepository.save(chan);
       }
       if (!user_src.private_channels.includes(name))
@@ -182,13 +186,13 @@ export class ChatService {
     }
   }
 
-  async leaveChannel(data: { channel: ChannelDto, username: string }) {
-    const chan = await this.chanRepository.findOne({ name: data.channel.channel });
+  async leaveChannel(data: { channel: string, username: string }) {
+    const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.username);
     if (chan && user)
     {
       chan.clients.splice(chan.clients.indexOf(data.username), 1);
-      user.public_channels.splice(user.public_channels.indexOf(data.channel.channel), 1);
+      user.public_channels.splice(user.public_channels.indexOf(data.channel), 1);
       await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
     }
