@@ -145,9 +145,15 @@ function AdminPanel(props: any) {
         Utils.notifySuccess('succesfully set admin' + chan);
     }
 
+    function viewLogs(channel: string) {
+        socket.emit('request_all_messages' , {
+            channel
+        });
+        setLoading(true);
+    }
 
     // DONE : mapping is easy-peasy, yo
-    //
+    // note : †††††
 
     function ListChannels(channels: any) {
         idChan++;
@@ -169,9 +175,14 @@ function AdminPanel(props: any) {
                         </select>
                     <button type="button" onClick={(e: any) =>
                         setAdmin(document.getElementById(strid), channels.name)}
-                                className="btn btn-secondary">{"set as admin " + channels.name}</button>
+                                className="btn btn-secondary">{"set as admin"}</button>
                     </td>
                     <td><p>{channels.owner}</p></td>
+                    <td>
+                    <button type="button" onClick={() =>
+                        viewLogs(channels.name)}
+                                className="btn btn-secondary">View Logs</button>
+                    </td>
                 </tr>
         )
     }
@@ -246,6 +257,7 @@ function AdminPanel(props: any) {
                             <th scope="col">delete</th>
                             <th scope="col">set admin</th>
                             <th scope="col">owner</th>
+                            <th scope="col">log</th>
                             </tr>
                             {Channels.map((listvalue) => {
                                 return (ListChannels(listvalue));
