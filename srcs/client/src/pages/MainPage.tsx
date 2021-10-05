@@ -7,6 +7,9 @@ import { SocketContext } from '../socket/context';
 import Utils from '../components/utils/utils';
 import axios from 'axios';
 import React from 'react';
+import { createAvatar } from '@dicebear/avatars';
+import * as style from '@dicebear/avatars-gridy-sprites';
+
 function MainPage(props: any) {
 
     const { user, setUser } = useUser()!;
@@ -19,9 +22,17 @@ function MainPage(props: any) {
     }
 
     async function submitHandler() {
+        let svg = createAvatar(style, {
+            seed: username
+          });
+          let encoded = btoa(svg);
+          let str = 'data:image/svg+xml;base64,' + encoded;
+          user.avatar = str;
+
         socket.emit('request_set_username', {
             username: username,
-            realname: user.realname
+            realname: user.realname,
+            avatar: str,
         });
     }
 

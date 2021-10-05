@@ -253,6 +253,23 @@ hr:not([size]) {
     padding: 3px 0 0 0;
 }
 
+.status{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:7px;
+}
+.green{
+  background-color:#58b666;
+}
+.orange{
+  background-color:#ff725d;
+}
+.blue{
+  background-color:#6fbced;
+}
+
 
 .notif {
   margin-bottom: 0.4rem;
