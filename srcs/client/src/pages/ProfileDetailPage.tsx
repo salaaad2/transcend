@@ -152,54 +152,57 @@ function ProfilePage(props: any) {
   }, [Canvas])
 
   useEffect(() => {
-       axios.post(`/authentication/profile2`, {username: username}, { withCredentials: true })
-      .then((response) => {
-        if (response.data) {
-          console.log('friendlist', response.data.ret.friendlist);
-          console.log('status', response.data.ret.username, response.data.ret.status);
-          setMatches(response.data.ret.matches);
-          if (response.data.ret.friendrequests.find((element: string) => {return element === user.username}))
-            setIsFriend("pending");
-          else if (response.data.ret.current.friendlist.find((element: string) => {return (element === username)}))
-            setIsFriend("yes");
-          setIsBlocked(false);
-          setStatus(Status => ({...Status, [response.data.ret.username]: response.data.ret.status}));
-          setnewUser(response.data.ret);
-          if (response.data.ret.username == user.username)
-            setNotifications(response.data.ret.friendrequests)
-          if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
-            setIsBlocked(true);
-          setLoading(false);
-          setCanvas(canvasColor[user.theme]);
-        }})
-      .catch((error) => {
-          if (error.response.status == 401)
-            props.history.push('/logout')
-          else if (error.response.status == 404)
-            props.history.push('/profile/:' + user.username);
-          setLoading(false);
-      })
-      axios.post('/authentication/friends', {username: username},
-      { withCredentials: true})
-      .then((response) => {
-        if (response.data) {
-          console.log(response.data);
-          setFriends(response.data);
-        console.log('log', user.username, username)
-        if (user.username == username) {
-          for (let i = 0 ; i < response.data.length ; i++) {
-            setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
+      if (user.id > 0 && user.username.length > 0)
+      {
+          axios.post(`/profile/profile2`, {username: username}, { withCredentials: true })
+               .then((response) => {
+                   if (response.data) {
+                       console.log('friendlist', response.data.ret.friendlist);
+                       console.log('status', response.data.ret.username, response.data.ret.status);
+                       setMatches(response.data.ret.matches);
+                       if (response.data.ret.friendrequests.find((element: string) => {return element === user.username}))
+                           setIsFriend("pending");
+                       else if (response.data.ret.current.friendlist.find((element: string) => {return (element === username)}))
+                           setIsFriend("yes");
+                       setIsBlocked(false);
+                       setStatus(Status => ({...Status, [response.data.ret.username]: response.data.ret.status}));
+                       setnewUser(response.data.ret);
+                       if (response.data.ret.username == user.username)
+                           setNotifications(response.data.ret.friendrequests)
+                       if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
+                           setIsBlocked(true);
+                       setLoading(false);
+                       setCanvas(canvasColor[user.theme]);
+               }})
+               .catch((error) => {
+                   if (error.response.status == 401)
+                       props.history.push('/logout')
+                   else if (error.response.status == 404)
+                       props.history.push('/profile/:' + user.username);
+                   setLoading(false);
+               })
+          axios.post('/profile/friends', {username: username},
+                     { withCredentials: true})
+               .then((response) => {
+                   if (response.data) {
+                       console.log(response.data);
+                       setFriends(response.data);
+                       console.log('log', user.username, username)
+                       if (user.username == username) {
+                           for (let i = 0 ; i < response.data.length ; i++) {
+                               setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
+                           }
+                       }
+                   }
+               })
+          return () => {
+              setMatches([]);
+              setIsFriend("");
+              setIsBlocked(false);
+              setnewUser(undefined);
+              setError(0);
           }
       }
-      }
-      })  
-        return () => {
-          setMatches([]);
-          setIsFriend("");
-          setIsBlocked(false);
-          setnewUser(undefined);
-          setError(0);
-        }
   }, [username, renderVal]);
 
   useEffect(() => {
@@ -218,7 +221,7 @@ function ProfilePage(props: any) {
   }
 
   function Unfriend() {
-    axios.post(`/authentication/delfriend`, 
+    axios.post(`/profile/delfriend`,
     {user1: username, user2: user.username}, 
     { withCredentials: true })
     .then((response) => {
@@ -227,7 +230,7 @@ function ProfilePage(props: any) {
   }
 
   function Block() {
-    axios.post(`/authentication/block`,
+    axios.post(`/profile/block`,
     {username: username}, 
     { withCredentials: true })
     .then((response) => {
@@ -236,7 +239,7 @@ function ProfilePage(props: any) {
   }
 
   function Unblock() {
-    axios.post(`/authentication/unblock`,
+    axios.post(`/profile/unblock`,
     {username: username}, 
     { withCredentials: true })
     .then((response) => {
@@ -266,14 +269,14 @@ function ProfilePage(props: any) {
         res = res.substring(1, res.length - 1);
         setAvatar(res);
         user.avatar = res;
-        return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_profile`, 
+        return axios.post(`/profile/update_profile`,
         [user.username, res, user.theme], { withCredentials: true })
         }).then(() => {
           setTimeout(() => {props.history.push('/')}, 200);
         })
     }
     else {
-      return axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/update_profile`, 
+      return axios.post(`/profile/update_profile`,
         [user.username, "", Canvas[2]], { withCredentials: true }).then(() => {
       setTimeout(() => {props.history.push('/')}, 200);
     })
@@ -305,11 +308,11 @@ function ProfilePage(props: any) {
     socket.emit('gamerequest', [username, PowerUps, Speed]);
   }
 
-  if (Error == 401)
+  if (Error === 401)
     return (<div/>);
   else if (Loading)
     return (<MainNavBar />)
-  else if (user.id > 0) {
+  else if (user.id > 0 && user.username.length > 0) {
       return (
           <div>
               <MainNavBar />

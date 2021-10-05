@@ -38,7 +38,7 @@ function LadderPage(props: any): any {
         if (user.id > 0)
             socket.emit('login', user.username);
         Utils.intercept401(props);
-        axios.get(`/authentication/all`,
+        axios.get(`/profile/all`,
         { withCredentials: true})
         .then((response) => {
             if (response.data) {

@@ -50,7 +50,6 @@ function App() {
         <div className="content">
           <Route exact path="/profile/:username" component={ProfilePage}/>
           <Route exact path="/profile/:username/otp" component={OtpPage}/>
-          <Route path="/register" component={RegisterPage}/>
           <Route path="/ladder" component={LadderPage}/>
           <Route path="/login" component={LoginPage}/>
           <Route path="/otp-login" component={OtpLoginPage}/>

@@ -82,7 +82,8 @@ export class AuthenticationService {
         if (!user && data.login !== undefined)
         {
             return (this.usersService.create({
-                username: data.login,
+                realname: data.login,
+                username: '',
                 api_42_id: data.id
             }))
         }

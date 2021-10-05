@@ -46,8 +46,8 @@ function OtpPage() {
         .then(() => {
             alert('SUCCESS');
         })
-        .catch(() => {
-            alert('WRONG CODE');
+        .catch((e) => {
+            alert(e.response.data.message);
         });
     }
 

@@ -52,160 +52,170 @@ function GamePage(props: any): any {
       ]
 
     function ListSpectators(spectator: string) {
-        console.log('spect', spectator);
         idTab++;
         return (<li key={idTab}><div className="col userinfo">{spectator}</div></li>)
     }
 
     useEffect(() => {
-        console.log('use');
-        canvas = canvasRef.current;
-        canvas!.width = canvas!.clientWidth;
-        canvas!.height = canvas!.clientHeight;
-        ctx = canvas!.getContext("2d");
-    
-        // ctx!.canvas.height = 3 * canvas!.width / 4;
-        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-        w = canvas!.width;
-        h = canvas!.height;
-        console.log(w, h);
+        if (user.id > 0 && user.username.length > 0)
+        {
+            canvas = canvasRef.current;
+            canvas!.width = canvas!.clientWidth;
+            canvas!.height = canvas!.clientHeight;
+            ctx = canvas!.getContext("2d");
+
+            // ctx!.canvas.height = 3 * canvas!.width / 4;
+            ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+            w = canvas!.width;
+            h = canvas!.height;
+        }
     }, [])
 
     useEffect(() => {
-        socket.emit('game_info', room);
-        let img = document.getElementById(canvasColor[user.theme][1]) as CanvasImageSource
-        let ball = document.getElementById(canvasColor[user.theme][2]) as CanvasImageSource
-        let pad = document.getElementById(canvasColor[user.theme][3]) as CanvasImageSource
-        let powerSpeed = document.getElementById('powerspeed') as CanvasImageSource
-        let powerBall = document.getElementById('powerball') as CanvasImageSource
-        let powerPad = document.getElementById('powerpad') as CanvasImageSource
-        socket.on('game', (data: any) => {
-            if (!data.countdown)
-            {
-                ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-                ctx!.drawImage(img, 0, 0, w, h);
-                ctx.fillStyle = canvasColor[user.theme][0];
-                ctx!.beginPath();
-                // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
-                ctx!.drawImage(ball,
-                            data.bp.x * (w/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
-                            data.bp.y * (h/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
-                            (data.pw.type == -1 ? (w/50) : (w/25)),
-                            (data.pw.type == -1 ? (w/50) : (w/25)));
-                ctx!.beginPath();
-                ctx!.drawImage((data.pw.type == 0 ? powerSpeed : data.pw.type == 1 ? powerBall : powerPad),
-                            data.pw.x * (w/100) - (w/20), data.pw.y * (h/100) - (w/20), w/10, w/10); 
-                // ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
-                ctx!.stroke();
-                ctx.fillStyle = canvasColor[user.theme][0];
-                ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
-                // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
-                ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
-                // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
-            }
-            else if (data.countdown > 0)
-            {
-                ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-                ctx!.drawImage(img, 0, 0, w, h);
-                ctx.fillStyle = canvasColor[user.theme][0];
-                ctx!.beginPath();
-                ctx!.drawImage(ball, data.bp.x * (w/100) - (w/50), data.bp.y * (h/100) - (w/50), w/25, w/25);
-                // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
-                ctx!.fill();
-                ctx!.stroke();
-                ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5);
-                // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
-                ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
-                // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
-                setScores([data.p1score, data.p2score]);
-                if (!data.start) {
-                    ctx!.font = '48px serif';
-                    ctx!.fillText(`${Math.trunc(data.countdown / 50) + 1}`, w/2 - w/50, h/3);
+        if (user.id > 0 && user.username.length > 0)
+        {
+            socket.emit('game_info', room);
+            let img = document.getElementById(canvasColor[user.theme][1]) as CanvasImageSource
+            let ball = document.getElementById(canvasColor[user.theme][2]) as CanvasImageSource
+            let pad = document.getElementById(canvasColor[user.theme][3]) as CanvasImageSource
+            let powerSpeed = document.getElementById('powerspeed') as CanvasImageSource
+            let powerBall = document.getElementById('powerball') as CanvasImageSource
+            let powerPad = document.getElementById('powerpad') as CanvasImageSource
+            socket.on('game', (data: any) => {
+                if (!data.countdown)
+                {
+                    ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+                    ctx!.drawImage(img, 0, 0, w, h);
+                    ctx.fillStyle = canvasColor[user.theme][0];
+                    ctx!.beginPath();
+                    // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
+                    ctx!.drawImage(ball,
+                                   data.bp.x * (w/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
+                                   data.bp.y * (h/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
+                                   (data.pw.type == -1 ? (w/50) : (w/25)),
+                                   (data.pw.type == -1 ? (w/50) : (w/25)));
+                    ctx!.beginPath();
+                    ctx!.drawImage((data.pw.type == 0 ? powerSpeed : data.pw.type == 1 ? powerBall : powerPad),
+                                   data.pw.x * (w/100) - (w/20), data.pw.y * (h/100) - (w/20), w/10, w/10);
+                    // ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
+                    ctx!.stroke();
+                    ctx.fillStyle = canvasColor[user.theme][0];
+                    ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
+                    // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
+                    ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
+                    // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
                 }
-                if (data.end) {
-                    setEnd(true);
-                    ctx!.font = '24px serif';
-                    ctx!.fillText((data.p1score == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
-                    socket.emit('stop_info', room);
+                else if (data.countdown > 0)
+                {
+                    ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+                    ctx!.drawImage(img, 0, 0, w, h);
+                    ctx.fillStyle = canvasColor[user.theme][0];
+                    ctx!.beginPath();
+                    ctx!.drawImage(ball, data.bp.x * (w/100) - (w/50), data.bp.y * (h/100) - (w/50), w/25, w/25);
+                    // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
+                    ctx!.fill();
+                    ctx!.stroke();
+                    ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5);
+                    // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
+                    ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
+                    // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
+                    setScores([data.p1score, data.p2score]);
+                    if (!data.start) {
+                        ctx!.font = '48px serif';
+                        ctx!.fillText(`${Math.trunc(data.countdown / 50) + 1}`, w/2 - w/50, h/3);
+                    }
+                    if (data.end) {
+                        setEnd(true);
+                        ctx!.font = '24px serif';
+                        ctx!.fillText((data.p1score == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
+                        socket.emit('stop_info', room);
+                        setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
+                    }
+                }
+                else
+                {
+                    ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+                    ctx!.font = '12px serif';
+                    ctx!.fillText('opponent left : forfait win\nRedirecting to profile...', w/2, h/2);
                     setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
                 }
-            }
-            else
-            {
-                ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-                ctx!.font = '12px serif';
-                ctx!.fillText('opponent left : forfait win\nRedirecting to profile...', w/2, h/2);
-                setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
-            }
-        })
-        return (() => {
-            socket.off('game');
-            socket.emit('quit_game', [user.username, room]);
-        })
+            })
+            return (() => {
+                socket.off('game');
+                socket.emit('quit_game', [user.username, room]);
+            })
+        }
     }, [])
 
     useEffect(() => {
-        socket.emit('game_start', {username: user.username, room: room});
-        socket.on('role', (data: {players: string[], role: string, avatars: string[]}) => {
-            setPlayers(data.players);
-            setAvatars(data.avatars);
-            setRole(data.role);
-        })
-        return(() => {
-            socket.off('role');
-        })
+        if (user.id > 0 && user.username.length > 0)
+        {
+            socket.emit('game_start', {username: user.username, room: room});
+            socket.on('role', (data: {players: string[], role: string, avatars: string[]}) => {
+                setPlayers(data.players);
+                setAvatars(data.avatars);
+                setRole(data.role);
+            })
+            return(() => {
+                socket.off('role');
+            })
+        }
     }, [room, socket, user.username])
 
     useEffect(() => {
-        var keyState: any;
-        const handleKey = (e: any) => {
-            console.log('event', Role);
+        if (user.id > 0 && user.username.length > 0)
+        {
+            let keyState: any;
+            const handleKey = (e: any) => {
+                console.log('event', Role);
 
-            if (Role === 'player1' ||
-                Role === 'player2') {
-                keyState = e.key;
-                // socket.emit('send_key', {key: e.key, role: Role, room: room});
-            }
-        }
-
-        const handleKeyup = (e: any) => {
-            console.log('event', Role);
-            if (Role === 'player1' ||
-                Role === 'player2') {
-                if (keyState == e.key) {
-                    socket.emit('keyup', {key: e.key, role: Role, room: room});
-                    keyState = null;
+                if (Role === 'player1' ||
+                    Role === 'player2') {
+                    keyState = e.key;
+                    // socket.emit('send_key', {key: e.key, role: Role, room: room});
                 }
             }
-        }
+            const handleKeyup = (e: any) => {
+                if (Role === 'player1' ||
+                    Role === 'player2') {
+                    if (keyState == e.key) {
+                        socket.emit('keyup', {key: e.key, role: Role, room: room});
+                        keyState = null;
+                    }
+                }
+            }
 
-        window.addEventListener("keydown", handleKey);
-        window.addEventListener("keyup", handleKeyup);
-        let interval = setInterval(() => {
-            socket.emit('send_key', {key: keyState, role: Role, room: room})
-        }, 10);
-        return(() => {
-            window.removeEventListener("keydown", handleKey);
-            window.removeEventListener("keyup", handleKeyup);
-            clearInterval(interval);
-        })
+            window.addEventListener("keydown", handleKey);
+            window.addEventListener("keyup", handleKeyup);
+            let interval = setInterval(() => {
+                socket.emit('send_key', {key: keyState, role: Role, room: room})
+            }, 10);
+            return(() => {
+                window.removeEventListener("keydown", handleKey);
+                window.removeEventListener("keyup", handleKeyup);
+                clearInterval(interval);
+            })
+        }
     }, [Players, Role, room, socket])
 
     useEffect(() => {
-        socket.emit('get_spectators', room);
-        socket.on('spectators', (data: string[]) => {
-            setSpectators([]);
-            console.log(data[0]);
-            for (var i in data) {
-                setSpectators([...Spectators, data[i]]);
-            }
-        })
-        return (() => {
-            socket.off('spectators');
-        })
+        if (user.id > 0 && user.username.length > 0)
+        {
+            socket.emit('get_spectators', room);
+            socket.on('spectators', (data: string[]) => {
+                setSpectators([]);
+                console.log(data[0]);
+                for (var i in data) {
+                    setSpectators([...Spectators, data[i]]);
+                }
+            })
+            return (() => {
+                socket.off('spectators');
+            })
+        }
     }, [])
 
-    if (user.id) {
+    if (user.id && user.username.length > 0) {
         return (<div>
             <MainNavBar/>
             <div className="container-fluid">

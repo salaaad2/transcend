@@ -24,9 +24,12 @@ services:
        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
        POSTGRES_DB: ${POSTGRES_DB:-nestjs}
        POSTGRES_HOST: postgres
+       HOST: ${API_HOST:-localhost}
        PORT: ${PORT:-3000}
        JWT_SECRET: ${JWT_SECRET}
        JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
+       REACT_APP_PORT: ${REACT_APP_PORT:-4000}
+       REACT_APP_BASE_URL: ${REACT_APP_BASE_URL:-localhost}
     ports:
       - ${PORT}:${PORT}
     volumes:
@@ -39,8 +42,9 @@ services:
     build: ./srcs/client
     environment:
       REACT_APP_PORT: ${REACT_APP_PORT:-4000}
-      API_HOST: server
-      API_PORT: ${PORT:-3000}
+      REACT_APP_API_HOST: ${API_HOST:-server}
+      REACT_APP_API_PORT: ${PORT-3000}
+      PROXY: http://${API_HOST:-localhost}:${PORT:-3000}
     expose:
       - ${REACT_APP_PORT}
     ports:

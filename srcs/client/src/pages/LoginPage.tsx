@@ -18,15 +18,14 @@ function LoginPage(props: any): any {
     const { user, setUser } = useUser()!;
     const socket = React.useContext(SocketContext);
 
+
     useEffect(() => {
         axios.get('/authentication/logged')
              .then((res:any) => {
-                 const avatar = getAvatar(res.data.username);
-                 socket.emit('login', res.data.username);
-                 res.data.avatar = avatar;
                  setUser(res.data);
              })
-             .catch(() => {})
+             .catch((err) => {
+             });
     })
 
     function getAvatar(name:string) {
@@ -61,7 +60,7 @@ function LoginPage(props: any): any {
                     <Row>
                         <Col>
                             <Button variant="primary" type="submit" onClick={() => {
-                                window.location.href = 'http://localhost:3000/authentication/log-in';
+                                window.location.href = `http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/authentication/log-in`;
                             }}>42 Login
                             </Button>
                         </Col>
@@ -71,7 +70,7 @@ function LoginPage(props: any): any {
         );
     }
     else
-        return (<Redirect to={{ pathname: "/profile/:" + user.username, state: { from: props.location} }} />);
+        return (<Redirect to={{ pathname: "/", state: { from: props.location} }} />);
 }
 
 export default LoginPage;

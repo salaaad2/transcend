@@ -22,7 +22,6 @@ function OtpLoginPage(props: any) {
             alert('WRONG CODE');
         });
     }
-
     return (
         <div>
             <div className="form">

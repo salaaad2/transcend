@@ -40,32 +40,34 @@ function SpectatorPage(props: any): any {
     }
 
     useEffect(() => {
-        if (user.id > 0)
+        if (user.id > 0 && user.username.length > 0)
+        {
             socket.emit('login', user.username);
-        socket.emit('get_games');
-        socket.on('live', (data: any) => {
-            setMatches([]);
-            for (var i in data) {
-                if (data[i].ingame == true) {
-                    console.log(data[i]);
-                    var match: IMatch = {
-                        id: data[i].id,
-                        Player1: data[i].Players[0],
-                        Player2: data[i].Players[1],
-                        P1Score: data[i].p1score,
-                        P2Score: data[i].p2score
-                    };
-                    setMatches([...Matches, match]);
+            socket.emit('get_games');
+            socket.on('live', (data: any) => {
+                setMatches([]);
+                for (var i in data) {
+                    if (data[i].ingame == true) {
+                        console.log(data[i]);
+                        var match: IMatch = {
+                            id: data[i].id,
+                            Player1: data[i].Players[0],
+                            Player2: data[i].Players[1],
+                            P1Score: data[i].p1score,
+                            P2Score: data[i].p2score
+                        };
+                        setMatches([...Matches, match]);
+                    }
                 }
-            }
-        })
-        return (() => {
-            socket.off('live');
-            setMatches([]);
-        })
+            })
+            return (() => {
+                socket.off('live');
+                setMatches([]);
+            })
+        }
     }, [])
 
-    if (user.id > 0) {
+    if (user.id > 0 && user.username.length > 0) {
         return (
             <div>
                 <MainNavBar />

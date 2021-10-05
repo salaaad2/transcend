@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import User from '../../users/user.entity';
 import { UsersService } from '../../users/users.service';
-import { toFileStream } from 'qrcode';
-import { Response } from 'express';
 
 @Injectable()
 export class otpService {
@@ -30,8 +28,5 @@ export class otpService {
             secret,
             otpauthUrl
         }
-    }
-    public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-        return toFileStream(stream, otpauthUrl);
     }
 }

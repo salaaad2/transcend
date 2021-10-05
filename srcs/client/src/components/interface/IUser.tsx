@@ -1,6 +1,7 @@
 interface IUser {
     id: number;
     username: string;
+    realname: string;
     wins: number;
     losses: number;
     friendlist: string[];

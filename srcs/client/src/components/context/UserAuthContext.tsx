@@ -5,6 +5,7 @@ import IUser from '../interface/IUser';
 export const defaultUser = {
     id: -1,
     username: "",
+    realname: '',
     wins: 0,
     losses: 0,
     friendlist: ["", ""],

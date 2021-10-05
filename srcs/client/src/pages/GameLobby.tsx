@@ -16,28 +16,31 @@ function GameLobby(props: any): any {
     }
     
     useEffect(() => {
-        socket.emit('newplayer', user.username);
-        socket.on('nb_players', (nb: number) => {
-            console.log(nb);
-        if (nb % 2 === 0) {
-            socket.emit('game_on', user.username);
-            socket.on('active_players', (player: {playername: string, index: number, id: number}) => {
-                setisWaiting(false);
-                socket.emit('rm_from_lobby', user.username);
-                props.history.push(`/game/:${player.id}`);
+        if (user.id > 0 && user.username.length > 0)
+        {
+            socket.emit('newplayer', user.username);
+            socket.on('nb_players', (nb: number) => {
+                console.log(nb);
+                if (nb % 2 === 0) {
+                    socket.emit('game_on', user.username);
+                    socket.on('active_players', (player: {playername: string, index: number, id: number}) => {
+                        setisWaiting(false);
+                        socket.emit('rm_from_lobby', user.username);
+                        props.history.push(`/game/:${player.id}`);
+                    })
+                }
+                else
+                    setisWaiting(true);
+            })
+            return (() => {
+                socket.emit('player_leave', user.username);
+                socket.off('nb_players');
+                socket.off('active_players');
             })
         }
-        else
-            setisWaiting(true);
-        })
-        return (() => {
-            socket.emit('player_leave', user.username);
-            socket.off('nb_players');
-            socket.off('active_players');
-        })
     }, [])
 
-    if (user.id > 0)
+    if (user.id > 0 && user.username.length > 0)
         return (
             <>
                 <MainNavBar />

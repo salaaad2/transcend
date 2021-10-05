@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from './user.entity';
 import CreateUserDto from './dto/createUser.dto';
+import { UsernameDto } from './dto/username.dto';
 
 @Injectable()
 export class UsersService {
@@ -48,6 +49,32 @@ export class UsersService {
             return user;
         }
         throw new HttpException('User with this username does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    async getByRealname(realname: string) {
+        const user = await this.usersRepository.findOne({
+            realname: realname });
+        if (user) {
+            return user;
+        }
+        throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    async setUsername(realname: string, username: UsernameDto) {
+        const user = await this.usersRepository.findOne({
+            realname: realname });
+        if (user) {
+            if (!await this.usersRepository.findOne({
+                username: username.username}))
+            {
+                user.username = username.username;
+                await this.usersRepository.save(user);
+            }
+            else
+                throw new HttpException('User with this username already exists', HttpStatus.NOT_FOUND);
+
+        }
+        throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
     async create(userData: CreateUserDto) {

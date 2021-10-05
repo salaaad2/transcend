@@ -12,6 +12,9 @@ import { UsersService } from '..//users/users.service';
 import { ChatService } from '../chat/chat.service';
 import { PongService } from '../pong/pong.service';
 import { Room } from '../match/room.interface';
+import { UsernameDto } from '../users/dto/username.dto';
+import { MessageDto } from '../chat/message.dto';
+import { ChannelDto } from '../chat/channel.dto';
 
 @WebSocketGateway({cors: true})
 export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -38,7 +41,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('connection')
   async handleConnection(socket: Socket) {
-    console.log('new client connected');
     socket.emit('connection', null);
   }
 
@@ -53,8 +55,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.userService.save(user);
     this.server.emit('status',{username, status:'offline'});
     }
-    else
-      console.log('disconnect');
   }
 
   @SubscribeMessage('login')
@@ -87,15 +87,32 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //Profile//
   //////////
 
+  @SubscribeMessage('request_set_username')
+  async setUsername(@MessageBody() data: { username: string, realname: string },
+                   @ConnectedSocket() socket: Socket) {
+    try
+    {
+      const usernamedto = new UsernameDto();
+      usernamedto.username = data.username;
+      this.userService.setUsername(data.realname, usernamedto);
+      this.server.emit('send_username_set', {
+        realname: data.realname,
+        username: usernamedto.username,
+      })
+    }
+    catch(err)
+    {
+      socket.emit('send_error', err);
+    }
+  }
+
   @SubscribeMessage('addfriend')
   async handleAddFriend(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
     const f_socket = this.tab[username];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
     const f_user = await this.userService.getByUsername(username);
-    console.log('add ' + username);
 
     if (f_socket) {
-      console.log('socket');
       f_socket.emit('notifications', ['friendrequest', user]);
     }
     this.userService.Request(f_user, 'friendrequest', user);
@@ -103,7 +120,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('accept_friend')
   async AcceptFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
-    console.log(data.username, data.notif);
     const f_socket: Socket = this.tab[data.notif];
     const user = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
     if (user.friendrequests.length == 0)
@@ -114,7 +130,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('reject_friend')
   async RejectFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
-    console.log(data.username, data.notif);
     const user = await this.userService.getByUsername(data.username);
     user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == data.notif}, 1));
     this.userService.save(user);
@@ -127,7 +142,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const f_socket: Socket = this.tab[data[0]];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
 
-    console.log(data);
     f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
   }
 
@@ -137,14 +151,19 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_message')
   async listenForMessages(
-    @MessageBody() message: {
+    @MessageBody() data: {
       channel: string,
       content: string
     },
     @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     try{
-      const res = await this.chatService.saveMessage(message, username);
+      const messagedto = new MessageDto();
+      messagedto.message = data.content;
+      const res = await this.chatService.saveMessage({
+        channel: data.channel,
+        content: messagedto
+      }, username);
       this.server.sockets.emit('receive_message', res);
     }
     catch(e) {
@@ -165,7 +184,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { username: string, channel: string, password: string}) {
     try {
-      const chan = await this.chatService.joinChannel(data);
+      const channeldto = new ChannelDto();
+      channeldto.channel = data.channel;
+      const chan = await this.chatService.joinChannel({
+        username: data.username,
+        channel: channeldto,
+        password: data.password
+      });
       this.server.emit('send_channel_joined', chan.name, data.username, chan.owner,
                        chan.admin, chan.mutelist);
     }
@@ -179,7 +204,12 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { src: string, dst: string }) {
     try {
-      const chan = await this.chatService.joinPrivateChannel(data);
+      const channeldto = new ChannelDto();
+      channeldto.channel = data.dst;
+      const chan = await this.chatService.joinPrivateChannel({
+        src: data.src,
+        dst: channeldto
+      });
       this.server.emit('send_private_channel_joined', data.src, data.dst, chan.name);
     }
     catch(e) {
@@ -281,7 +311,12 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, username:string }) {
     try {
-      await this.chatService.leaveChannel(data);
+      const channeldto = new ChannelDto();
+      channeldto.channel = data.channel;
+      await this.chatService.leaveChannel({
+        channel: channeldto,
+        username: data.username
+      });
       this.server.emit('send_left_channel', data.channel, data.username);
     }
     catch(e){

@@ -18,6 +18,9 @@ class User {
     @Column({ unique: true })
     public username: string;
 
+    @Column({ unique: true })
+    public realname: string;
+
     @Column({default: 0})
     public wins: number;
 

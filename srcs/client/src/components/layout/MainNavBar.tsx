@@ -59,8 +59,7 @@ function MainNavBar(props: any) {
     }
 
     function acceptRequest(notif: string) {
-      console.log('notif: ', notif);
-      axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/addfriend`, 
+      axios.post(`/authentication/addfriend`,
       {user1: user.username, user2: notif}, 
       { withCredentials: true }).then(() => {
         user.friendlist.push(notif);
@@ -78,7 +77,6 @@ function MainNavBar(props: any) {
     }
 
     function rejectRequest(notif: string) {
-      console.log('click');
       let username = user.username;
       socket.emit('reject_friend', {username, notif});
       let NotifTemp = [...FriendRequests];

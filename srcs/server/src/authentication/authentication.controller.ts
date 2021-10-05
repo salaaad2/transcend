@@ -36,9 +36,9 @@ export class AuthenticationController {
             const cookie = this.authenticationService.getCookieWithJwtToken(req.user.id);
             req.res.setHeader('Set-Cookie', cookie);
             if (req.user.isOtpEnabled === false)
-                res.status(302).redirect('https://localhost:4000/');
+                res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/');
             else
-                res.status(302).redirect('https://localhost:4000/#/otp-login')
+                res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/otp-login');
         }
     }
 
