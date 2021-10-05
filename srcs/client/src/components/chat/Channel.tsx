@@ -636,7 +636,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.props.socket.on('send_unmuted_client', (channel: string, username: string) => {
             this.sendUnmutedClient(channel, username);
         });
-        this.props.socket.on('send_banned_client', (channel: string, username: string) => {
+        this.props.socket.on('send_chan_banned_client', (channel: string, username: string) => {
             this.sendBannedClient(channel, username);
         });
         this.props.socket.on('send_private_channels', (channel: string[]) => {
@@ -664,7 +664,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.props.socket.removeAllListeners('send_demoted_client');
             this.props.socket.removeAllListeners('send_muted_client');
             this.props.socket.removeAllListeners('send_unmuted_client');
-            this.props.socket.removeAllListeners('send_banned_client');
+            this.props.socket.removeAllListeners('send_chan_banned_client');
             this.props.socket.removeAllListeners('send_private_channels');
             this.props.socket.removeAllListeners('send_private_channel_joined');
         }

@@ -4,9 +4,10 @@ import {
   Res,
   Controller,
   HttpCode,
+  HttpStatus,
   Post,
   UseGuards,
-  Get, UseInterceptors, ClassSerializerInterceptor
+    Get, UseInterceptors, ClassSerializerInterceptor, HttpException
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { AvatarService } from '../avatar/avatar.service';
@@ -170,6 +171,16 @@ export class AuthenticationController {
     @Post('update_avatar')
     async updateData(@Req() request: RequestWithUser, @Body() data: {data: string}) {
         this.usersService.updateAvatar(request, data.data);
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('ban_client')
+    async banClient(@Req request: RequestWithUser, @Body() data: {username: string}) {
+        if (request.user.ismod && data.username !== 'admin') {
+            this.usersService.banClient(data);
+        } else {
+            throw new HttpException('Insufficient Rights to perform action', HttpStatus.I_AM_A_TEAPOT);
+        }
     }
 
 }

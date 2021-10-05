@@ -99,4 +99,11 @@ export class UsersService {
         await this.usersRepository.save(user);
         console.log(user.friendrequests);
     }
+
+    async banClient(data: {username: string}) {
+        const user = await this.usersRepository.findOne({username: data.username});
+
+        user.isbanned = true;
+        await this.usersRepository.save(user);
+    }
 }

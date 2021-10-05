@@ -307,12 +307,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('request_ban_from_chan')
-  async banClient(
+  async banFromChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, client: string }) {
     try {
       await this.chatService.banClient(data);
-      this.server.emit('send_banned_client', data.channel, data.client);
+      this.server.emit('send_chan_banned_client', data.channel, data.client);
     }
     catch(e){
       socket.emit('send_error', e);

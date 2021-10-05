@@ -45,6 +45,9 @@ class User {
 
     @Column({default: false})
     public ismod: boolean;
+
+    @Column({default: false})
+    public isbanned: boolean;
 }
 
 export default User;

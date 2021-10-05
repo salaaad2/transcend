@@ -59,8 +59,19 @@ function AdminPanel(props: any) {
     }
 
     function banClient(username: string) {
-        socket.emit('request_ban_client', {
-            'username': 'lameassclient'});
+        axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/ban_client`,
+        { username: username },
+        { withCredentials: true })
+        .then((response) => {
+            if (response.data) {
+                console.log(response.data);
+            }
+            /* socket.emit('request_destroy_channel', { // LOG OUT USER USING SOCKETS
+             *     'channel': chan,
+             *     'id': user.id}); */
+            setLoading(true);
+            Utils.notifySuccess('successfully deleted channel ' + chan);
+        })
     }
 
 
