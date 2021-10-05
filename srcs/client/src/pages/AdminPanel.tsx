@@ -50,10 +50,13 @@ function AdminPanel(props: any) {
         })
     }
 
-    function setAdmin(adm: HTMLElement | null, chan: string) {
+    function setAdmin(adm: any, chan: string) {
+        console.log(adm.innerText);
+        console.log('setting admin : ');
+        /* console.log('setting admin : ' + adm.innerTex†); lolwhat */
         socket.emit('request_promote_client', {
             'channel': chan,
-            'client': adm?.innerText});
+            'client': adm.innerText});
         setLoading(true);
         Utils.notifySuccess('succesfully set admin' + chan);
     }
@@ -83,25 +86,28 @@ function AdminPanel(props: any) {
         })
     }
 
-    function banClient(username: string, toggle: boolean) {
-        if (username === 'admin') {
+    function banClient(uname: string, toggle: boolean) {
+        if (uname === 'admin') {
             Utils.notifyErr( 'cannot ban admin, he is too cool' );
             return ;
         }
 
         axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/ban_client`,
-        { username: username,
+        { username: uname,
              toggle: !toggle},
         { withCredentials: true })
         .then((response) => {
             if (response.data) {
                 console.log(response.data);
             }
-            /* socket.emit('request_destroy_channel', { // LOG OUT USER USING SOCKETS
-             *     'channel': chan,
-             *     'id': user.id}); */
+            if (!toggle)
+            {
+                socket.emit('request_logout_client',
+                    uname
+                );
+            }
             setLoading(true);
-            Utils.notifySuccess('successfully banned ' + username);
+            Utils.notifySuccess('successfully banned ' + uname);
         })
     }
 
@@ -109,7 +115,7 @@ function AdminPanel(props: any) {
 	function ListEveryone(everyone: any) {
         idUser++;
         return (
-                <tr key={idUser} id={idUser === 1 ? "gold" : idUser === 2 ? "silver" : idUser === 3 ? "bronze" : ""}>
+                <tr key={idUser}>
                     <th scope='row'>
                         <p>{idUser}</p>
                     </th>

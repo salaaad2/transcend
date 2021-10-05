@@ -15,6 +15,8 @@ export const defaultUser = {
     currentChannel: "General",
     chanslist: ["", ""],
     friendrequests: [""],
+    ismod: false,
+    isbanned: false,
 };
 
 type UserContextType = {

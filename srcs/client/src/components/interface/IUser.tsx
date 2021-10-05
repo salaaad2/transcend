@@ -11,6 +11,8 @@ interface IUser {
     currentChannel: string;
     chanslist: string[];
     friendrequests: string[];
+    ismod: boolean;
+    isbanned: boolean;
 }
 
 export default IUser;

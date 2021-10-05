@@ -35,7 +35,7 @@ export class ChatController {
                   password: string,
                   clients: string[]}[] = [];
 
-        if (request.user.username === "admin") {
+        if (request.user.ismod) {
             const chanlist = await this.chatService.getAllChannels();
             for (const chan of chanlist) {
                 ret.push({
