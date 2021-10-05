@@ -6,6 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common'
 import { Server, Socket } from 'socket.io';
 import { MatchService } from '../match/match.service';
 import { UsersService } from '..//users/users.service';
@@ -17,6 +18,7 @@ import { MessageDto } from '../chat/message.dto';
 import { ChannelDto } from '../chat/channel.dto';
 
 @WebSocketGateway({cors: true})
+@UseInterceptors(ClassSerializerInterceptor)
 export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -94,7 +96,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     {
       const usernamedto = new UsernameDto();
       usernamedto.username = data.username;
-      this.userService.setUsername(data.realname, usernamedto);
+      this.userService.setUsername(usernamedto, data.realname);
       this.server.emit('send_username_set', {
         realname: data.realname,
         username: usernamedto.username,

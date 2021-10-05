@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Body, ClassSerializerInterceptor ,UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from './user.entity';
@@ -6,6 +6,7 @@ import CreateUserDto from './dto/createUser.dto';
 import { UsernameDto } from './dto/username.dto';
 
 @Injectable()
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersService {
     constructor(
         @InjectRepository(User)
@@ -60,21 +61,18 @@ export class UsersService {
         throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
-    async setUsername(realname: string, username: UsernameDto) {
-        const user = await this.usersRepository.findOne({
-            realname: realname });
+    async setUsername(@Body() { username }: UsernameDto, realname:string) {
+        const user = await this.getByRealname(realname);
         if (user) {
             if (!await this.usersRepository.findOne({
-                username: username.username}))
+                username: username}))
             {
-                user.username = username.username;
+                user.username = username;
                 await this.usersRepository.save(user);
             }
             else
                 throw new HttpException('User with this username already exists', HttpStatus.NOT_FOUND);
-
         }
-        throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
     async create(userData: CreateUserDto) {

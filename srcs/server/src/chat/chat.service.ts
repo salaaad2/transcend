@@ -26,7 +26,6 @@ export class ChatService {
     'channel': string,
     'content': MessageDto,
   }, username: string) {
-
     const channel = await this.chanRepository.findOne({name: content.channel})
     if (!channel)
       throw 'You must chose a channel first';
