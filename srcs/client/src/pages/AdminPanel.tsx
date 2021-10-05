@@ -58,9 +58,15 @@ function AdminPanel(props: any) {
         Utils.notifySuccess('succesfully set admin' + chan);
     }
 
-    function banClient(username: string) {
+    function reFresh() {
+        setLoading(true);
+    }
+
+    function banClient(username: string, toggle: boolean) {
         axios.post(`${process.env.REACT_APP_BASE_URL}/authentication/ban_client`,
-        { username: username },
+        { data:
+            {username: username,
+             toggle: !toggle} },
         { withCredentials: true })
         .then((response) => {
             if (response.data) {
@@ -70,7 +76,7 @@ function AdminPanel(props: any) {
              *     'channel': chan,
              *     'id': user.id}); */
             setLoading(true);
-            Utils.notifySuccess('successfully deleted channel ' + chan);
+            Utils.notifySuccess('successfully banned ' + username);
         })
     }
 
@@ -91,9 +97,13 @@ function AdminPanel(props: any) {
                     <td><p>{everyone.losses}</p></td>
                     <td><p>{everyone.elo}</p></td>
                     <td><p>
-                    <button type="button" onClick={(e: any) =>
-                        banClient(everyone.username)}
-                        className="btn btn-secondary">{"Ban " + everyone.username}</button>
+                    {everyone.isbanned ?
+                     <button type="button" onClick={(e: any) =>
+                        banClient(everyone.username, everyone.isbanned)}
+                        className="btn btn-secondary">{"Unban " + everyone.username}</button> :
+                     <button type="button" onClick={(e: any) =>
+                        banClient(everyone.username, everyone.isbanned)}
+                        className="btn btn-secondary">{"Ban " + everyone.username}</button> }
                     </p></td>
                 </tr>
         )
@@ -172,6 +182,7 @@ function AdminPanel(props: any) {
                 <MainNavBar />
                 <div className="px-4 py-3 mt-2">
                     <h3 style={{padding: '12px'}} className="mb-0 text-white text-center bg-dark">Users</h3>
+                    <Button type="button" onClick={reFresh}> Refresh </Button>
                     <table id="ladderList" className="table table-striped bg-dark text-white"><thead>
                         <tr>
                             <th scope="col">#</th>

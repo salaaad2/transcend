@@ -100,7 +100,14 @@ export class UsersService {
         console.log(user.friendrequests);
     }
 
-    async banClient(data: {username: string}) {
+    async banClient(data: {username: string, toggle: boolean}) {
+        const user = await this.usersRepository.findOne({username: data.username});
+
+        user.isbanned = data.toggle;
+        await this.usersRepository.save(user);
+    }
+
+    async unbanClient(data: {username: string}) {
         const user = await this.usersRepository.findOne({username: data.username});
 
         user.isbanned = true;

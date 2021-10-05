@@ -27,7 +27,6 @@ export class ChatController {
     @UseGuards(JwtAuthenticationGuard)
     async getChannels(@Body() u: {username: string},
                       @Req() request: RequestWithUser) {
-
         let ret: {name: string,
                   owner: string,
                   admin: string[],
