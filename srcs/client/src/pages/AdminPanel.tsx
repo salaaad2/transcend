@@ -15,6 +15,8 @@ import { Redirect } from 'react-router';
 import { Button, Form } from "react-bootstrap";
 import Avatars from "@dicebear/avatars";
 
+import Message from '../components/chat/message';
+
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -24,8 +26,10 @@ function AdminPanel(props: any) {
     const [isLoading, setLoading] = useState(false);
     const [Everyone, setEveryone] = useState([]);
     const [Channels, setChannels] = useState([]);
+    const [Messages, setMessages] = useState([]);
     let idUser: number = 0;
     let idChan: number = 0;
+    let idMsg: number = 0;
     const socket = React.useContext(SocketContext);
     const { user } = useUser()!;
 
@@ -181,8 +185,21 @@ function AdminPanel(props: any) {
                     <td>
                     <button type="button" onClick={() =>
                         viewLogs(channels.name)}
-                                className="btn btn-secondary">View Logs</button>
+                                className="btn btn-secondary">Stealth Join</button>
                     </td>
+                </tr>
+        )
+    }
+
+	function ListMessages(messages: any) {
+        idMsg++;
+        return (
+                <tr key={idMsg}>
+                    <th scope='row'>
+                        <p>{idMsg}</p>
+                    </th>
+                    <td><p>{messages.author}</p></td>
+                    <td><p>{messages.content}</p></td>
                 </tr>
         )
     }
@@ -261,6 +278,20 @@ function AdminPanel(props: any) {
                             </tr>
                             {Channels.map((listvalue) => {
                                 return (ListChannels(listvalue));
+                            })}
+                        </thead>
+                    </table>
+                </div>
+                <div>
+                    <h3 style={{padding: '12px'}} className="mb-0 text-white text-center bg-dark">Messages</h3>
+                    <table id="chanlist" className="table table-striped bg-dark text-white">
+                        <thead>
+                            <tr>
+                            <th scope="col">author</th>
+                            <th scope="col">content</th>
+                            </tr>
+                            {Messages.map((listvalue) => {
+                                return (ListMessages(listvalue));
                             })}
                         </thead>
                     </table>
