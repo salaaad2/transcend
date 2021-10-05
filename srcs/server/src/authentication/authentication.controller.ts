@@ -134,7 +134,10 @@ export class AuthenticationController {
                   losses: number,
                   avatar: string,
                   elo: number,
-                  status: string}[] = [];
+                  status: string,
+                  ismod: boolean,
+                  isbanned: boolean}[] = [];
+
         for (let i = 0 ; i < data.length ; i++ ) {
             ret.push({
                 "id": data[i].id,
@@ -144,6 +147,8 @@ export class AuthenticationController {
                 "avatar": data[i].avatar,
                 "elo": data[i].elo,
                 "status": data[i].status,
+                "ismod": data[i].ismod,
+                "isbanned": data[i].isbanned,
             })
         }
         return ret;
