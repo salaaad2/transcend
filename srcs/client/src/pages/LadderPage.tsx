@@ -37,7 +37,7 @@ function LadderPage(props: any): any {
     useEffect(() => {
         if (user.id > 0)
             socket.emit('login', user.username);
-        Utils.intercept401(props);
+        // Utils.intercept401(props);
         axios.get(`/profile/all`,
         { withCredentials: true})
         .then((response) => {

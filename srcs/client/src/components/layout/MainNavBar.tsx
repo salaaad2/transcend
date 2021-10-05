@@ -59,7 +59,7 @@ function MainNavBar(props: any) {
     }
 
     function acceptRequest(notif: string) {
-      axios.post(`/authentication/addfriend`,
+      axios.post(`/profile/addfriend`,
       {user1: user.username, user2: notif}, 
       { withCredentials: true }).then(() => {
         user.friendlist.push(notif);
@@ -109,54 +109,51 @@ function MainNavBar(props: any) {
       )
     }
 
-    function getBase64(file: any) {
-      return new Promise(resolve => {
+    // function getBase64(file: any) {
+    //   return new Promise(resolve => {
 
-        let baseURL: any = "";
-        let reader = new FileReader();
+    //     let baseURL: any = "";
+    //     let reader = new FileReader();
 
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          baseURL = reader.result;
-          resolve(baseURL);
-        };
-      });
-    };
+    //     reader.readAsDataURL(file);
+    //     reader.onload = () => {
+    //       baseURL = reader.result;
+    //       resolve(baseURL);
+    //     };
+    //   });
+    // };
 
-    function uploadAvatar(e: any) {
-      e.preventDefault();
+    // function uploadAvatar(e: any) {
+    //   e.preventDefault();
 
-      var file = (File[0] as File);
+    //   var file = (File[0] as File);
 
-      if (typeof File[0] === "undefined")
-      {
-        alert("You must choose a file");
-        return ;
-      }
-      if (file.size > 200000)
-      {
-        alert("File must be < 200ko");
-        return ;
-      }
-      getBase64(File[0]).then(result => {
-      var res = JSON.stringify(result);
-      res = res.substring(1, res.length - 1);
-      setAvatar(res);
-      user.avatar = res;
-      return axios.post(`/authentication/update_avatar`,
-      {data: res}, { withCredentials: true })
-      })
-      console.log('ok');
-    }
+    //   if (typeof File[0] === "undefined")
+    //   {
+    //     alert("You must choose a file");
+    //     return ;
+    //   }
+    //   if (file.size > 200000)
+    //   {
+    //     alert("File must be < 200ko");
+    //     return ;
+    //   }
+    //   getBase64(File[0]).then(result => {
+    //   var res = JSON.stringify(result);
+    //   res = res.substring(1, res.length - 1);
+    //   setAvatar(res);
+    //   user.avatar = res;
+    //   return axios.post(`/authentication/update_avatar`,
+    //   {data: res}, { withCredentials: true })
+    //   })
+    //   console.log('ok');
+    // }
 
     useEffect(() => {
-      console.log('use2');
       axios.get(`/authentication`,
       { withCredentials: true }).then((response) => {
-        console.log('use3');
         if (response.data && response.data.friendrequests.length != 0) {
           setFriendRequests(response.data.friendrequests);
-          console.log('use4');
           console.log('rq:', response.data.friendrequests);
           setNotifications(true);
         }
@@ -164,12 +161,10 @@ function MainNavBar(props: any) {
     }, [])
 
     useEffect(() => {
-      console.log('info');
+      socket.emit('login', user.username);
       socket.on('notifications', (data: string[]) => {
-        console.log('data');
         if (data) {
           if (data[0] == 'friendrequest') {
-            console.log(data);
             Utils.notifyInfo(data[1]);
             setNotifications(true);
             let NotifTemp = [...FriendRequests];
@@ -179,8 +174,7 @@ function MainNavBar(props: any) {
             });
           }
           else if (data[0] == 'accept_friend') {
-            console.log(data);
-            Utils.notifyInfo(data[1] + 'accepted you as friend');
+            Utils.notifyInfo(data[1] + ' accepted you as friend');
             user.friendlist.push(data[1]);
             setUser(user);
           }
@@ -219,6 +213,7 @@ function MainNavBar(props: any) {
                       <NavDropdown title="Game" id='game'>
                         <NavDropdown.Item href="#game">Play</NavDropdown.Item>
                         <NavDropdown.Item href="#spectator">Watch</NavDropdown.Item>
+                        <NavDropdown.Item href="#rules">Rules</NavDropdown.Item>
                       </NavDropdown>
                       <Nav.Link href="#chat/:General">Chat</Nav.Link>
                       <Nav.Link href="#ladder">Ladder</Nav.Link>
@@ -229,7 +224,7 @@ function MainNavBar(props: any) {
                     </Nav.Link>
                     <Nav>
                       <NavDropdown title={user.id > 0 ? user.username : "null"} id="profile" >
-                        <NavDropdown.Item onClick={() => setToggle(!AvatarToggle)}>Change Avatar</NavDropdown.Item>
+                        {/* <NavDropdown.Item onClick={() => setToggle(!AvatarToggle)}>Change Avatar</NavDropdown.Item> */}
                         <NavDropdown.Item href="#logout">Logout</NavDropdown.Item>
                       </NavDropdown>
                       <Nav.Link onClick={() => setNotifToggle(!NotifToggle)} className='notif-btn'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-bell-fill" viewBox="0 0 16 16">
@@ -240,7 +235,7 @@ function MainNavBar(props: any) {
                   </Navbar.Collapse>
                 </Container>
             </Navbar>
-            {AvatarToggle ? <div>
+            {/* {AvatarToggle ? <div>
             <Form inline onSubmit={uploadAvatar} style={{paddingTop: "3px"}}>
               <Form.Control 
                 type='file'
@@ -251,7 +246,7 @@ function MainNavBar(props: any) {
               size="sm" type="submit">Upload</Button>
               <span>  Maximum size 200ko</span>
               </Form>
-              </div> : <></> }
+              </div> : <></> } */}
               {NotifToggle ?
               <div className="col-2 row-height row-height-notif">
                         {/* <hr/> */}

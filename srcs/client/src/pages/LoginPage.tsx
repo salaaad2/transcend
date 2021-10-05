@@ -28,30 +28,6 @@ function LoginPage(props: any): any {
              });
     })
 
-    function getAvatar(name:string) {
-      // Utils.intercept401(props);
-      return axios.get('/avatar',
-      { withCredentials: true})
-      .then((response:any) => {
-        if (response.data.avatar) {
-          return response.data.avatar.image;
-        }
-        else {
-          let svg = createAvatar(style, {
-            seed: name,
-          });
-          let encoded = btoa(svg);
-          let str = 'data:image/svg+xml;base64,' + encoded;
-          let data = {
-            "userid": response.data.id,
-            "image": str
-          }
-          axios.post(`/avatar`,
-          data, { withCredentials: true})
-          return str;
-      }})
-        }
-
     if (user.id < 0)
     {
         return (

@@ -69,6 +69,7 @@ function ProfilePage(props: any) {
   const [otpBox, setOtpBox] = useState(false);
   const [PowerUps, setPowerUps] = useState(false);
   const [Speed, setSpeed] = useState(1);
+  const [errorMessage, setErrorMessage] = useState("");
 
   let username: string = param.username.substring(1);
   let idMatches = 0;
@@ -157,8 +158,6 @@ function ProfilePage(props: any) {
           axios.post(`/profile/profile2`, {username: username}, { withCredentials: true })
                .then((response) => {
                    if (response.data) {
-                       console.log('friendlist', response.data.ret.friendlist);
-                       console.log('status', response.data.ret.username, response.data.ret.status);
                        setMatches(response.data.ret.matches);
                        if (response.data.ret.friendrequests.find((element: string) => {return element === user.username}))
                            setIsFriend("pending");
@@ -185,9 +184,7 @@ function ProfilePage(props: any) {
                      { withCredentials: true})
                .then((response) => {
                    if (response.data) {
-                       console.log(response.data);
                        setFriends(response.data);
-                       console.log('log', user.username, username)
                        if (user.username == username) {
                            for (let i = 0 ; i < response.data.length ; i++) {
                                setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
@@ -258,9 +255,9 @@ function ProfilePage(props: any) {
 
     if (typeof File[0] === "undefined")
       avatar = false;
-    if (file && file.size > 100000)
+    if (file && file.size > 200000)
     {
-      alert("File must be < 80ko");
+      alert("File must be < 200ko");
       return ;
     }
     if (avatar) {
@@ -269,16 +266,30 @@ function ProfilePage(props: any) {
         res = res.substring(1, res.length - 1);
         setAvatar(res);
         user.avatar = res;
+        console.log('display', DisplayName);
         return axios.post(`/profile/update_profile`,
-        [user.username, res, user.theme], { withCredentials: true })
-        }).then(() => {
+        [user.realname, res, user.theme, DisplayName], { withCredentials: true })
+        })
+        .catch((e) => {
+          console.log('error', e.response.data.message);
+          setErrorMessage(e.response.data.message);
+        })
+        .then(() => {
+          if (DisplayName.length)
+            user.username = DisplayName;
           setTimeout(() => {props.history.push('/')}, 200);
         })
     }
     else {
       return axios.post(`/profile/update_profile`,
-        [user.username, "", Canvas[2]], { withCredentials: true }).then(() => {
+        [user.realname, "", user.theme, DisplayName], { withCredentials: true }).then(() => {
+        if (DisplayName.length)
+          user.username = DisplayName;
       setTimeout(() => {props.history.push('/')}, 200);
+    })
+    .catch((e) => {
+      console.log('error', e.response.data.message);
+      setErrorMessage(e.response.data.message);
     })
   }
 }
@@ -479,6 +490,7 @@ function ProfilePage(props: any) {
                                           props.history.push('/profile/:' + user.username + '/otp');
                                       }}>Activate 2fa</Button>
                                   </div>
+                                  <div style={{color: 'red'}}>{errorMessage}</div>
                                 </Form></div></div>}
                                 <img id="white" src={whitetheme} style={{display:"none"}}></img>
                                 <img id="dark" src={darktheme} style={{display:"none"}}></img>

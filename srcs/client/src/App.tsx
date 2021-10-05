@@ -15,6 +15,7 @@ import LadderPage from './pages/LadderPage';
 import SpectatorPage from './pages/SpectatorPage';
 import OtpPage from './pages/OtpPage';
 import OtpLoginPage from './pages/OtpLoginPage';
+import RulesPage from './pages/RulesPage'
 import React, { useEffect } from 'react';
 import { SocketContext } from './socket/context';
 import { useUser } from './components/context/UserAuthContext';
@@ -57,6 +58,7 @@ function App() {
           <Route exact path='/game' component={GameLobby}/>
           <Route exact path='/game/:room' component={GamePage}/>
           <Route exact path='/spectator' component={SpectatorPage}/>
+          <Route exact path='/rules' component={RulesPage}/>
           <Route path="/logout" component={Logout}/>
           <Route exact path="/" component={MainPage}/>
         </div>
