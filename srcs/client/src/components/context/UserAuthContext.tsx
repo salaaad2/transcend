@@ -17,6 +17,7 @@ export const defaultUser = {
     chanslist: ["", ""],
     friendrequests: [""],
     theme: 0,
+    isOtpEnabled: false,
 };
 
 type UserContextType = {

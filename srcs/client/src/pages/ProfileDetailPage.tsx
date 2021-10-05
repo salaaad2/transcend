@@ -488,7 +488,7 @@ function ProfilePage(props: any) {
                                       <Button className='btn' onClick={(e) => {
                                           e.preventDefault();
                                           props.history.push('/profile/:' + user.username + '/otp');
-                                      }}>Activate 2fa</Button>
+                                      }}>2fa settings</Button>
                                   </div>
                                   <div style={{color: 'red'}}>{errorMessage}</div>
                                 </Form></div></div>}

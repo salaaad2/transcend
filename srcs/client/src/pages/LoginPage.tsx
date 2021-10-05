@@ -25,6 +25,7 @@ function LoginPage(props: any): any {
                  setUser(res.data);
              })
              .catch((err) => {
+                 console.log(err)
              });
     })
 
