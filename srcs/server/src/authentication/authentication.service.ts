@@ -66,8 +66,11 @@ export class AuthenticationService {
         return `Authentication=${token}; HtppOnly; Path=/;Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')};SameSite=Strict`;
     }
 
-    public async  getCookieForLogOut() {
-        return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    public async  getCookiesForLogOut() {
+        return [
+            `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+            `connect.sid=; HttpOnly; Path=/; Max-Age=0`
+        ];
     }
 
     login(user: User): { acess_token: string } {

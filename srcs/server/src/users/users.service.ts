@@ -42,6 +42,13 @@ export class UsersService {
         });
     }
 
+    async turnOffOtp(userId: number) {
+        return this.usersRepository.update(userId, {
+            isOtpEnabled: false,
+            otpSecret: ''
+        });
+    }
+
     async getByUsername(username: string) {
         const user = await this.usersRepository.findOne({
             username: username });

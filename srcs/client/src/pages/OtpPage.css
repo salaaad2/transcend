@@ -1,0 +1,40 @@
+.header {
+    text-align: center;
+    background-color: #96e9de;
+}
+
+.qrcode {
+    display: block;
+    margin-left: 60%;
+    width: 50%;
+    max-width: 100%;
+    margin-top: 10%;
+    height: auto;
+}
+
+.otp-instructions {
+    box-sizing: content-box;
+    margin-left: 7%;
+    width: 40%;
+    display: block;
+    margin-top: -27%;
+    height: auto;
+    padding: 15px;
+}
+
+.otp-instructions h4 {
+    font-size: 40px;
+    text-align: center;
+}
+
+.otp-instructions li {
+    padding-top: 15px;
+    list-style-type: none;
+    font-size: 25px;
+}
+
+.otp-code {
+    width: 25%;
+    margin-left: 50%;
+    padding-top: 10%;
+}

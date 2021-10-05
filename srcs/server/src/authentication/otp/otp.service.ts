@@ -18,7 +18,7 @@ export class otpService {
     public async generateOtpSecret(user: User) {
         const secret = authenticator.generateSecret();
 
-        const otpauthUrl = authenticator.keyuri(user.username, 'overkill-pong.fr', secret);
+        const otpauthUrl = authenticator.keyuri(user.username, 'overkill-pong', secret);
 
         await this.usersService.setOtpSecret(secret, user.id);
 
