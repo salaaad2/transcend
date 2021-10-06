@@ -1,11 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Body, ClassSerializerInterceptor ,UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from './user.entity';
 import CreateUserDto from './dto/createUser.dto';
-import { UsernameDto } from './dto/username.dto';
 
 @Injectable()
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersService {
     constructor(
         @InjectRepository(User)
@@ -42,6 +42,13 @@ export class UsersService {
         });
     }
 
+    async turnOffOtp(userId: number) {
+        return this.usersRepository.update(userId, {
+            isOtpEnabled: false,
+            otpSecret: ''
+        });
+    }
+
     async getByUsername(username: string) {
         const user = await this.usersRepository.findOne({
             username: username });
@@ -60,18 +67,19 @@ export class UsersService {
         throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
-    async setUsername(realname: string, username: UsernameDto) {
+    async setUsername(realname:string, username:string) {
         const user = await this.getByRealname(realname);
+        if (username.length < 3 || username.length > 12 || !/^[a-zA-Z]*$/.test(username))
+            throw 'Error your username must be between 3 and 12 characters and must contains only letters';
         if (user) {
             if (!await this.usersRepository.findOne({
-                username: username.username}))
+                username: username}))
             {
-                user.username = username.username;
+                user.username = username;
                 await this.usersRepository.save(user);
             }
             else
                 throw new HttpException('User with this username already exists', HttpStatus.NOT_FOUND);
-
         }
     }
 

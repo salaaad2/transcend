@@ -16,6 +16,7 @@ import RequestWithUser from '../requestWithUser.interface';
 import { OtpCodeDto } from './dto/otpCode.dto';
 import { UsersService } from '../../users/users.service';
 import { AuthenticationService } from '../authentication.service';
+import OtpGuard from './otp.guard';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -40,6 +41,23 @@ export class OtpController {
             throw new UnauthorizedException('Wrong authentication code');
         }
         await this.usersService.turnOnOtp(request.user.id);
+    }
+
+    @Post('turn-off')
+    @HttpCode(200)
+    @UseGuards(JwtAuthenticationGuard)
+    @UseGuards(OtpGuard)
+    async turnOffTwoFactorAuthentication(
+        @Req() request: RequestWithUser,
+        @Body() { otpCode } : OtpCodeDto
+    ) {
+        const isCodeValid = this.otpService.isOtpCodeValid(
+            otpCode, request.user
+        );
+        if (!isCodeValid) {
+            throw new UnauthorizedException('Wrong authentication code');
+        }
+        await this.usersService.turnOffOtp(request.user.id);
     }
 
     @Post('generate')

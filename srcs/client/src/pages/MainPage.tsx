@@ -1,11 +1,9 @@
 import './MainPage.css'
 import { Redirect } from 'react-router';
 import { useUser } from '../components/context/UserAuthContext';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Form, Col, Row, Container, Button } from 'react-bootstrap';
 import { SocketContext } from '../socket/context';
-import Utils from '../components/utils/utils';
-import axios from 'axios';
 import React from 'react';
 import { createAvatar } from '@dicebear/avatars';
 import * as style from '@dicebear/avatars-gridy-sprites';
@@ -18,17 +16,17 @@ function MainPage(props: any) {
     const socket = React.useContext(SocketContext)
 
     function validateForm() {
-        return username.length > 0;
+        return username.length > 2;
     }
 
-    async function submitHandler() {
+    async function submitHandler(e:any) {
+        e.preventDefault();
         let svg = createAvatar(style, {
             seed: username
-          });
-          let encoded = btoa(svg);
-          let str = 'data:image/svg+xml;base64,' + encoded;
-          user.avatar = str;
-
+        });
+        let encoded = btoa(svg);
+        let str = 'data:image/svg+xml;base64,' + encoded;
+        user.avatar = str;
         socket.emit('request_set_username', {
             username: username,
             realname: user.realname,
@@ -43,6 +41,7 @@ function MainPage(props: any) {
             user.username = data.username;
             setUser(user);
             socket.emit('login', data.username);
+            props.history.push('/');
         }
         });
         socket.on('send_error', (err:string) => {
@@ -60,28 +59,25 @@ function MainPage(props: any) {
         {
             return (
                 <div>
-                    <p>Choose a username, it will be visible by other users</p>
+                    <h4>Choose username, it will be visible for other users</h4>
                     <Form onSubmit={submitHandler}>
-                        <div className="textbox">
-                            <Form.Group className="mb-3">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control
-                                    autoFocus
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
-                            </Form.Group>
+                        <div className="otp-code">
+                            <Form.Control
+                                autoFocus
+                                type="text"
+                                value={username}
+                                placeholder="Username"
+                                onChange={(e) => setUsername(e.target.value)} />
+                            <Button variant="primary" type="submit" disabled={!validateForm()}>
+                                Submit
+                            </Button>
                         </div>
                         <Container>
                             <Row>
-                                <div style={{color: 'red', paddingBottom: '20px'}}>{error}</div>
+                                <div style={{color: 'red', paddingBottom: '20px', paddingLeft: '30%'}}>{error}</div>
                             </Row>
                             <Row>
                                 <Col>
-                                    <Button variant="primary" type="submit" disabled={!validateForm()}>
-                                        Submit
-                                    </Button>
                                 </Col>
                             </Row>
                         </Container>

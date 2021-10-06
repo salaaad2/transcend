@@ -13,6 +13,7 @@ interface IUser {
     chanslist: string[];
     friendrequests: string[];
     theme: number;
+    isOtpEnabled: boolean;
 }
 
 export default IUser;

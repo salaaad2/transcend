@@ -2,8 +2,8 @@ import './App.css';
 import {
   Route,
   HashRouter,
+  Switch
 } from "react-router-dom";
-import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import ChatPage from './pages/ChatPage2';
@@ -16,6 +16,7 @@ import SpectatorPage from './pages/SpectatorPage';
 import OtpPage from './pages/OtpPage';
 import OtpLoginPage from './pages/OtpLoginPage';
 import RulesPage from './pages/RulesPage'
+import NotFoundPage from './pages/NotFoundPage'
 import React, { useEffect } from 'react';
 import { SocketContext } from './socket/context';
 import { useUser } from './components/context/UserAuthContext';
@@ -49,6 +50,7 @@ function App() {
   return(
       <HashRouter>
         <div className="content">
+          <Switch>
           <Route exact path="/profile/:username" component={ProfilePage}/>
           <Route exact path="/profile/:username/otp" component={OtpPage}/>
           <Route path="/ladder" component={LadderPage}/>
@@ -61,6 +63,8 @@ function App() {
           <Route exact path='/rules' component={RulesPage}/>
           <Route path="/logout" component={Logout}/>
           <Route exact path="/" component={MainPage}/>
+          <Route component={NotFoundPage}/>
+          </Switch>
         </div>
       </HashRouter>
   );

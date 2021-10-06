@@ -1,0 +1,48 @@
+.header {
+    text-align: center;
+    background-color: #96e9de;
+}
+
+.qrcode {
+    display: block;
+    margin-left: 60%;
+    width: 50%;
+    max-width: 100%;
+    margin-top: 10%;
+    height: auto;
+}
+
+.otp-instructions {
+    box-sizing: content-box;
+    margin-left: 7%;
+    width: 40%;
+    display: block;
+    margin-top: -27%;
+    height: auto;
+    padding: 15px;
+}
+
+.otp-instructions h4 {
+    font-size: 40px;
+    margin-top: 30%;
+    text-align: center;
+}
+
+.otp-instructions li {
+    padding-top: 5%;
+    list-style-type: none;
+    font-size: 25px;
+    margin-left: 30%;
+}
+
+.otp-code {
+    width: 25%;
+    margin-left: 30%;
+    padding-top: 5%;
+}
+
+.otp-code button {
+    margin-top: -12%;
+    margin-left: 105%;
+    width: 30%
+}

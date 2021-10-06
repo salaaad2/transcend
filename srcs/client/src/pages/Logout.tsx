@@ -13,21 +13,21 @@ function Logout(props: any) {
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
         {
-            socket.emit('logout', user.username);
-            socket.off();
-            axios.post(`/authentication/log-out`, {})
+            axios.post(`/authentication/log-out`, { withCredentials: true})
                  .then((response) => {
-                     console.log(response.data);
+                     console.log(response)
                      setUser(defaultUser);
                      props.history.push('/login');
+                     socket.emit('logout', user.username);
+                     socket.off();
                  })
         }
-    }, [])
-
-    if (user.id > 0 && user.username.length > 0)
-        return (<div/>);
-    else
-        return (<Redirect to={{ pathname: "/login", state: { from: props.location} }} />);
+        else
+        {
+            props.history.push('/login');
+        }
+    })
+    return (<div/>);
 }
 
 export default Logout

@@ -12,9 +12,6 @@ import { UsersService } from '..//users/users.service';
 import { ChatService } from '../chat/chat.service';
 import { PongService } from '../pong/pong.service';
 import { Room } from '../match/room.interface';
-import { UsernameDto } from '../users/dto/username.dto';
-import { MessageDto } from '../chat/message.dto';
-import { ChannelDto } from '../chat/channel.dto';
 
 @WebSocketGateway({cors: true})
 export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -88,17 +85,15 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //////////
 
   @SubscribeMessage('request_set_username')
-  async setUsername(@MessageBody() data: { username: string, realname: string, avatar: string },
+  async setUsername(@MessageBody() data: { realname:string, username:string, avatar: string },
                    @ConnectedSocket() socket: Socket) {
     try
     {
-      const usernamedto = new UsernameDto();
-      usernamedto.username = data.username;
-      this.userService.setUsername(data.realname, usernamedto);
-      this.userService.setAvatar({realname: data.realname, avatar: data.avatar});
+      await this.userService.setUsername(data.realname, data.username);
+      await this.userService.setAvatar({realname: data.realname, avatar: data.avatar});
       this.server.emit('send_username_set', {
         realname: data.realname,
-        username: usernamedto.username,
+        username: data.username,
       })
     }
     catch(err)
@@ -159,11 +154,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     try{
-      const messagedto = new MessageDto();
-      messagedto.message = data.content;
       const res = await this.chatService.saveMessage({
         channel: data.channel,
-        content: messagedto
+        content: data.content
       }, username);
       this.server.sockets.emit('receive_message', res);
     }
@@ -185,11 +178,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { username: string, channel: string, password: string}) {
     try {
-      const channeldto = new ChannelDto();
-      channeldto.channel = data.channel;
       const chan = await this.chatService.joinChannel({
         username: data.username,
-        channel: channeldto,
+        channel: data.channel,
         password: data.password
       });
       this.server.emit('send_channel_joined', chan.name, data.username, chan.owner,
@@ -205,11 +196,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { src: string, dst: string }) {
     try {
-      const channeldto = new ChannelDto();
-      channeldto.channel = data.dst;
       const chan = await this.chatService.joinPrivateChannel({
         src: data.src,
-        dst: channeldto
+        dst: data.dst
       });
       this.server.emit('send_private_channel_joined', data.src, data.dst, chan.name);
     }
@@ -312,10 +301,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, username:string }) {
     try {
-      const channeldto = new ChannelDto();
-      channeldto.channel = data.channel;
       await this.chatService.leaveChannel({
-        channel: channeldto,
+        channel: data.channel,
         username: data.username
       });
       this.server.emit('send_left_channel', data.channel, data.username);
