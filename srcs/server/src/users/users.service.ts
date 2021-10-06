@@ -61,8 +61,7 @@ export class UsersService {
     }
 
     async setUsername(realname: string, username: UsernameDto) {
-        const user = await this.usersRepository.findOne({
-            realname: realname });
+        const user = await this.getByRealname(realname);
         if (user) {
             if (!await this.usersRepository.findOne({
                 username: username.username}))
@@ -74,7 +73,15 @@ export class UsersService {
                 throw new HttpException('User with this username already exists', HttpStatus.NOT_FOUND);
 
         }
-        throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    async setAvatar(data: {realname: string, avatar: string} ) {
+        const user = await this.getByRealname(data.realname);
+
+        if (user) {
+            user.avatar = data.avatar;
+            await this.usersRepository.save(user);
+        }
     }
 
     async create(userData: CreateUserDto) {

@@ -88,13 +88,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //////////
 
   @SubscribeMessage('request_set_username')
-  async setUsername(@MessageBody() data: { username: string, realname: string },
+  async setUsername(@MessageBody() data: { username: string, realname: string, avatar: string },
                    @ConnectedSocket() socket: Socket) {
     try
     {
       const usernamedto = new UsernameDto();
       usernamedto.username = data.username;
       this.userService.setUsername(data.realname, usernamedto);
+      this.userService.setAvatar({realname: data.realname, avatar: data.avatar});
       this.server.emit('send_username_set', {
         realname: data.realname,
         username: usernamedto.username,
@@ -324,6 +325,11 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('notif_message')
+  async notifMessage(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
+    console.log(data);
+  }
+
   ///////////
   // LOBBY //
   ///////////
@@ -399,10 +405,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let players: string[] = this.rooms[rm].Players;
       let avatars = [(await this.userService.getByUsername(players[0])).avatar, (await this.userService.getByUsername(players[1])).avatar]
       this.rooms[rm].ingame = true;
-      if (this.rooms[rm].Players[0] == data.username)
+      if (this.rooms[rm].Players[0] == data.username) {
         socket.emit('role', {players: players, role: 'player1', avatars: avatars});
-      else if (this.rooms[rm].Players[1] == data.username)
+        this.server.emit('status', {username: data.username, status:'ingame'});
+      }
+      else if (this.rooms[rm].Players[1] == data.username) {
         socket.emit('role', {players: players, role: 'player2', avatars: avatars});
+        this.server.emit('status', {username: data.username, status:'ingame'});
+      }
       else {
         socket.emit('role', {players: players, role: 'spectator', avatars: avatars});
         this.rooms[rm].spectators.push(data.username);
@@ -470,15 +480,17 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async KeyUp(@ConnectedSocket() socket: Socket,
     @MessageBody() data: {key: string, role: string, room: number}) {
     let current = data.room;
-    if (data.role == 'player1' &&
+    if (this.rooms[current]) {
+      if (data.role == 'player1' &&
       (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
         this.rooms[current].p1direction = 0;
+      }
+      if (data.role == 'player2' &&
+      (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
+        this.rooms[current].p2direction = 0;
+      }
     }
-    if (data.role == 'player2' &&
-    (data.key == 'ArrowUp' || data.key == 'ArrowDown')) {
-      this.rooms[current].p2direction = 0;
-    }
-    }
+  }
 
 
   @SubscribeMessage('countdown')

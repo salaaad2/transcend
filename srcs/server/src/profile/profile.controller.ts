@@ -118,6 +118,6 @@ export class ProfileController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('update_profile')
     async updateData(@Body() data: any[]) {
-        await this.profileService.updateProfile(data);
+        return (await this.profileService.updateProfile(data));
     }
 }

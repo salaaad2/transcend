@@ -140,8 +140,8 @@ export class PongService {
                 else
                 {
                     room.ballposition.dir *= -1;
-                    room.ballposition.coeff += intersect ? room.p1direction * 0.6 : room.p2direction * 0.6;
-                    room.ballposition.y += 0.5 * room.speed  * room.ballposition.coeff * 0.6;
+                    room.ballposition.coeff += intersect ? room.p1direction * 0.4 : room.p2direction * 0.4;
+                    room.ballposition.y += 0.5 * room.speed  * room.ballposition.coeff * 0.4;
                     room.ballposition.x += 0.5 * room.speed  * room.ballposition.dir;
                 }
             }
