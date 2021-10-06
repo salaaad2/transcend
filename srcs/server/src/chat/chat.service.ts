@@ -29,8 +29,10 @@ export class ChatService {
     const channel = await this.chanRepository.findOne({name: content.channel})
     if (!channel)
       throw 'You must chose a channel first';
-    if (content.content.length < 1 || content.content.length > 250)
-      throw 'Error your message must be between 1 and 250 characters and must contains only letters';
+    if (content.content.length < 1)
+      throw 'Error your cannot send blank message';
+    else if (content.content.length > 250)
+      throw 'Error you cannot send more than 250 characters'
     const message = this.messagesRepository.create({
       author: username,
       content: content.content,

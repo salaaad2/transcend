@@ -24,17 +24,25 @@
 
 .otp-instructions h4 {
     font-size: 40px;
+    margin-top: 30%;
     text-align: center;
 }
 
 .otp-instructions li {
-    padding-top: 15px;
+    padding-top: 5%;
     list-style-type: none;
     font-size: 25px;
+    margin-left: 30%;
 }
 
 .otp-code {
     width: 25%;
-    margin-left: 50%;
-    padding-top: 10%;
+    margin-left: 30%;
+    padding-top: 5%;
+}
+
+.otp-code button {
+    margin-top: -12%;
+    margin-left: 105%;
+    width: 30%
 }

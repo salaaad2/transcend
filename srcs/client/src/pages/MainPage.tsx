@@ -16,7 +16,7 @@ function MainPage(props: any) {
     const socket = React.useContext(SocketContext)
 
     function validateForm() {
-        return username.length > 0;
+        return username.length > 2;
     }
 
     async function submitHandler(e:any) {
@@ -59,28 +59,25 @@ function MainPage(props: any) {
         {
             return (
                 <div>
-                    <p>Choose a username, it will be visible by other users</p>
+                    <h4>Choose username, it will be visible for other users</h4>
                     <Form onSubmit={submitHandler}>
-                        <div className="textbox">
-                            <Form.Group className="mb-3">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control
-                                    autoFocus
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
-                            </Form.Group>
+                        <div className="otp-code">
+                            <Form.Control
+                                autoFocus
+                                type="text"
+                                value={username}
+                                placeholder="Username"
+                                onChange={(e) => setUsername(e.target.value)} />
+                            <Button variant="primary" type="submit" disabled={!validateForm()}>
+                                Submit
+                            </Button>
                         </div>
                         <Container>
                             <Row>
-                                <div style={{color: 'red', paddingBottom: '20px'}}>{error}</div>
+                                <div style={{color: 'red', paddingBottom: '20px', paddingLeft: '30%'}}>{error}</div>
                             </Row>
                             <Row>
                                 <Col>
-                                    <Button variant="primary" type="submit" disabled={!validateForm()}>
-                                        Submit
-                                    </Button>
                                 </Col>
                             </Row>
                         </Container>

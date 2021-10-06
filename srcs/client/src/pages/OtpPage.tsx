@@ -1,24 +1,22 @@
 import { FormEvent, useState } from 'react';
-import { Form, Button, Container, Row, Col, Modal } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container} from 'react-bootstrap';
 import axios from 'axios';
-import { createAvatar } from '@dicebear/avatars';
-import * as style from '@dicebear/avatars-gridy-sprites';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router-dom';
-import React from 'react';
 import { useEffect } from 'react';
-import { SocketContext } from '../socket/context';
 import MainNavBar from '../components/layout/MainNavBar';
 import { toDataURL } from 'qrcode';
+import Utils from '../components/utils/utils';
 import './OtpPage.css';
 function OtpPage(props:any) {
 
-    const { user, setUser } = useUser()!;
+    const { user } = useUser()!;
     const [ data, setData ] = useState("");
     const [ code, setCode ] = useState("");
+    const [ error, setError ] = useState("");
 
     useEffect(() => {
-        if (!data && user.isOtpEnabled === false)
+        if (!data && user.isOtpEnabled === false && user.id > 0 && user.username.length > 0)
         {
             axios.post('/2fa/generate', user)
                  .then((res) => {
@@ -36,21 +34,25 @@ function OtpPage(props:any) {
         }
     });
 
+    function validateForm() {
+        return code.length === 6;
+    }
+
     function submitHandler(e : FormEvent) {
         e.preventDefault()
-        if (user.isOtpEnabled === false)
+        if (user.isOtpEnabled === false && user.id > 0 && user.username.length > 0)
         {
             axios.post('/2fa/turn-on', {
                 user: user,
                 otpCode: code,
         })
                 .then(() => {
-                    alert('OTP Enabled');
+                    Utils.notifySuccess('OTP Enabled');
                     user.isOtpEnabled = true;
                     props.history.push("/profile/:"+user.username);
                 })
                 .catch((e) => {
-                    alert(e.response.data.message);
+                    setError(e.response.data.message);
                 });
     }
     else
@@ -60,17 +62,17 @@ function OtpPage(props:any) {
                 otpCode: code,
         })
                 .then(() => {
-                    alert('OTP Disabled');
+                    Utils.notifySuccess('OTP Disabled');
                     user.isOtpEnabled = false;
                     props.history.push("/profile/:"+user.username);
                 })
                 .catch((e) => {
-                    alert(e.response.data.message);
+                    setError(e.response.data.message);
                 });
     }
 }
 
-    if (user.isOtpEnabled === false)
+    if (user.isOtpEnabled === false && user.id > 0 && user.username.length > 0)
     {
         return (
             <div>
@@ -99,14 +101,23 @@ function OtpPage(props:any) {
                             placeholder="Enter code"
                             onChange={(e) => setCode(e.target.value)}/>
                     </Form>
-                    <Button variant="primary" type="submit" onClick={submitHandler}>
+                    <Button variant="primary" type="submit" onClick={submitHandler} disabled={!validateForm()}>
                         Sumbit code
                     </Button>
+                    <Container>
+                        <Row>
+                            <div style={{color: 'red', paddingBottom: '20px', paddingLeft: '30%'}}>{error}</div>
+                        </Row>
+                        <Row>
+                            <Col>
+                            </Col>
+                        </Row>
+                    </Container>
                 </div>
             </div>
         )
     }
-    else
+    else if (user.id > 0 && user.username.length > 0)
     {
         return (
             <div>
@@ -115,7 +126,7 @@ function OtpPage(props:any) {
                     <h2>Two factor authentication page</h2>
                 </div>
                 <div className="otp-code">
-                    <h4>Enter on your application to remove authenticator</h4>
+                    <h4>Enter code on your application to remove authenticator</h4>
                     <Form onSubmit={submitHandler}>
                         <Form.Control
                             autoFocus
@@ -124,12 +135,23 @@ function OtpPage(props:any) {
                             placeholder="Enter code"
                             onChange={(e) => setCode(e.target.value)}/>
                     </Form>
-                    <Button variant="primary" type="submit" onClick={submitHandler}>
+                    <Button variant="primary" type="submit" onClick={submitHandler} disabled={!validateForm()}>
                         Sumbit code
                     </Button>
+                    <Container>
+                        <Row>
+                            <div style={{color: 'red', paddingBottom: '20px', paddingLeft: '30%'}}>{error}</div>
+                        </Row>
+                        <Row>
+                            <Col>
+                            </Col>
+                        </Row>
+                    </Container>
                 </div>
             </div>
         )
     }
+    else
+        return (<Redirect to={{ pathname: "/login", state: { from: props.location} }} />);
 }
 export default OtpPage;
