@@ -1,4 +1,4 @@
-import {  Injectable } from '@nestjs/common';
+import {  HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from '../users/user.entity';
@@ -50,12 +50,17 @@ export class ProfileService {
     }
 
     async updateProfile(data: any[]) {
-        console.log(data[0]);
-        const user = await this.usersRepository.findOne({username: data[0]});
+        const user = await this.usersRepository.findOne({realname: data[0]});
 
         if (data[1] != "")
             user.avatar = data[1];
         user.theme = data[2];
-       await this.usersRepository.save(user);
+        if (await this.usersRepository.findOne({username: data[3]}))
+            throw new HttpException('This username is already taken', HttpStatus.NOT_FOUND);
+        if (data[3] != "")
+            user.username = data[3];
+        console.log(user.username);
+        await this.usersRepository.save(user);
+        return ;
     }
 }

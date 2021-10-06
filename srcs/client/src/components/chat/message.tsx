@@ -114,6 +114,8 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                 data.channel.name === this.props.currentChan &&
                 !this.props.user.blocklist.includes(data.author))
                     this.listMsg(data)
+                else
+                    this.props.socket.emit('notif_message', data);
         });
     }
 

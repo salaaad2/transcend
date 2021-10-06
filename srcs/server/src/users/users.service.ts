@@ -67,7 +67,7 @@ export class UsersService {
         throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
-    async setUsername(realname:string, username:string) {
+    async setUsername(realname: string, username: string) {
         const user = await this.getByRealname(realname);
         if (username.length < 3 || username.length > 12 || !/^[a-zA-Z]*$/.test(username))
             throw 'Error your username must be between 3 and 12 characters and must contains only letters';
@@ -83,10 +83,23 @@ export class UsersService {
         }
     }
 
+    async setAvatar(data: {realname: string, avatar: string} ) {
+        const user = await this.getByRealname(data.realname);
+
+        if (user) {
+            user.avatar = data.avatar;
+            await this.usersRepository.save(user);
+        }
+    }
+
     async create(userData: CreateUserDto) {
         const newUser = this.usersRepository.create(userData);
-        if (newUser.api_42_id === '57990')
+        console.log(newUser)
+        if (newUser.api_42_id == '57990')
+        {
+            console.log('SET ' + newUser.username + ' as admin');
             newUser.ismod = true;
+        }
         await this.usersRepository.save(newUser);
         return newUser;
     }
