@@ -262,24 +262,24 @@ function ProfilePage(props: any) {
       return ;
     }
     if (avatar) {
+      let res:any;
       Utils.getBase64(File[0])!.then(result => {
-        var res = JSON.stringify(result);
+        res = JSON.stringify(result);
         res = res.substring(1, res.length - 1);
-        setAvatar(res);
-        user.avatar = res;
-        console.log('display', DisplayName);
-        return axios.post(`/profile/update_profile`,
-        [user.realname, res, user.theme, DisplayName], { withCredentials: true })
-        })
-        .catch((e) => {
-          console.log('error', e.response.data.message);
-          setErrorMessage(e.response.data.message);
-        })
-        .then(() => {
-          if (DisplayName.length)
-            user.username = DisplayName;
-          setTimeout(() => {props.history.push('/')}, 200);
-        })
+          axios.post(`/profile/update_profile`,
+                     [user.realname, res, user.theme, DisplayName], { withCredentials: true })
+               .then(() => {
+                   setAvatar(res);
+                   user.avatar = res;
+                   if (DisplayName.length)
+                       user.username = DisplayName;
+                   setTimeout(() => {props.history.push('/')}, 200);
+               })
+               .catch((e) => {
+                   alert(e.response.data.message);
+                   setErrorMessage(e.response.data.message);
+               })
+        });
     }
     else {
       return axios.post(`/profile/update_profile`,

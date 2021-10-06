@@ -13,6 +13,7 @@ import { join } from 'path';
 import { AvatarModule } from './avatar/avatar.module';
 import { MatchModule } from './match/match.module';
 import { SocketModule } from './socket/socket.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { SocketModule } from './socket/socket.module';
     AvatarModule,
     MatchModule,
     ProfileModule,
-    SocketModule
+    SocketModule,
+    MulterModule
   ],
   controllers: [],
   providers: [

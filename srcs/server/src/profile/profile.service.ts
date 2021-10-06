@@ -51,15 +51,18 @@ export class ProfileService {
 
     async updateProfile(data: any[]) {
         const user = await this.usersRepository.findOne({realname: data[0]});
-
         if (data[1] != "")
-            user.avatar = data[1];
+        {
+            if (/\/jpg|jpeg|png|gif/.test(data[1]))
+                user.avatar = data[1];
+            else
+                throw new HttpException('Only image files are allowed!', HttpStatus.BAD_REQUEST);
+        }
         user.theme = data[2];
         if (await this.usersRepository.findOne({username: data[3]}))
             throw new HttpException('This username is already taken', HttpStatus.NOT_FOUND);
         if (data[3] != "")
             user.username = data[3];
-        console.log(user.username);
         await this.usersRepository.save(user);
         return ;
     }
