@@ -56,7 +56,7 @@ function App() {
           <Route path="/ladder" component={LadderPage}/>
           <Route path="/login" component={LoginPage}/>
           <Route path="/otp-login" component={OtpLoginPage}/>
-          <Route path="/chat/:id" component={ChatPage}/>
+          <Route path="/chat" component={ChatPage}/>
           <Route exact path='/game' component={GameLobby}/>
           <Route exact path='/game/:room' component={GamePage}/>
           <Route exact path='/spectator' component={SpectatorPage}/>

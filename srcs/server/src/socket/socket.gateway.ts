@@ -118,7 +118,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async AcceptFriend(@MessageBody() data: {username: string, notif: string}, @ConnectedSocket() socket: Socket) {
     const f_socket: Socket = this.tab[data.notif];
     const user = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
-    if (user.friendrequests.length == 0)
+    if (user.friendrequests.length == 0 && user.pv_msg_notifs.length == 0)
       socket.emit('notifications', ['clear_notifs', ""]);
     if (f_socket)
       f_socket.emit('notifications', ['accept_friend', data.username]);
@@ -129,7 +129,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.userService.getByUsername(data.username);
     user.friendrequests.splice(user.friendrequests.findIndex(element => {return element == data.notif}, 1));
     this.userService.save(user);
-    if (user.friendrequests.length == 0)
+    if (user.friendrequests.length == 0 && user.pv_msg_notifs.length == 0)
       socket.emit('notifications', ['clear_notifs', ""]);
   }
 
@@ -312,9 +312,55 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('notif_message')
-  async notifMessage(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
-    console.log(data);
+  // @SubscribeMessage('notif_message')
+  // async notifMessage(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
+  //     console.log('data2', data);
+  //     socket.emit('notifications', ['message', data[0].author, data[0].content]);
+  // }
+
+  @SubscribeMessage('pv_msg')
+  async pvMsg(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
+    const user0 = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
+    const users = data[0].split('&');
+    if (user0.username === users[0]) {
+      console.log(users[1], data[1]);
+      const f_socket = this.tab[users[1]];
+      if (f_socket)
+        f_socket.emit('notifications', ['message', users[0], data[1]]);
+      const user1 = await this.userService.getByUsername(users[1]);
+      if (!(user1.pv_msg_notifs.find(element => element === users[0])))
+      {
+        console.log(user1.username, 'msg');
+        user1.pv_msg_notifs.push(users[0]);
+        await this.userService.save(user1);
+        console.log(user1.pv_msg_notifs);
+      }
+    }
+    else {
+      console.log(users[1], data[1]);
+      const f_socket = this.tab[users[0]];
+      if (f_socket)
+        f_socket.emit('notifications', ['message', users[1], data[1]]);
+      if (!(user0.pv_msg_notifs.find(element => element === users[1])))
+      {
+        console.log(user0.username, 'msg');
+        user0.pv_msg_notifs.push(users[1]);
+        await this.userService.save(user0);
+        console.log(user0.pv_msg_notifs);
+      }
+    }
+  }
+
+  @SubscribeMessage('remove_msg')
+  async removeMsg(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
+    const user = await this.userService.getByUsername(data[0]);
+    const users = data[1].split('&');
+    const f_user = user.username === users[0] ? users[1] : users[0];
+    user.pv_msg_notifs.splice(user.pv_msg_notifs.findIndex(element => {return element == f_user}, 1));
+    this.userService.save(user);
+    socket.emit('notifications', ['rm_msg', f_user]);
+    if (user.friendrequests.length == 0 && user.pv_msg_notifs.length == 0)
+      socket.emit('notifications', ['clear_notifs', ""]);
   }
 
   ///////////

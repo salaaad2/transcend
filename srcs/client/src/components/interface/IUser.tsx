@@ -12,6 +12,7 @@ interface IUser {
     currentChannel: string;
     chanslist: string[];
     friendrequests: string[];
+    pv_msg_notifs: string[];
     theme: number;
     isOtpEnabled: boolean;
 }

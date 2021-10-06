@@ -17,6 +17,7 @@ export const defaultUser = {
     chanslist: ["", ""],
     friendrequests: [""],
     theme: 0,
+    pv_msg_notifs: [""],
     isOtpEnabled: false,
 };
 
