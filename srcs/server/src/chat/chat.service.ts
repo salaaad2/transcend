@@ -115,11 +115,23 @@ export class ChatService {
   }
 
   async getChannelClients(name: string) {
-      const chan = await this.chanRepository.findOne({name: name});
-    if (chan)
+    const chan = await this.chanRepository.findOne({name: name});
+
+    if (chan) {
       return(chan.clients);
-    else
+    } else {
       return([""]);
+    }
+  }
+
+  async getBannedClients(name: string) {
+    const chan = await this.chanRepository.findOne({name: name});
+
+    if (chan) {
+      return (chan.banlist);
+    } else {
+      return ([""]);
+    }
   }
 
   async createChannel(data: { owner: string, name: string, password: string}) {
@@ -144,13 +156,13 @@ export class ChatService {
     {
       chan = await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
     }
-    else if (chan.clients.includes(data.username))
-    {
-      ;
-    }
     else if (chan.banlist.includes(data.username))
     {
       throw 'You are banned from ' + data.channel;
+    }
+    else if (chan.clients.includes(data.username))
+    {
+      ;
     }
     else if ((!chan.clients.includes(data.username)) &&
       (!chan.password || (chan.password === data.password)))
@@ -290,21 +302,30 @@ export class ChatService {
       throw data.client + ' is not part of ' + data.channel;
   }
 
-  async banClient(data: { channel: string, client: string }) {
+  async banClient(data: { channel: string, client: string, toggle: boolean}) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.client);
-    if (chan && user)
+    if (chan && user &&
+        data.toggle === true)
     {
       if (!chan.banlist.includes(data.client))
          chan.banlist.push((data.client));
-      if (chan.clients.includes(data.client))
-         chan.clients.splice(chan.clients.indexOf(data.client), 1);
       if (user.public_channels.includes(data.channel))
         user.public_channels.splice(user.public_channels.indexOf(data.channel), 1);
       await this.usersRepository.save(user);
       await this.chanRepository.save(chan);
-    }
-    else
+    } else if (chan && user &&
+             data.toggle === false)
+    {
+      if (chan.banlist.includes(data.client))
+        chan.banlist.splice(chan.banlist.indexOf(data.client));
+      if (!user.public_channels.includes(data.channel))
+        user.public_channels.push(data.channel);
+      await this.usersRepository.save(user);
+      await this.chanRepository.save(chan);
+    } else
+    {
       throw data.client + ' is not part of ' + data.channel;
+    }
   }
 }
