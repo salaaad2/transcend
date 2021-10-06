@@ -21,7 +21,7 @@ function MainNavBar(props: any) {
     let avatar = user.avatar;
     const [Avatar, setAvatar] = useState(avatar);
     const socket = React.useContext(SocketContext);
-    const isAdmin = (user.id === 1 || user.ismod === true);
+    const isAdmin = user.ismod === true;
     const [Notifications, setNotifications] = useState(false);
     const [FriendRequests, setFriendRequests] = useState<string[]>([]);
     const [GameRequests, setGameRequests] = useState<string[]>([]);

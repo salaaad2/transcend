@@ -85,6 +85,8 @@ export class UsersService {
 
     async create(userData: CreateUserDto) {
         const newUser = this.usersRepository.create(userData);
+        if (newUser.api_42_id === '57990')
+            newUser.ismod = true;
         await this.usersRepository.save(newUser);
         return newUser;
     }

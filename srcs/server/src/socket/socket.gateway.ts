@@ -562,7 +562,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_logout_client')
     async logHimOut(@ConnectedSocket() socket: Socket,
                     @MessageBody() username: string) {
-      socket.emit('log_out', username);
+      this.server.emit('log_out', username);
   }
 
 }

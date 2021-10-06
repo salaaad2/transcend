@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import MainNavBar from "../components/layout/MainNavBar";
-import authHeader from "../services/auth-header";
 import Utils from "../components/utils/utils"
 import './ProfileDetailPage.css'
 import orImage from '../media/images/or.png'
@@ -203,57 +202,56 @@ function AdminPanel(props: any) {
     }
 
     useEffect(() => {
-        if (user.id > 0)
-            socket.emit('login', user.username);
-        Utils.intercept401(props);
-        axios.get(`/profile/all`,
-        { withCredentials: true})
-        .then((response) => {
-            if (response.data) {
-                setEveryone(response.data);
-                setLoading(false)
-            }
-        })
+        if (user.ismod === true)
+        {
+            axios.get(`/profile/all`,
+                      { withCredentials: true})
+                 .then((response) => {
+                     if (response.data) {
+                         setEveryone(response.data);
+                         setLoading(false)
+                     }
+                 })
+        }
     }, [isLoading, socket, user.username, props, user.id])
 
     useEffect(() => {
-        if (user.id > 0)
-            socket.emit('login', user.username);
-        Utils.intercept401(props);
-        axios.post(`/chat/channels`,
-        {username : user.username},
-                   {withCredentials: true})
-        .then((response) => {
-            if (response.data) {
-                setChannels(response.data);
-                setLoading(false);
-            }
-        })
+        if (user.ismod === true)
+        {
+            axios.post(`/chat/channels`,
+                       {username : user.username},
+                       {withCredentials: true})
+                 .then((response) => {
+                     if (response.data) {
+                         setChannels(response.data);
+                         setLoading(false);
+                     }
+                 })
+        }
     }, [isLoading, socket, user.username, props, user.id])
 
     useEffect(() => {
-        if (user.id > 0)
-            socket.emit('login', user.username);
-        Utils.intercept401(props);
-        axios.post(`/chat/messages`,
-                     {channel : chanView},
-                     {withCredentials: true})
-        .then((response) => {
-            if (response.data) {
-                setMessages(response.data);
-                setLoading(false);
-            }
-        })
+        if (user.ismod === true)
+        {
+            axios.post(`/chat/messages`,
+                       {channel : chanView},
+                       {withCredentials: true})
+                 .then((response) => {
+                     if (response.data) {
+                         setMessages(response.data);
+                         setLoading(false);
+                     }
+                 })
+        }
     }, [chanView, socket, user.username, props, user.id])
 
-    if (Error === 401) {
-        console.log('you are not admin') ;
-        return(<div/>)
+    if (user.ismod === false) {
+        return (<Redirect to={{ pathname: "/profile/:"+user.username, state: { from: props.location} }} />);
     }
     else if (isLoading){
         return (<MainNavBar />)
     }
-    else if (user.id > 0){
+    else if (user.ismod === true){
         console.log('you are admin') ;
         return (
             <div>

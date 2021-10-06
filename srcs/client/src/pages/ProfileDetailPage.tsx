@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import MainNavBar from "../components/layout/MainNavBar";
-import authHeader from "../services/auth-header";
 import Utils from "../components/utils/utils"
 import './ProfileDetailPage.css'
 import orImage from '../media/images/or.png'
