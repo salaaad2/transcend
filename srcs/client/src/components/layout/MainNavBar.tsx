@@ -4,7 +4,7 @@ import { Badge, Button, ButtonGroup, Container, Dropdown, DropdownButton, Form, 
 import { withRouter } from "react-router-dom";
 import './MainNavBar.module.css';
 import Utils from "../utils/utils";
-import { useUser } from '../context/UserAuthContext';
+import { useUser, defaultUser } from '../context/UserAuthContext';
 import React from "react";
 import { SocketContext } from '../../socket/context';
 import { AlignType } from "react-bootstrap/esm/DropdownMenu";
@@ -21,6 +21,7 @@ function MainNavBar(props: any) {
     let avatar = user.avatar;
     const [Avatar, setAvatar] = useState(avatar);
     const socket = React.useContext(SocketContext);
+    const isAdmin = (user.id === 1 || user.ismod === true);
     const [Notifications, setNotifications] = useState(false);
     const [FriendRequests, setFriendRequests] = useState<string[]>([]);
     const [GameRequests, setGameRequests] = useState<string[]>([]);
@@ -67,7 +68,7 @@ function MainNavBar(props: any) {
         let username = user.username;
         socket.emit('accept_friend', {username, notif});
         let NotifTemp = [...FriendRequests];
-        NotifTemp.splice(FriendRequests.findIndex(element => {return element == notif}), 1);
+        NotifTemp.splice(FriendRequests.findIndex(element => {return element === notif}), 1);
         console.log('temp:', NotifTemp);
         setFriendRequests(FriendRequests => {
           return FriendRequests = NotifTemp
@@ -80,7 +81,7 @@ function MainNavBar(props: any) {
       let username = user.username;
       socket.emit('reject_friend', {username, notif});
       let NotifTemp = [...FriendRequests];
-      NotifTemp.splice(FriendRequests.findIndex(element => {return element == notif}), 1);
+      NotifTemp.splice(FriendRequests.findIndex(element => {return element === notif}), 1);
       setFriendRequests(FriendRequests => {
         return FriendRequests = NotifTemp
       });
@@ -160,11 +161,31 @@ function MainNavBar(props: any) {
       })
     }, [])
 
+    /* doesnt work */
     useEffect(() => {
-      socket.emit('login', user.username);
+        /* console.log('logout requested by admin'); */
+        socket.on('log_out', (data: string) => {
+        if (data === user.username) {
+          console.log('logout');
+          socket.emit('logout', user.username);
+          socket.off();
+          axios.post(`/authentication/log-out`, {})
+          .then((response) => {
+              console.log(response.data);
+              setUser(defaultUser);
+              props.history.push('/login');
+          })
+        } else {
+            console.log('lucky bastard');
+        }
+      })
+    })
+
+    useEffect(() => {
       socket.on('notifications', (data: string[]) => {
         if (data) {
-          if (data[0] == 'friendrequest') {
+          if (data[0] === 'friendrequest') {
+            console.log(data);
             Utils.notifyInfo(data[1]);
             setNotifications(true);
             let NotifTemp = [...FriendRequests];
@@ -178,10 +199,10 @@ function MainNavBar(props: any) {
             user.friendlist.push(data[1]);
             setUser(user);
           }
-          else if (data[0] == 'game_request') {
+          else if (data[0] === 'game_request') {
             notifyGame(data);
           }
-          else if (data[0] == 'clear_notifs') {
+          else if (data[0] === 'clear_notifs') {
             setNotifications(false);
           }
         }
@@ -189,7 +210,7 @@ function MainNavBar(props: any) {
       return (() => {
         socket.off('notifications');
       })
-    }, [])
+    })
 
     useEffect(() => {
       socket.on('start_duel', (data: number) => {
@@ -216,6 +237,7 @@ function MainNavBar(props: any) {
                         <NavDropdown.Item href="#rules">Rules</NavDropdown.Item>
                       </NavDropdown>
                       <Nav.Link href="#chat/:General">Chat</Nav.Link>
+                      {(isAdmin) ? <Nav.Link href="#adminpanel">Admin Panel</Nav.Link> : <div></div>}
                       <Nav.Link href="#ladder">Ladder</Nav.Link>
                     </Nav>
                     <Nav.Link href={profilelink}>

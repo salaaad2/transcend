@@ -14,6 +14,8 @@ interface IUser {
     friendrequests: string[];
     theme: number;
     isOtpEnabled: boolean;
+    ismod: boolean;
+    isbanned: boolean;
 }
 
 export default IUser;

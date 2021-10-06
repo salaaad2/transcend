@@ -110,7 +110,9 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
             });
         this.setState({message: ""})
         this.props.socket.on('receive_message',  (data:any) => {
-                if (data && data.channel.name === this.props.currentChan)
+            if (data &&
+                data.channel.name === this.props.currentChan &&
+                !this.props.user.blocklist.includes(data.author))
                     this.listMsg(data)
         });
     }

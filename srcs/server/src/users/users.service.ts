@@ -104,4 +104,18 @@ export class UsersService {
             user.friendrequests.push(data);
         await this.usersRepository.save(user);
     }
+
+    async banClient(data: {username: string, toggle: boolean}) {
+        const user = await this.usersRepository.findOne({username: data.username});
+
+        user.isbanned = data.toggle;
+        await this.usersRepository.save(user);
+    }
+
+    async modClient(data: {username: string, toggle: boolean}) {
+        const user = await this.usersRepository.findOne({username: data.username});
+
+        user.ismod = data.toggle;
+        await this.usersRepository.save(user);
+}
 }

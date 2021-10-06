@@ -235,6 +235,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, client: string }) {
     try {
+      console.log('promoting client ' + data.client + ' on channel ' + data.channel);
       await this.chatService.promoteClient(data);
       this.server.emit('send_promoted_client', data.channel, data.client);
     }
@@ -282,13 +283,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('request_ban_client')
-  async banClient(
+  @SubscribeMessage('request_ban_from_chan')
+  async banFromChat(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { channel: string, client: string }) {
     try {
       await this.chatService.banClient(data);
-      this.server.emit('send_banned_client', data.channel, data.client);
+      this.server.emit('send_chan_banned_client', data.channel, data.client);
     }
     catch(e){
       socket.emit('send_error', e);
@@ -308,6 +309,24 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     catch(e){
       socket.emit('send_error', e);
+    }
+  }
+
+  @SubscribeMessage('request_destroy_channel')
+  async destroyChannel(
+    @ConnectedSocket() socket: Socket,
+  @MessageBody() data: {channel: string, id: number}) {
+    try {
+      if (data.id === 1) {
+        this.server.emit('send_destroy_channel', data.channel);
+      }
+      else {
+        console.log(data);
+        console.log('you are not admin, therefore you cannot delete ' + data.id);
+      }
+    }
+    catch(e) {
+      socket.emit('send error', e);
     }
   }
 
@@ -529,7 +548,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('get_spectators')
-  async GetSpectators(@ConnectedSocket() socket: Socket, @MessageBody() room: number) {
+  async GetSpectators(@ConnectedSocket() socket: Socket,
+                      @MessageBody() room: number) {
     if (this.rooms[room]) {
       socket.emit('spectators', this.rooms[room].spectators);
       setInterval(() => {
@@ -538,4 +558,11 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }, 2000)
     }
   }
+
+  @SubscribeMessage('request_logout_client')
+    async logHimOut(@ConnectedSocket() socket: Socket,
+                    @MessageBody() username: string) {
+      socket.emit('log_out', username);
+  }
+
 }

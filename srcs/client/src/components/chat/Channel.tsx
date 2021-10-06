@@ -115,6 +115,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             link.href = '#profile/:' + cl;
             link.textContent = cl;
             link.className = 'userinfo';
+            console.log('adminlist : ');
+            console.log(this.state.adminlist);
             if (this.state.toggle === 'public')
             {
                 if (this.state.owner === cl)
@@ -252,7 +254,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
 
     btnBan(e: Event, chan:string, cl: string) {
         e.preventDefault();
-        this.props.socket.emit('request_ban_client', {
+        this.props.socket.emit('request_ban_from_chan', {
             channel: chan,
             client: cl,
         });
@@ -608,6 +610,13 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                 this.props.socket.emit('request_get_channel_clients', 'General');
             }
         });
+        this.props.socket.on('send_destroy_channel', (channel: string) => {
+            if (this.state.currentChan === channel) {
+                this.setState({currentChan: 'General'});
+            }
+            console.log('channel ' + channel + ' destroyed, get chans');
+            this.props.socket.emit('request_get_channels', this.props.user.username);
+        });
         this.props.socket.on('send_channel_clients', (cllist: string[]) => {
             this.setState({ cllist: cllist });
         });
@@ -615,6 +624,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.sendLeftChannel(channel, username);
         });
         this.props.socket.on('send_promoted_client', (channel: string, username: string) => {
+            console.log('promote this guy');
             this.sendPromotedClient(channel, username);
         });
         this.props.socket.on('send_demoted_client', (channel: string, username: string) => {
@@ -626,7 +636,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.props.socket.on('send_unmuted_client', (channel: string, username: string) => {
             this.sendUnmutedClient(channel, username);
         });
-        this.props.socket.on('send_banned_client', (channel: string, username: string) => {
+        this.props.socket.on('send_chan_banned_client', (channel: string, username: string) => {
             this.sendBannedClient(channel, username);
         });
         this.props.socket.on('send_private_channels', (channel: string[]) => {
@@ -647,13 +657,14 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.props.socket.removeAllListeners('send_channels');
             this.props.socket.removeAllListeners('send_channel_joined');
             this.props.socket.removeAllListeners('send_channel_clients');
+            this.props.socket.removeAllListeners('send_destroy_channel');
             this.props.socket.removeAllListeners('send_left_channel');
             this.props.socket.removeAllListeners('send_error');
             this.props.socket.removeAllListeners('send_promoted_client');
             this.props.socket.removeAllListeners('send_demoted_client');
             this.props.socket.removeAllListeners('send_muted_client');
             this.props.socket.removeAllListeners('send_unmuted_client');
-            this.props.socket.removeAllListeners('send_banned_client');
+            this.props.socket.removeAllListeners('send_chan_banned_client');
             this.props.socket.removeAllListeners('send_private_channels');
             this.props.socket.removeAllListeners('send_private_channel_joined');
         }

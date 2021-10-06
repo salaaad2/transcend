@@ -1,5 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 class User {
@@ -53,6 +52,12 @@ class User {
 
     @Column({default: 0})
     public theme: number;
+
+    @Column({default: false})
+    public ismod: boolean;
+
+    @Column({default: false})
+    public isbanned: boolean;
 }
 
 export default User;

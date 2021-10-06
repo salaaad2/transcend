@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import Message from './message.entity';
 import User from '../users/user.entity';
 import { Repository } from 'typeorm';
 import Channel from './channel.entity';
 import { UsersService } from '../users/users.service';
-import { ChannelDto } from './channel.dto';
-import { MessageDto } from './message.dto';
 
 @Injectable()
 export class ChatService {
@@ -49,6 +46,44 @@ export class ChatService {
       return found.message;
     else
       return undefined;
+  }
+
+
+      /*
+       * triggered by post on chat/deletechan as admin
+       * @param chan name
+       * if channel exists, get all users and make them leave
+       */
+
+  async deleteChannel(channame: string) {
+
+    const chan = await this.chanRepository.findOne({ name: channame });
+    const data: {channel: string,
+               username: string}[] = [];
+
+    if (chan) {
+      const clist = await this.getChannelClients(chan.name);
+      for (const client of clist) {
+        data.push({
+          "channel": chan.name,
+          "username": client,
+        });
+      }
+      for (const d of data) {
+        await this.leaveChannel(d); // DONE: somehow this only makes one person leave
+                              // note : await.... AWAIIIIIT
+      }
+      const delmsg = await this.messagesRepository.delete({channel: chan});
+      const delch = await this.chanRepository.delete({name: chan.name});
+      const qwe = await this.chanRepository.save(delch?.raw);
+      if (delmsg && delch && qwe) {
+        console.log('channel ' + channame + ' delete successful');
+      }
+    }
+  }
+
+  async getAllChannels() {
+    return (await this.chanRepository.find());
   }
 
   async getChannels(username: string) {
@@ -205,10 +240,12 @@ export class ChatService {
   async promoteClient(data: { channel: string, client: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.client);
+    console.log('promote ' + data.client + ' to admin on channel : ' + data.channel);
     if (chan && user)
     {
       if (!chan.admin.includes(data.client))
          chan.admin.push((data.client));
+      console.log('promoted ' + data.client);
       await this.chanRepository.save(chan);
     }
     else

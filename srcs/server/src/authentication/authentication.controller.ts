@@ -3,9 +3,10 @@ import {
   Res,
   Controller,
   HttpCode,
+  HttpStatus,
   Post,
   UseGuards,
-  Get, UseInterceptors, ClassSerializerInterceptor
+    Get, UseInterceptors, ClassSerializerInterceptor, HttpException
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import RequestWithUser from './requestWithUser.interface';
@@ -63,4 +64,5 @@ export class AuthenticationController {
     async logOut(@Req() request: RequestWithUser) {
         request.res.setHeader('Set-Cookie', await this.authenticationService.getCookiesForLogOut());
     }
+
 }

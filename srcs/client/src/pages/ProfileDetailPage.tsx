@@ -39,6 +39,8 @@ interface IUser2 {
   elo: number,
   rank: number,
   status: string,
+  ismod: boolean,
+  isbanned: boolean,
 }
 
 interface IStatus {

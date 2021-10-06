@@ -18,6 +18,8 @@ export const defaultUser = {
     friendrequests: [""],
     theme: 0,
     isOtpEnabled: false,
+    ismod: false,
+    isbanned: false,
 };
 
 type UserContextType = {

@@ -4,7 +4,8 @@ import {
   Controller,
   Post,
   UseGuards,
-  Get, UseInterceptors, ClassSerializerInterceptor
+  Get, UseInterceptors, ClassSerializerInterceptor,
+    HttpException, HttpStatus
 } from '@nestjs/common';
 import { AvatarService } from '../avatar/avatar.service';
 import { UsersService } from '../users/users.service';
@@ -119,5 +120,29 @@ export class ProfileController {
     @Post('update_profile')
     async updateData(@Body() data: any[]) {
         await this.profileService.updateProfile(data);
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('ban_client')
+    async banClient(@Body() data: {username: string, toggle: boolean},
+                    @Req() request: RequestWithUser) {
+        if (request.user.ismod) {
+            console.log('sufficient rights.\n banning : ' + data.username);
+            this.usersService.banClient(data);
+        } else {
+            throw new HttpException('Insufficient Rights to ban or unban user', HttpStatus.I_AM_A_TEAPOT);
+        }
+    }
+
+    @UseGuards(JwtAuthenticationGuard)
+    @Post('mod_client')
+    async modClient(@Body() data: {username: string, toggle: boolean},
+                    @Req() request: RequestWithUser) {
+        if (request.user.ismod) {
+            console.log('sufficient rights.\n modding : ' + data.username);
+            this.usersService.modClient(data);
+        } else {
+            throw new HttpException('Insufficient Rights to give or take away moderation rights', HttpStatus.I_AM_A_TEAPOT);
+        }
     }
 }
