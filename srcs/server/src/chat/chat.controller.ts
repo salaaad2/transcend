@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import { LocalAuthenticationGuard } from 'src/authentication/localAuthentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
@@ -18,9 +18,14 @@ export class ChatController {
 
     @Post('messages')
     @UseGuards(JwtAuthenticationGuard)
-    async getMessages(@Body() channel: {channel: string}) {
-        const messages = await this.chatService.getAllMessages(channel.channel);
-        return messages;
+    async getMessages(@Body() channel: {channel: string},
+                      @Req() request: RequestWithUser) {
+        if (request.user.ismod) {
+            const messages = await this.chatService.getAllMessages(channel.channel);
+            return messages;
+        } else {
+            throw new HttpException('insufficient rights', HttpStatus.I_AM_A_TEAPOT);
+        }
     }
 
     @Post('channels')

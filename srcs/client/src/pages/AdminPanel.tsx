@@ -27,11 +27,14 @@ function AdminPanel(props: any) {
     const [Everyone, setEveryone] = useState([]);
     const [Channels, setChannels] = useState([]);
     const [Messages, setMessages] = useState([]);
+    const [chanView, setChanView] = useState('');
+
+    const socket = React.useContext(SocketContext);
+    const { user } = useUser()!;
+
     let idUser: number = 0;
     let idChan: number = 0;
     let idMsg: number = 0;
-    const socket = React.useContext(SocketContext);
-    const { user } = useUser()!;
 
     function reFresh() {
         setLoading(true);
@@ -150,9 +153,7 @@ function AdminPanel(props: any) {
     }
 
     function viewLogs(channel: string) {
-        socket.emit('request_all_messages' , {
-            channel
-        });
+        setChanView(channel);
         setLoading(true);
     }
 
@@ -195,9 +196,6 @@ function AdminPanel(props: any) {
         idMsg++;
         return (
                 <tr key={idMsg}>
-                    <th scope='row'>
-                        <p>{idMsg}</p>
-                    </th>
                     <td><p>{messages.author}</p></td>
                     <td><p>{messages.content}</p></td>
                 </tr>
@@ -231,8 +229,22 @@ function AdminPanel(props: any) {
                 setLoading(false);
             }
         })
-
     }, [isLoading, socket, user.username, props, user.id])
+
+    useEffect(() => {
+        if (user.id > 0)
+            socket.emit('login', user.username);
+        Utils.intercept401(props);
+        axios.post(`${process.env.REACT_APP_BASE_URL}/chat/messages`,
+                     {channel : chanView},
+                     {withCredentials: true})
+        .then((response) => {
+            if (response.data) {
+                setMessages(response.data);
+                setLoading(false);
+            }
+        })
+    }, [chanView, socket, user.username, props, user.id])
 
     if (Error === 401) {
         console.log('you are not admin') ;
