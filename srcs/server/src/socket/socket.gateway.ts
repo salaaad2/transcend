@@ -89,8 +89,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                    @ConnectedSocket() socket: Socket) {
     try
     {
-      this.userService.setUsername(data.realname, data.username);
-      this.userService.setAvatar({realname: data.realname, avatar: data.avatar});
+      await this.userService.setUsername(data.realname, data.username);
+      await this.userService.setAvatar({realname: data.realname, avatar: data.avatar});
       this.server.emit('send_username_set', {
         realname: data.realname,
         username: data.username,

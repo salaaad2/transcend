@@ -86,7 +86,8 @@ export class AuthenticationService {
             return (this.usersService.create({
                 realname: data.login,
                 username: '',
-                api_42_id: data.id
+                api_42_id: data.id,
+                ismod: false
             }))
         }
         return user;
