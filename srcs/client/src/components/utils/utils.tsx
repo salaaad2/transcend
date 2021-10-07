@@ -9,6 +9,7 @@ class Utils {
         }, error => {
             if (error.response.status === 401) {
                 props.history.push('/');
+                alert('Unauthorized');
             }
             else if (error.response.status === 404) {
                 console.log(404);

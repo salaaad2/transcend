@@ -76,7 +76,7 @@ export class AuthenticationService {
         const payload = { username: user.username, sub: user.id };
         if (user.isbanned === true)
         {
-            throw new HttpException('You are banned', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('You are banned', HttpStatus.FORBIDDEN);
         }
         else
         {

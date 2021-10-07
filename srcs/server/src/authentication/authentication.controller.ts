@@ -30,16 +30,21 @@ export class AuthenticationController {
     @Get('redirect')
     async redirect(@Req() req:any, @Res({passthrough: true}) res:Response) {
         if (req.user) {
-            const token = this.authenticationService.login(req.user);
-            res.cookie('access_token', token.acess_token, {
-                httpOnly: false,
-            });
-            const cookie = this.authenticationService.getCookieWithJwtToken(req.user.id);
-            req.res.setHeader('Set-Cookie', cookie);
-            if (req.user.isOtpEnabled === false)
-                res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/');
-            else
-                res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/otp-login');
+            try {
+                const token = this.authenticationService.login(req.user);
+                res.cookie('access_token', token.acess_token, {
+                    httpOnly: false,
+                });
+                const cookie = this.authenticationService.getCookieWithJwtToken(req.user.id);
+                req.res.setHeader('Set-Cookie', cookie);
+                if (req.user.isOtpEnabled === false)
+                    res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/');
+                else
+                    res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/otp-login');
+            }
+            catch (e) {
+                res.status(403).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/ban');
+            }
         }
     }
 

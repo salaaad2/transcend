@@ -17,10 +17,9 @@ function LoginPage(props: any): any {
     useEffect(() => {
         axios.get('/authentication/logged', { withCredentials: true })
              .then((res:any) => {
-                 setUser(res.data);
+                     setUser(res.data);
              })
-             .catch((err) => {
-                 console.log(err)
+             .catch(() => {
              });
     })
 

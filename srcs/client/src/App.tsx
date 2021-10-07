@@ -18,6 +18,7 @@ import OtpLoginPage from './pages/OtpLoginPage';
 import RulesPage from './pages/RulesPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AdminPanel from './pages/AdminPanel';
+import BanPage from './pages/BanPage';
 function App() {
 
   return(
@@ -37,6 +38,7 @@ function App() {
           <Route exact path='/rules' component={RulesPage}/>
           <Route path="/logout" component={Logout}/>
           <Route exact path="/" component={MainPage}/>
+          <Route exact path="/ban" component={BanPage}/>
           <Route component={NotFoundPage}/>
           </Switch>
         </div>
