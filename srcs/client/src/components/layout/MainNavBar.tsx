@@ -184,23 +184,23 @@ function MainNavBar(props: any) {
             notifyGame(data);
           }
           else if (data[0] == 'message') {
-            setNotifications(true);
-            setMessages(prevState => 
-              (!prevState.find(element => element === data[1]) ?
-              [...prevState, data[1]] : [...prevState]))
-            notifyMsg(data);
+              setNotifications(true);
+              setMessages(prevState =>
+                  (!prevState.find(element => element === data[1]) ?
+                   [...prevState, data[1]] : [...prevState]))
+              notifyMsg(data);
           }
-          else if (data[0] == 'rm_msg') {
-            console.log(data[1]);
-            setMessages(Messages => {
-              let NotifTemp = [...Messages];
-              NotifTemp.splice(Messages.findIndex(element => {return element == data[1]}), 1);
-              return Messages = NotifTemp;
-            });
-          }
-          else if (data[0] == 'clear_notifs') {
-            setNotifications(false);
-          }
+            else if (data[0] == 'rm_msg') {
+                console.log(data[1]);
+                setMessages(Messages => {
+                    let NotifTemp = [...Messages];
+                    NotifTemp.splice(Messages.findIndex(element => {return element == data[1]}), 1);
+                    return Messages = NotifTemp;
+                });
+            }
+            else if (data[0] == 'clear_notifs') {
+                setNotifications(false);
+            }
         }
       })
       return (() => {

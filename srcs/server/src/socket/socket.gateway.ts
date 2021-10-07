@@ -331,10 +331,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('notif_message')
-  async notifMessage(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
-    console.log(data);
-
   @SubscribeMessage('pv_msg')
   async pvMsg(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
     const user0 = await this.userService.getByUsername(Object.keys(this.tab).find(k => this.tab[k] === socket));
