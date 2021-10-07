@@ -31,6 +31,7 @@ export class AuthenticationController {
     async redirect(@Req() req:any, @Res({passthrough: true}) res:Response) {
         if (req.user) {
             try {
+
                 const token = this.authenticationService.login(req.user);
                 res.cookie('access_token', token.acess_token, {
                     httpOnly: false,
@@ -43,7 +44,14 @@ export class AuthenticationController {
                     res.status(302).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/otp-login');
             }
             catch (e) {
-                res.status(403).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/ban');
+                if (e.status === 403)
+                {
+                    res.status(403).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/ban');
+                }
+                else
+                {
+                    res.status(401).redirect(process.env.REACT_APP_BASE_URL+':'+process.env.REACT_APP_PORT+'/#/');
+                }
             }
         }
     }

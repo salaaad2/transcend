@@ -78,6 +78,10 @@ export class AuthenticationService {
         {
             throw new HttpException('You are banned', HttpStatus.FORBIDDEN);
         }
+        else if (user.status === 'online' || user.status === 'in game')
+        {
+            throw new HttpException('You are already logged', HttpStatus.BAD_REQUEST);
+        }
         else
         {
             return {

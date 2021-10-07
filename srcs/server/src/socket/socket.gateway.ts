@@ -56,15 +56,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('login')
   async handleLogin(@MessageBody() username: string, @ConnectedSocket() socket: Socket) {
+    const user = await this.userService.getByUsername(username);
+    user.status = 'online';
     if (!(username in this.tab))
     {
       this.tab[username] = socket;
-      console.log(username + ' logged in');
-      const user = await this.userService.getByUsername(username);
-      user.status = 'online';
-      await this.userService.save(user);
       this.server.emit('status', {username, status:'online'});
     }
+    await this.userService.save(user);
   }
 
   @SubscribeMessage('logout')

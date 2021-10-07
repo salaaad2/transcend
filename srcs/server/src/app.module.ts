@@ -10,7 +10,6 @@ import { ProfileModule } from './profile/profile.module';
 import { ChatModule } from './chat/chat.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AvatarModule } from './avatar/avatar.module';
 import { MatchModule } from './match/match.module';
 import { SocketModule } from './socket/socket.module';
 import { MulterModule } from '@nestjs/platform-express';
@@ -36,7 +35,6 @@ import { MulterModule } from '@nestjs/platform-express';
     AuthenticationModule,
     UsersModule,
     ChatModule,
-    AvatarModule,
     MatchModule,
     ProfileModule,
     SocketModule,

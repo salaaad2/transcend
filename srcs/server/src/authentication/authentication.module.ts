@@ -8,7 +8,6 @@ import { Api42Strategy } from './api42.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
-import { AvatarModule } from '../avatar/avatar.module';
 import { MatchModule } from 'src/match/match.module';
 import { OtpController } from './otp/otp.controller';
 import { otpService } from './otp/otp.service';
@@ -17,7 +16,6 @@ import { OtpStrategy } from './authentication.service';
 @Module({
     imports: [
         UsersModule,
-        AvatarModule,
         MatchModule,
         PassportModule,
         ConfigModule,

@@ -114,6 +114,7 @@ function ProfilePage(props: any) {
   useEffect(() => {
       if (user.id > 0 && user.username.length > 0)
       {
+          socket.emit('login', user.username);
           axios.post(`/profile/profile2`, {username: username}, { withCredentials: true })
                .then((response) => {
                    if (response.data) {
@@ -243,7 +244,6 @@ function ProfilePage(props: any) {
       setTimeout(() => {props.history.push('/')}, 200);
     })
     .catch((e) => {
-      console.log('error', e.response.data.message);
       setErrorMessage(e.response.data.message);
     })
   }

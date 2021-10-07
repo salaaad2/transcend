@@ -7,7 +7,6 @@ import {
   Get, UseInterceptors, ClassSerializerInterceptor,
     HttpException, HttpStatus
 } from '@nestjs/common';
-import { AvatarService } from '../avatar/avatar.service';
 import { UsersService } from '../users/users.service';
 import { MatchService } from '../match/match.service';
 import { ProfileService } from './profile.service';
