@@ -74,9 +74,16 @@ export class AuthenticationService {
 
     login(user: User): { acess_token: string } {
         const payload = { username: user.username, sub: user.id };
-        return {
-            acess_token: this.jwtService.sign(payload),
-        };
+        if (user.isbanned === true)
+        {
+            throw new HttpException('You are banned', HttpStatus.UNAUTHORIZED);
+        }
+        else
+        {
+            return {
+                acess_token: this.jwtService.sign(payload),
+            };
+        }
     }
 
     async findUserFromApi42Id(data:any): Promise<any> {

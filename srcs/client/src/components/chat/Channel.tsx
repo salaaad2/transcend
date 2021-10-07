@@ -711,6 +711,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.props.socket.removeAllListeners('send_channels');
             this.props.socket.removeAllListeners('send_channel_joined');
             this.props.socket.removeAllListeners('send_channel_clients');
+            this.props.socket.removeAllListeners('send_banned_clients');
             this.props.socket.removeAllListeners('send_destroy_channel');
             this.props.socket.removeAllListeners('send_left_channel');
             this.props.socket.removeAllListeners('send_error');

@@ -85,7 +85,14 @@ export class ProfileController {
     @Get('all')
     async getAllUsers() {
         const data = await this.usersService.getEveryone();
-        const ret: {id: number, username: string, wins: number, losses: number, avatar: string, elo: number}[] = [];
+        const ret: {id: number,
+                    username: string,
+                    wins: number,
+                    losses: number,
+                    avatar: string,
+                    elo: number,
+                    ismod: boolean,
+                    isbanned: boolean}[] = [];
         for (let i = 0 ; i < data.length ; i++ ) {
             ret.push({
                 "id": data[i].id,
@@ -94,6 +101,8 @@ export class ProfileController {
                 "losses": data[i].losses,
                 "avatar": data[i].avatar,
                 "elo": data[i].elo,
+                "ismod": data[i].ismod,
+                "isbanned": data[i].isbanned,
             })
         }
         return ret;

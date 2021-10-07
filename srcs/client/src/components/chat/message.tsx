@@ -28,23 +28,26 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
     }
 
     listMsg(req: IMessage) {
-        if (!this.props.msglist.includes(req.id))
+        if (!this.props.user.blocklist.includes(req.author))
         {
-            const chat = document.getElementById('chat')
-            const message = document.createElement('li')
-            const div = document.createElement('div');
-            const entete = document.createElement('div');
-            const author = document.createElement('h2');
-            message.className = req.author === this.props.user.username ? 'me' : 'you';
-            div.className = 'message';
-            div.textContent = req.content;
-            entete.className = 'entete';
-            author.textContent = req.author;
-            entete.appendChild(author);
-            message.appendChild(entete);
-            message.appendChild(div);
-            chat?.appendChild(message);
-            this.props.msglist.push(req.id);
+            if (!this.props.msglist.includes(req.id))
+            {
+                const chat = document.getElementById('chat')
+                const message = document.createElement('li')
+                const div = document.createElement('div');
+                const entete = document.createElement('div');
+                const author = document.createElement('h2');
+                message.className = req.author === this.props.user.username ? 'me' : 'you';
+                div.className = 'message';
+                div.textContent = req.content;
+                entete.className = 'entete';
+                author.textContent = req.author;
+                entete.appendChild(author);
+                message.appendChild(entete);
+                message.appendChild(div);
+                chat?.appendChild(message);
+                this.props.msglist.push(req.id);
+            }
         }
     }
 
@@ -115,6 +118,7 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
             });
         this.setState({message: ""})
         this.props.socket.on('receive_message',  (data:any) => {
+            console.log('author ' + data.author)
             if (data &&
                 data.channel.name === this.props.currentChan &&
                 !this.props.user.blocklist.includes(data.author))

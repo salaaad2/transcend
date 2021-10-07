@@ -212,6 +212,7 @@ function ProfilePage(props: any) {
     { withCredentials: true })
     .then((response) => {
       setIsBlocked(true);
+      user.blocklist.push(username);
     })
   }
 
@@ -221,6 +222,7 @@ function ProfilePage(props: any) {
     { withCredentials: true })
     .then((response) => {
       setIsBlocked(false);
+      user.blocklist.splice(user.blocklist.indexOf(username));
     })
   }
 
@@ -237,7 +239,7 @@ function ProfilePage(props: any) {
       avatar = false;
     if (file && file.size > 200000)
     {
-      alert("File must be < 200ko");
+      setErrorMessage('Error size must be under 200ko');
       return ;
     }
     if (avatar) {
@@ -255,7 +257,6 @@ function ProfilePage(props: any) {
                    setTimeout(() => {props.history.push('/')}, 200);
                })
                .catch((e) => {
-                   alert(e.response.data.message);
                    setErrorMessage(e.response.data.message);
                })
         });
@@ -433,11 +434,6 @@ function ProfilePage(props: any) {
                             <div className="text-white">
                                 <Form onSubmit={SaveProfile}>
                                 <div className="row"><div className="col-6">
-                                    <Form.Label>Display Name</Form.Label>
-                                    <Form.Control id="marge" size="sm" type="text" placeholder="Display name"
-                                      autoFocus
-                                      value={DisplayName}
-                                      onChange={(e) => setDisplayName(e.target.value)} />
                                     <div className="row">
                                       <Form.Label>Upload Avatar</Form.Label>
                                       <Form.Control 

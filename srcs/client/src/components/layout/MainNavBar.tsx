@@ -65,7 +65,7 @@ function MainNavBar(props: any) {
         <p>{data[1]} : {data[2]}</p>
         </>
       )
-      if (data[1] !== user.username)
+        if (data[1] !== user.username && !user.blocklist.includes(data[1]))
         toast(<Msg/>);
     }
 
@@ -241,7 +241,6 @@ function MainNavBar(props: any) {
                         <NavDropdown.Item href="#spectator">Watch</NavDropdown.Item>
                         <NavDropdown.Item href="#rules">Rules</NavDropdown.Item>
                       </NavDropdown>
-                      <Nav.Link href="#chat/:General">Chat</Nav.Link>
                       {(isAdmin) ? <Nav.Link href="#adminpanel">Admin Panel</Nav.Link> : <div></div>}
                       <Nav.Link href="#chat">Chat</Nav.Link>
                       <Nav.Link href="#ladder">Ladder</Nav.Link>
