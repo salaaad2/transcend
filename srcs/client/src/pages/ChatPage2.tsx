@@ -10,8 +10,9 @@ function ChatPage(props: any) {
 	const { user } = useUser()!;
 	const socket = React.useContext(SocketContext);
 
-	if (user.id > 0 && user.username.length > 0)
+	if (user.id > 0)
 	{
+		socket.emit('login', user.username);
 	return (
 		<div>
 			<MainNavBar />

@@ -7,6 +7,7 @@ import { Button, Form } from 'react-bootstrap';
 import Utils from '../utils/utils';
 import Message from './message';
 import redcrossImage from '../../media/images/redcross.png';
+import greencrossImage from '../../media/images/greencross.png';
 import thumbUpImage from '../../media/images/thumbup.jpg';
 import thumbDownImage from '../../media/images/thumbdown.jpg';
 import muteImage from '../../media/images/mute.jpg';
@@ -27,6 +28,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.btnDemote = this.btnDemote.bind(this);
         this.btnUnmute = this.btnUnmute.bind(this);
         this.btnUnmute = this.btnUnmute.bind(this);
+        this.btnUnban = this.btnUnban.bind(this);
         this.btnBan = this.btnBan.bind(this);
         this.sendLeftChannel = this.sendLeftChannel.bind(this);
         this.sendPromotedClient = this.sendPromotedClient.bind(this);
@@ -44,6 +46,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             cllist: [],
             adminlist: [],
             mutelist: [],
+            banlist: [],
             owner: '',
             admin: false,
             muted: false,
@@ -130,79 +133,96 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                     link.textContent += ' (ADMIN)';
                     link.classList.add('adminuser');
                 }
-                else
+                else if (!this.state.banlist.includes(cl))
                     link.classList.add('normaluser');
                 if ((this.props.user.username === cl && this.state.currentChan !== 'General') ||
                     (this.state.admin === true && this.state.owner !== cl))
                 {
-                    const btn = document.createElement('button'); // leave/kick button
-                    const image = document.createElement('img');
-                    btn.className = 'btn';
-                    btn.id = 'btn-kick' + this.state.currentChan;
-                    btn.addEventListener("click", (e:Event) => this.btnKickClient(e, btn.id.substring(8), cl));
-                    image.src = redcrossImage;
-                    image.width = 10;
-                    image.height = 10;
-                    image.alt = '';
-                    btn.appendChild(image);
-                    div.appendChild(btn);
-                    if (this.props.user.username !== cl)
+                    if (this.state.banlist.includes(cl))
                     {
-                        // mute/unmute button
-                        const btn_mute = document.createElement('button');
-                        const img_mute = document.createElement('img');
-                        if (!this.state.mutelist.includes(cl))
-                        {
-                            btn_mute.addEventListener("click", (e:Event) => this.btnMute(e, btn_mute.id.substring(8), cl));
-                            img_mute.src = muteImage;
-                        }
-                        else
-                        {
-                            btn_mute.addEventListener("click", (e:Event) => this.btnUnmute(e, btn_mute.id.substring(8), cl));
-                            img_mute.src = unmuteImage;
-                        }
-                        btn_mute.className = 'btn';
-                        btn_mute.id = 'btn-mute' + this.state.currentChan;
-                        img_mute.width = 10;
-                        img_mute.height = 10;
-                        img_mute.alt = '';
-                        btn_mute.appendChild(img_mute);
-                        div.appendChild(btn_mute);
-                        // ban button
-                        const btn_ban = document.createElement('button');
-                        const img_ban = document.createElement('img');
-                        btn_ban.addEventListener("click", (e:Event) => this.btnBan(e, btn_ban.id.substring(7), cl));
-                        img_ban.src = banImage;
-                        btn_ban.className = 'btn';
-                        btn_ban.id = 'btn-ban' + this.state.currentChan;
-                        img_ban.width = 10;
-                        img_ban.height = 10;
-                        img_ban.alt = '';
-                        btn_ban.appendChild(img_ban);
-                        div.appendChild(btn_ban);
+                        const btn = document.createElement('button'); // unnban button
+                        const image = document.createElement('img');
+                        btn.className = 'btn';
+                        btn.id = 'btn-unban' + this.state.currentChan;
+                        btn.addEventListener("click", (e:Event) => this.btnUnban(e, btn.id.substring(9), cl));
+                        image.src = greencrossImage;
+                        image.width = 10;
+                        image.height = 10;
+                        image.alt = '';
+                        btn.appendChild(image);
+                        div.appendChild(btn);
                     }
-                    if (this.props.user.username !== cl && this.state.owner === this.props.user.username) // promote/demote button
+                    else
                     {
-                        const btn_grade = document.createElement('button');
-                        const imgthumb = document.createElement('img');
-                        if (!this.state.adminlist.includes(cl))
+                        const btn = document.createElement('button'); // leave/kick button
+                        const image = document.createElement('img');
+                        btn.className = 'btn';
+                        btn.id = 'btn-kick' + this.state.currentChan;
+                        btn.addEventListener("click", (e:Event) => this.btnKickClient(e, btn.id.substring(8), cl));
+                        image.src = redcrossImage;
+                        image.width = 10;
+                        image.height = 10;
+                        image.alt = '';
+                        btn.appendChild(image);
+                        div.appendChild(btn);
+                        if (this.props.user.username !== cl)
                         {
-                            btn_grade.addEventListener("click", (e:Event) => this.btnPromote(e, btn_grade.id.substring(9), cl));
-                            imgthumb.src = thumbUpImage;
+                            // mute/unmute button
+                            const btn_mute = document.createElement('button');
+                            const img_mute = document.createElement('img');
+                            if (!this.state.mutelist.includes(cl))
+                            {
+                                btn_mute.addEventListener("click", (e:Event) => this.btnMute(e, btn_mute.id.substring(8), cl));
+                                img_mute.src = muteImage;
+                            }
+                            else
+                            {
+                                btn_mute.addEventListener("click", (e:Event) => this.btnUnmute(e, btn_mute.id.substring(8), cl));
+                                img_mute.src = unmuteImage;
+                            }
+                            btn_mute.className = 'btn';
+                            btn_mute.id = 'btn-mute' + this.state.currentChan;
+                            img_mute.width = 10;
+                            img_mute.height = 10;
+                            img_mute.alt = '';
+                            btn_mute.appendChild(img_mute);
+                            div.appendChild(btn_mute);
+                            // ban button
+                            const btn_ban = document.createElement('button');
+                            const img_ban = document.createElement('img');
+                            btn_ban.addEventListener("click", (e:Event) => this.btnBan(e, btn_ban.id.substring(7), cl));
+                            img_ban.src = banImage;
+                            btn_ban.className = 'btn';
+                            btn_ban.id = 'btn-ban' + this.state.currentChan;
+                            img_ban.width = 10;
+                            img_ban.height = 10;
+                            img_ban.alt = '';
+                            btn_ban.appendChild(img_ban);
+                            div.appendChild(btn_ban);
                         }
-                        else
+                        if (this.props.user.username !== cl && this.state.owner === this.props.user.username) // promote/demote button
                         {
-                            btn_grade.addEventListener("click", (e:Event) => this.btnDemote(e, btn_grade.id.substring(9), cl));
-                            imgthumb.src = thumbDownImage;
+                            const btn_grade = document.createElement('button');
+                            const imgthumb = document.createElement('img');
+                            if (!this.state.adminlist.includes(cl))
+                            {
+                                btn_grade.addEventListener("click", (e:Event) => this.btnPromote(e, btn_grade.id.substring(9), cl));
+                                imgthumb.src = thumbUpImage;
+                            }
+                            else
+                            {
+                                btn_grade.addEventListener("click", (e:Event) => this.btnDemote(e, btn_grade.id.substring(9), cl));
+                                imgthumb.src = thumbDownImage;
 
+                            }
+                            btn_grade.className = 'btn';
+                            btn_grade.id = 'btn-grade' + this.state.currentChan;
+                            imgthumb.width = 10;
+                            imgthumb.height = 10;
+                            imgthumb.alt = '';
+                            btn_grade.appendChild(imgthumb);
+                            div.appendChild(btn_grade);
                         }
-                        btn_grade.className = 'btn';
-                        btn_grade.id = 'btn-grade' + this.state.currentChan;
-                        imgthumb.width = 10;
-                        imgthumb.height = 10;
-                        imgthumb.alt = '';
-                        btn_grade.appendChild(imgthumb);
-                        div.appendChild(btn_grade);
                     }
                 }
             }
@@ -258,7 +278,17 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.props.socket.emit('request_ban_from_chan', {
             channel: chan,
             client: cl,
+            toggle: true,
         });
+    }
+
+    btnUnban(e: Event, chan: string, cl: string) {
+        e.preventDefault();
+        this.props.socket.emit('request_ban_from_chan', {
+            channel:chan,
+            client: cl,
+            toggle: false,
+        })
     }
 
     sendChannelJoined(chan: string, username: string, owner: string, admin: string[], mute: string[])
@@ -279,6 +309,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                 admin: admin.includes(username) ? true : false,
                 });
             this.props.socket.emit('request_get_channel_clients', chan);
+            this.props.socket.emit('request_get_banned_clients', chan);
             Utils.notifySuccess('You joined ' + chan);
         }
         else if (chan === this.state.currentChan && this.props.user.username !== username
@@ -323,6 +354,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
     sendLeftChannel(chan: string, username: string) {
             if (username !== this.props.user.username && this.state.currentChan === chan) // for other client of channel
             {
+                alert('LEFT CHANNEL');
                 const cllist: string[] = this.state.cllist;
                 const lastIndex = cllist.indexOf(username);
                 this.setState({ cllist: cllist.filter((item: string, index: number) => index !== lastIndex) });
@@ -415,25 +447,42 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         }
     }
 
-    sendBannedClient(chan: string, username: string) {
-        if (username !== this.props.user.username && this.state.currentChan === chan)
+    sendBannedClient(chan: string, username: string, toggle: boolean) {
+        if (toggle === true)
         {
-
-            const cllist: string[] = this.state.cllist;
-            const lastIndex = cllist.indexOf(username);
-            this.setState({ cllist: cllist.filter((item: string, index: number) => index !== lastIndex) });
-            Utils.notifyInfo(username + ' has been banned on ' + chan);
-        }
-        else if (this.props.user.username === username && this.state.chanlist.includes(chan))
-        {
-            const chanlist: string[] = this.state.chanlist;
-            const lastIndex = chanlist.indexOf(chan);
-            this.setState({ chanlist: chanlist.filter((item: string, index: number) => index !== lastIndex) });
-            Utils.notifyInfo('You have been banned on ' + chan);
-            this.props.socket.emit('request_join_channel', {
-                'username': this.props.user.username,
-                'channel': 'General',
-            });
+            if (username !== this.props.user.username && this.state.currentChan === chan)
+            {
+                this.setState({ banlist: this.state.banlist.concat([username]) });
+                Utils.notifyInfo(username + ' was banned from ' + chan);
+            }
+            else if (this.props.user.username === username && this.state.chanlist.includes(chan))
+            {
+                const chanlist: string[] = this.state.chanlist;
+                const lastIndex = chanlist.indexOf(chan);
+                this.setState({ chanlist: chanlist.filter((item: string, index: number) => index !== lastIndex) });
+                Utils.notifyInfo('You were banned from ' + chan);
+                if (this.state.currentChan === chan)
+                {
+                    this.props.socket.emit('request_join_channel', {
+                        'username': this.props.user.username,
+                        'channel': 'General',
+                    });
+                }
+            }
+        } else if (toggle === false) {
+            if (username !== this.props.user.username && this.state.currentChan === chan)
+            {
+                const banlist: string[] = this.state.banlist;
+                const lastIndex = banlist.indexOf(username);
+                this.setState({ banlist: banlist.filter((item: string, index: number) => index !== lastIndex) });
+                Utils.notifyInfo(username + ' was unbanned from ' + chan);
+            }
+            else if (this.props.user.username === username)
+            {
+                const chanlist: string[] = this.state.chanlist;
+                this.setState({ chanlist: chanlist.concat([chan]) });
+                Utils.notifyInfo('You were unbanned from ' + chan);
+            }
         }
     }
 
@@ -622,6 +671,9 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.props.socket.on('send_channel_clients', (cllist: string[]) => {
             this.setState({ cllist: cllist });
         });
+        this.props.socket.on('send_banned_clients', (banlist: string[]) => {
+            this.setState({ banlist: banlist });
+        });
         this.props.socket.on('send_left_channel', (channel: string, username: string) => {
             this.sendLeftChannel(channel, username);
         });
@@ -638,8 +690,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         this.props.socket.on('send_unmuted_client', (channel: string, username: string) => {
             this.sendUnmutedClient(channel, username);
         });
-        this.props.socket.on('send_chan_banned_client', (channel: string, username: string) => {
-            this.sendBannedClient(channel, username);
+        this.props.socket.on('send_chan_banned_client', (channel: string, username: string, toggle: boolean) => {
+            this.sendBannedClient(channel, username, toggle);
         });
         this.props.socket.on('send_private_channels', (channel: string[]) => {
             this.setState({ chanlist: channel });

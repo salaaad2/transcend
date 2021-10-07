@@ -231,6 +231,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.emit('send_channel_clients', clientsList);
   }
 
+  @SubscribeMessage('request_get_banned_clients')
+  async getBannedClients(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() channel: string) {
+    const banlist = await this.chatService.getBannedClients(channel);
+    socket.emit('send_banned_clients', banlist);
+  }
+
   @SubscribeMessage('request_promote_client')
   async promoteClient(
     @ConnectedSocket() socket: Socket,
@@ -287,15 +295,16 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_ban_from_chan')
   async banFromChat(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { channel: string, client: string }) {
+    @MessageBody() data: { channel: string, client: string, toggle: boolean }) {
     try {
       await this.chatService.banClient(data);
-      this.server.emit('send_chan_banned_client', data.channel, data.client);
+      this.server.emit('send_chan_banned_client', data.channel, data.client, data.toggle);
     }
     catch(e){
       socket.emit('send_error', e);
     }
   }
+
 
   @SubscribeMessage('request_leave_channel')
   async kickClient(
