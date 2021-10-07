@@ -17,35 +17,10 @@ import OtpPage from './pages/OtpPage';
 import OtpLoginPage from './pages/OtpLoginPage';
 import RulesPage from './pages/RulesPage'
 import NotFoundPage from './pages/NotFoundPage'
-import React, { useEffect } from 'react';
-import { SocketContext } from './socket/context';
-import { useUser } from './components/context/UserAuthContext';
-import Utils from './components/utils/utils';
+
 function App() {
 
-  // const socket = React.useContext(SocketContext);
-  // const { user, setUser } = useUser()!;
-
   require('dotenv').config();
-
-  // useEffect(() => {
-  //   console.log('info');
-  //   socket.on('notifications', (data: string) => {
-  //     console.log('data');
-  //     if (data) {
-  //       if (data[0] == 'friendrequest') {
-  //         console.log(data);
-  //         Utils.notifyInfo(data[1]);
-  //       }
-  //       else if (data[0] == 'accept_friend') {
-  //         console.log(data);
-  //         Utils.notifyInfo(data[1] + 'accepted you as friend');
-  //         user.friendlist.push(data[1]);
-  //         setUser(user);
-  //       }
-  //     }
-  //   })
-  // }, [])
 
   return(
       <HashRouter>

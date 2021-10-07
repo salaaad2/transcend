@@ -43,6 +43,7 @@ export class ProfileController {
           "friendrequests": data.friendrequests,
           "friendlist": data.friendlist,
           "status": data.status,
+          "theme": data.theme
         }
         return {ret};
     }
@@ -118,6 +119,7 @@ export class ProfileController {
     @UseGuards(JwtAuthenticationGuard)
     @Post('update_profile')
     async updateData(@Body() data: any[]) {
+        console.log(data);
         return (await this.profileService.updateProfile(data));
     }
 }

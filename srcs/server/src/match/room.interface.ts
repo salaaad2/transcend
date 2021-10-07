@@ -2,6 +2,7 @@ export interface Room {
   id: number;
   start: boolean;
   end: boolean;
+  custom: boolean;
   Players : string[];
   ingame: boolean;
   p1position: number;

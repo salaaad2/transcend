@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
-import Utils from "../components/utils/utils"
-import axios from 'axios';
 import './LadderPage.css'
 import { SocketContext } from '../socket/context'
 import React from 'react';
 import { useUser } from '../components/context/UserAuthContext';
-import { Redirect } from 'react-router';
 
 interface IMatch {
     id: number;
@@ -18,7 +15,6 @@ interface IMatch {
 
 function SpectatorPage(props: any): any {
 
-    const [Everyone, setEveryone] = useState([]);
     const [Matches, setMatches] = useState<IMatch[]>([])
     var idTab = 0;
     const socket = React.useContext(SocketContext);
@@ -47,7 +43,7 @@ function SpectatorPage(props: any): any {
             socket.on('live', (data: any) => {
                 setMatches([]);
                 for (var i in data) {
-                    if (data[i].ingame == true) {
+                    if (data[i].ingame === true) {
                         console.log(data[i]);
                         var match: IMatch = {
                             id: data[i].id,
@@ -65,7 +61,7 @@ function SpectatorPage(props: any): any {
                 setMatches([]);
             })
         }
-    }, [])
+    }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (user.id > 0 && user.username.length > 0) {
         return (

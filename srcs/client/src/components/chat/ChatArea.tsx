@@ -1,6 +1,5 @@
 import * as React from 'react';
 import IUserProps from '../interface/IUserProps';
-import Message from './message';
 import ISocketProps from '../interface/ISocketProps';
 import Channel from './Channel';
 

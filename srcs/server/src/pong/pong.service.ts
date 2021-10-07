@@ -4,35 +4,7 @@ import { throws } from 'assert/strict';
 import { RSA_PKCS1_PADDING } from 'constants';
 import { MatchService } from 'src/match/match.service';
 import { UsersService } from 'src/users/users.service';
- 
-interface Room {
-    id: number;
-    start: boolean;
-    end: boolean;
-    Players : string[];
-    ingame: boolean;
-    p1position: number;
-    p2position: number;
-    p1score: number;
-    p2score: number;
-    p1direction: number;
-    p2direction: number;
-    countdown: number;
-    spectators: string[];
-    speed: number;
-    powerups: boolean;
-    powerspecs: {
-        type: number;
-        x: number;
-        y: number;
-    }
-    ballposition: {
-      x: number;
-      y: number;
-      dir: number;
-      coeff: number;
-    };
-  }
+import { Room } from '../match/room.interface';
 
 @Injectable()
 export class PongService {
@@ -154,7 +126,7 @@ export class PongService {
                 }
                 if (room.p1score == 5 || room.p2score == 5)
                 {
-                    this.matchService.putmatch(room.Players[0], room.Players[1], room.p1score, room.p2score);
+                    // this.matchService.putmatch(room.Players[0], room.Players[1], room.p1score, room.p2score);
                     room.end = true;
                     room.ingame = false;
                 }

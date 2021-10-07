@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
-import Utils from "../components/utils/utils"
 import axios from 'axios';
 import './LadderPage.css'
 import { SocketContext } from '../socket/context'
@@ -46,7 +45,7 @@ function LadderPage(props: any): any {
                 setLoading(false)
             }
         })
-    }, [isLoading])
+    }, [isLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (user.id > 0) {
         if (isLoading)

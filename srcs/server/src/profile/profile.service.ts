@@ -54,6 +54,7 @@ export class ProfileService {
 
         if (data[1] != "")
             user.avatar = data[1];
+        console.log(data[2]);
         user.theme = data[2];
         if (await this.usersRepository.findOne({username: data[3]}))
             throw new HttpException('This username is already taken', HttpStatus.NOT_FOUND);

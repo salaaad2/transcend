@@ -1,18 +1,25 @@
-import { useEffect, useState } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
-import Utils from "../components/utils/utils"
-import axios from 'axios';
-import './LadderPage.css'
-import { SocketContext } from '../socket/context'
-import React from 'react';
-import { useUser } from '../components/context/UserAuthContext';
-import { Redirect } from 'react-router';
 
 function RulesPage(props: any) {
     return (
         <div>
         <MainNavBar/>
-        <div>RULES</div>
+        <h1>RULES</h1>
+        <h2>Ranked</h2>
+        <p>Classic pong game, first to 5 points wins.
+            No power ups, no game modifications.
+            Count for the Ladder.</p>
+        <h2>Custom</h2>
+        <p>Custom game where you can choose the rules. 
+            Does not count for the Ladder.
+            You can modify speed and add powerups.
+        </p>
+        <h3>Power-ups :</h3>
+        <ul>
+            <li>I : accelerate the game</li>
+            <li>II : reduce ball size</li>
+            <li>III : increase paddle size</li>
+        </ul>
         </div>
     )
 }

@@ -1,8 +1,6 @@
 import * as React from 'react';
 import IUserProps from '../interface/IUserProps';
 import ISocketProps from '../interface/ISocketProps';
-import IChannel from '../interface/IChannel';
-import ReactDOM from 'react-dom';
 import { Button, Form } from 'react-bootstrap';
 import Utils from '../utils/utils';
 import Message from './message';

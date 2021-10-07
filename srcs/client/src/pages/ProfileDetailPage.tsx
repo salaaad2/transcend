@@ -1,8 +1,7 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import MainNavBar from "../components/layout/MainNavBar";
-import authHeader from "../services/auth-header";
 import Utils from "../components/utils/utils"
 import './ProfileDetailPage.css'
 import orImage from '../media/images/or.png'
@@ -14,10 +13,8 @@ import defaultprev from '../media/images/default.png'
 import darkprev from '../media/images/dark.png'
 import { SocketContext } from '../socket/context'
 import React from "react";
-import { defaultUser, useUser } from '../components/context/UserAuthContext';
-import { Redirect } from 'react-router';
-import { Button, Col, Container, Form, FormCheck, Modal, Row } from "react-bootstrap";
-import Avatars from "@dicebear/avatars";
+import { useUser } from '../components/context/UserAuthContext';
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 
 interface IUser2 {
   id: number,
@@ -45,35 +42,27 @@ function ProfilePage(props: any) {
   const [Matches, setMatches] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [Error, setError] = useState(0);
-  const [Edit, setEdit] = useState(false);
+  // const [Edit, setEdit] = useState(false);
   const [DisplayName, setDisplayName] = useState("");
-  const [Avatar, setAvatar] = useState("");
   const socket = React.useContext(SocketContext);
   const { user } = useUser()!;
   const param: any = useParams();
   const [File, SetFile] = useState([]);
-  const [Canvas, setCanvas] = useState<string[]>([]);
+  // const [Canvas, setCanvas] = useState<string[]>([]);
   const [Friends, setFriends] = useState([]);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // const canvasRef = useRef<HTMLCanvasElement>(null);
   const [Status, setStatus] = useState<IStatus>({});
-  const [Notifications, setNotifications] = useState<string[]>([]);
+  // const [Notifications, setNotifications] = useState<string[]>([]);
   const [modalShow, setModalShow] = useState(false);
-  const [otpBox, setOtpBox] = useState(false);
+  // const [otpBox, setOtpBox] = useState(false);
   const [PowerUps, setPowerUps] = useState(false);
   const [Speed, setSpeed] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
-  const [Theme, setTheme] = useState("");
+  const [Theme, setTheme] = useState<number>(0);
 
   let username: string = param.username.substring(1);
   let idMatches = 0;
-  var idNotif = 0;
   var renderVal = 0;
-  let canvasColor = [
-    ['black', 'white', '0', 'defaultball', 'defaultpad'],
-    ['white', 'dark', '1', 'darkball', 'darkpad'],
-    ['blue', 'green', '2', 'natureball', 'naturepad'],
-    ['yellow', 'purple', '3', 'funkyball', 'funkypad']
-  ]
 
   function ListItem(friends: any) {
       renderVal++;
@@ -84,9 +73,9 @@ function ProfilePage(props: any) {
               <a href={'#profile/:' + friends.username}>{friends.username}</a>
             </td>
             <td>
-            {username == user.username ?
-              <p className="status-friendslist"><span className={Status[friends.username] == 'online' ? "status green"
-              : Status[friends.username] == 'offline' ? 'status orange' : 'status blue'}>
+            {username === user.username ?
+              <p className="status-friendslist"><span className={Status[friends.username] === 'online' ? "status green"
+              : Status[friends.username] === 'offline' ? 'status orange' : 'status blue'}>
               </span>{Status[friends.username]}</p> : <></>}
             </td>
           </tr>
@@ -121,17 +110,6 @@ function ProfilePage(props: any) {
 	}
 
   useEffect(() => {
-    if (!canvasRef.current)
-      return;
-    let canvas = canvasRef.current!
-    let ctx = canvas.getContext("2d");
-    let w = canvas.width;
-    let h = canvas.height;
-    let img = document.getElementById(Theme) as CanvasImageSource
-    ctx!.drawImage(img, 0, 0, w, h);
-  }, [Theme])
-
-  useEffect(() => {
       if (user.id > 0 && user.username.length > 0)
       {
           axios.post(`/profile/profile2`, {username: username}, { withCredentials: true })
@@ -145,17 +123,15 @@ function ProfilePage(props: any) {
                        setIsBlocked(false);
                        setStatus(Status => ({...Status, [response.data.ret.username]: response.data.ret.status}));
                        setnewUser(response.data.ret);
-                       if (response.data.ret.username == user.username)
-                           setNotifications(response.data.ret.friendrequests)
+                       setTheme(response.data.ret.theme);
                        if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
                            setIsBlocked(true);
                        setLoading(false);
-                       setCanvas(canvasColor[user.theme]);
                }})
                .catch((error) => {
-                   if (error.response.status == 401)
+                   if (error.response.status === 401)
                        props.history.push('/logout')
-                   else if (error.response.status == 404)
+                   else if (error.response.status === 404)
                        props.history.push('/profile/:' + user.username);
                    setLoading(false);
                })
@@ -164,7 +140,7 @@ function ProfilePage(props: any) {
                .then((response) => {
                    if (response.data) {
                        setFriends(response.data);
-                       if (user.username == username) {
+                       if (user.username === username) {
                            for (let i = 0 ; i < response.data.length ; i++) {
                                setStatus(Status => ({...Status, [response.data[i].username]: response.data[i].status}))
                            }
@@ -179,7 +155,7 @@ function ProfilePage(props: any) {
               setError(0);
           }
       }
-  }, [username, renderVal]);
+  }, [username, renderVal])  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
 		socket.on('status', (data: any) => {
@@ -189,7 +165,7 @@ function ProfilePage(props: any) {
     return(() => {
       socket.off('status');
     })
-	},[])
+	},[]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function addAsFriend() {
     socket.emit('addfriend', username);
@@ -223,15 +199,13 @@ function ProfilePage(props: any) {
     })
   }
 
-  function ToggleEdit() {
-    setEdit(!Edit);
-  }
-
   function SaveProfile(e: any) {
     e.preventDefault();
+
     var file = (File[0] as File);
     var avatar: boolean = true;
 
+    user.theme = Theme;
     if (typeof File[0] === "undefined")
       avatar = false;
     if (file && file.size > 200000)
@@ -243,11 +217,10 @@ function ProfilePage(props: any) {
       Utils.getBase64(File[0])!.then(result => {
         var res = JSON.stringify(result);
         res = res.substring(1, res.length - 1);
-        setAvatar(res);
         user.avatar = res;
         console.log('display', DisplayName);
         return axios.post(`/profile/update_profile`,
-        [user.realname, res, user.theme, DisplayName], { withCredentials: true })
+        [user.realname, res, Theme, DisplayName], { withCredentials: true })
         })
         .catch((e) => {
           console.log('error', e.response.data.message);
@@ -261,7 +234,7 @@ function ProfilePage(props: any) {
     }
     else {
       return axios.post(`/profile/update_profile`,
-        [user.realname, "", user.theme, DisplayName], { withCredentials: true }).then(() => {
+        [user.realname, "", Theme, DisplayName], { withCredentials: true }).then(() => {
         if (DisplayName.length)
           user.username = DisplayName;
       setTimeout(() => {props.history.push('/')}, 200);
@@ -272,21 +245,6 @@ function ProfilePage(props: any) {
     })
   }
 }
-
-  function setCanvasColors(e: any) {
-    if (e.target.value == 0) {
-      setTheme('default');
-    }
-    else if (e.target.value == 1) {
-      setTheme('dark');
-    }
-    else if (e.target.value == 2) {
-      setTheme('nature');
-    }
-    else if (e.target.value == 3) {
-      setTheme('funky');
-    }
-  }
 
   function gameRequest(e: any) {
     e.preventDefault();
@@ -314,9 +272,9 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div className="col-8 text-white">
                                       <h2 className="mt-0 mb-0">{newUser.username + ' '}
-                                      {newUser.rank === 1 ? <img src={orImage} height="40" width="40" /> : ""}
-                                      {newUser.rank === 2 ? <img src={argentImage} height="40" width="40" ></img> : ""}
-                                      {newUser.rank === 3 ? <img src={bronzeImage} height="40" width="40" ></img> : ""}
+                                      {newUser.rank === 1 ? <img alt="or" src={orImage} height="40" width="40" /> : ""}
+                                      {newUser.rank === 2 ? <img alt="argent" src={argentImage} height="40" width="40" ></img> : ""}
+                                      {newUser.rank === 3 ? <img alt="bronze" src={bronzeImage} height="40" width="40" ></img> : ""}
                                       </h2>
                                       <p className="mb-4">Rank #{newUser.rank} ({newUser.elo})</p>
                                   </div>
@@ -366,8 +324,8 @@ function ProfilePage(props: any) {
                             {newUser.username !== user.username ?
                             <div className="col-6 px-4 py-3">
                               <div className="row btn-profil">
-                                {IsFriend == "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button> 
-                                : IsFriend == "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
+                                {IsFriend === "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button> 
+                                : IsFriend === "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
                                 <button id="marge" type="button" onClick={Unfriend} className="btn btn-outline-primary">Unfriend {newUser.username}</button>}
                                 {!IsBlocked ? <button id="marge" type="button" onClick={Block} className="btn btn-danger">Block</button> 
                                 : <button id="marge" type="button" onClick={Unblock} className="btn btn-outline-danger">Unblock {newUser.username}</button>}
@@ -416,16 +374,15 @@ function ProfilePage(props: any) {
                                   </Col>
                                   <Row>
                                   <Col>
-                                  <Button type="submit" className="btn btn-secondary" disabled={Status[username] != 'online' ? true : false}>Send</Button>
+                                  <Button type="submit" className="btn btn-secondary" disabled={Status[username] !== 'online' ? true : false}>Send</Button>
                                   </Col>
                                   <Col>
-                                  <div style={{color: 'red', paddingBottom: '20px'}}>{Status[username] != 'online' ? "User is offline/in a game" : ""}</div>
+                                  <div style={{color: 'red', paddingBottom: '20px'}}>{Status[username] !== 'online' ? "User is offline/in a game" : ""}</div>
                                   </Col>
                                   </Row>
                                   </Container>
                                 </Form>
                                 : <></>}
-                                <button type="button" className="btn btn-primary">Send Message</button>
                               </div>
                             </div> 
                             : <div className="col-6 px-4 py-3">
@@ -451,13 +408,14 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div className="col-6">
                                     <Form.Label>Select Theme</Form.Label>
-                                    <Form.Control defaultValue={user.theme} as="select" aria-label="Default select example" onChange={(e: any) => setCanvasColors(e)}>
+                                    <Form.Control defaultValue={user.theme} as="select" aria-label="Default select example" onChange={(e: any) => {console.log(e.target.value); setTheme(e.target.value)}}>
                                       <option value="0">Default</option>
                                       <option value="1">Dark</option>
                                       <option value="2">Nature</option>
                                       <option value="3">Funky</option>
                                     </Form.Control>
-                                    <canvas ref={canvasRef}></canvas>
+                                    {/* <canvas ref={canvasRef}></canvas> */}
+                                    {Theme == 0 ? <img src={defaultprev} className="img-fluid" alt="default"/> : Theme == 1 ? <img src={darkprev} className="img-fluid" alt="dark"/> : Theme == 2 ? <img src={natureprev} className="img-fluid" alt="nature"/> : <img src={funkyprev} className="img-fluid" alt="funky"/>}
                                   </div></div>
                                   <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button>
                                       <Button className='btn' onClick={(e) => {
@@ -467,10 +425,10 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div style={{color: 'red'}}>{errorMessage}</div>
                                 </Form></div></div>}
-                                <img id='default' src={defaultprev} style={{display:"none"}}/>
-                                <img id='nature' src={natureprev} style={{display:"none"}}/> 
-                                <img id='dark' src={darkprev} style={{display:"none"}}/> 
-                                <img id='funky' src={funkyprev} style={{display:"none"}}/>
+                                {/* <img alt="default" id='default' src={defaultprev} style={{display:"none"}}/>
+                                <img alt="nature" id='nature' src={natureprev} style={{display:"none"}}/> 
+                                <img alt="dark" id='dark' src={darkprev} style={{display:"none"}}/> 
+                                <img alt="funky" id='funky' src={funkyprev} style={{display:"none"}}/> */}
                           </div>
                       </div>
                   </div>

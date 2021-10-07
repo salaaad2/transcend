@@ -1,7 +1,7 @@
 import './MainPage.css'
 import { Redirect } from 'react-router';
 import { useUser } from '../components/context/UserAuthContext';
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Col, Row, Container, Button } from 'react-bootstrap';
 import { SocketContext } from '../socket/context';
 import React from 'react';
