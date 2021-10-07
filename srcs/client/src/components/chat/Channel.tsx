@@ -12,6 +12,7 @@ import thumbDownImage from '../../media/images/thumbdown.jpg';
 import muteImage from '../../media/images/mute.jpg';
 import unmuteImage from '../../media/images/unmute.png';
 import banImage from '../../media/images/ban.jpg';
+import { socket } from '../../socket/context';
 
 export class Channel extends React.Component<IUserProps & ISocketProps, any> {
     constructor(props: any) {
@@ -294,6 +295,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
         if (chan !== this.state.currentChan && this.props.user.username === src)
         {
             console.log('chan to joined ' + chan);
+            socket.emit('remove_msg', [src, chan]);
             const chan_title = document.getElementById('channel-title');
             if (chan_title)
                 chan_title.textContent = dst;
@@ -523,7 +525,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                         </div>
                     </div>
                 </div>
-                <Message user={this.props.user} socket={this.props.socket} msglist={[]} currentChan={this.state.currentChan} mute={this.state.muted}/>;
+                <Message user={this.props.user} socket={this.props.socket} msglist={[]} currentChan={this.state.currentChan} mute={this.state.muted} ispriv={this.state.toggle}/>;
         <div className='form-chat'>
             <Form onSubmit={(e) => {
                 e.preventDefault();
@@ -559,7 +561,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                         </div>
                     </div>
                 </div>
-                <Message user={this.props.user} socket={this.props.socket} msglist={[]} currentChan={this.state.currentChan} mute={this.state.muted}/>;
+                <Message user={this.props.user} socket={this.props.socket} msglist={[]} currentChan={this.state.currentChan} mute={this.state.muted} ispriv={this.state.toggle}/>;
         <div className='form-chat'>
             <Form onSubmit={(e) => {
                 e.preventDefault();

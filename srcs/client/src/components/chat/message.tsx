@@ -6,10 +6,12 @@ import { FormEvent } from 'react';
 import ReactDOM from 'react-dom';
 import { Button, Col, Form, FormControl, InputGroup, Row } from 'react-bootstrap';
 import Utils from '../utils/utils';
+import { socket } from '../../socket/context';
 interface IMessageProps {
     msglist: number[],
     currentChan: string,
     mute: boolean,
+    ispriv: string,
 };
 
 export class Message extends React.Component<IUserProps & ISocketProps & IMessageProps, any> {
@@ -43,8 +45,6 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
             message.appendChild(div);
             chat?.appendChild(message);
             this.props.msglist.push(req.id);
-            if (req.author === this.props.user.username)
-                this.setState({message: ""});
         }
     }
 
@@ -56,6 +56,11 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                 'channel': this.props.currentChan,
                 'content': this.state.message,
             })
+            this.setState({message: ""});
+            if (this.props.ispriv === 'private') {
+                console.log(this.props.currentChan, this.state.message);
+                socket.emit('pv_msg', [this.props.currentChan, this.state.message]);
+            }
         }
         else
         {

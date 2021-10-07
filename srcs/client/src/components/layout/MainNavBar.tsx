@@ -25,6 +25,7 @@ function MainNavBar(props: any) {
     const [Notifications, setNotifications] = useState(false);
     const [FriendRequests, setFriendRequests] = useState<string[]>([]);
     const [GameRequests, setGameRequests] = useState<string[]>([]);
+    const [Messages, setMessages] = useState<string[]>([]);
     const [NotifToggle, setNotifToggle] = useState(false);
     let renderVal: number = 0;
     let idNotif: number = 0;
@@ -55,8 +56,17 @@ function MainNavBar(props: any) {
       toast(<Msg />, {
         className:"dark-toast",
         autoClose:false,
-
   });
+    }
+
+    function notifyMsg(data: string[]) {
+      const Msg = () => (
+        <>
+        <p>{data[1]} : {data[2]}</p>
+        </>
+      )
+      if (data[1] !== user.username)
+        toast(<Msg/>);
     }
 
     function acceptRequest(notif: string) {
@@ -110,51 +120,26 @@ function MainNavBar(props: any) {
       )
     }
 
-    // function getBase64(file: any) {
-    //   return new Promise(resolve => {
-
-    //     let baseURL: any = "";
-    //     let reader = new FileReader();
-
-    //     reader.readAsDataURL(file);
-    //     reader.onload = () => {
-    //       baseURL = reader.result;
-    //       resolve(baseURL);
-    //     };
-    //   });
-    // };
-
-    // function uploadAvatar(e: any) {
-    //   e.preventDefault();
-
-    //   var file = (File[0] as File);
-
-    //   if (typeof File[0] === "undefined")
-    //   {
-    //     alert("You must choose a file");
-    //     return ;
-    //   }
-    //   if (file.size > 200000)
-    //   {
-    //     alert("File must be < 200ko");
-    //     return ;
-    //   }
-    //   getBase64(File[0]).then(result => {
-    //   var res = JSON.stringify(result);
-    //   res = res.substring(1, res.length - 1);
-    //   setAvatar(res);
-    //   user.avatar = res;
-    //   return axios.post(`/authentication/update_avatar`,
-    //   {data: res}, { withCredentials: true })
-    //   })
-    //   console.log('ok');
-    // }
+    function ListMsg(notif: string) {
+      idNotif++;
+      return (
+        <div key={idNotif} className="friendlist">
+          <ul className="ul">
+            <li>
+                <div className="userinfo">{notif}</div>
+            </li>
+          </ul>
+        </div>
+      )
+    }
 
     useEffect(() => {
       axios.get(`/authentication`,
       { withCredentials: true }).then((response) => {
-        if (response.data && response.data.friendrequests.length != 0) {
+        if (response.data && (response.data.friendrequests.length != 0 || response.data.pv_msg_notifs.length != 0)) {
+          console.log('msglist', response.data.pv_msg_notifs);
           setFriendRequests(response.data.friendrequests);
+          setMessages(response.data.pv_msg_notifs);
           console.log('rq:', response.data.friendrequests);
           setNotifications(true);
         }
@@ -188,11 +173,7 @@ function MainNavBar(props: any) {
             console.log(data);
             Utils.notifyInfo(data[1]);
             setNotifications(true);
-            let NotifTemp = [...FriendRequests];
-            NotifTemp.push(data[1]);
-            setFriendRequests(FriendRequests => {
-              return FriendRequests = NotifTemp
-            });
+            setFriendRequests(prevState => [...prevState, data[1]]);
           }
           else if (data[0] == 'accept_friend') {
             Utils.notifyInfo(data[1] + ' accepted you as friend');
@@ -202,7 +183,22 @@ function MainNavBar(props: any) {
           else if (data[0] === 'game_request') {
             notifyGame(data);
           }
-          else if (data[0] === 'clear_notifs') {
+          else if (data[0] == 'message') {
+            setNotifications(true);
+            setMessages(prevState => 
+              (!prevState.find(element => element === data[1]) ?
+              [...prevState, data[1]] : [...prevState]))
+            notifyMsg(data);
+          }
+          else if (data[0] == 'rm_msg') {
+            console.log(data[1]);
+            setMessages(Messages => {
+              let NotifTemp = [...Messages];
+              NotifTemp.splice(Messages.findIndex(element => {return element == data[1]}), 1);
+              return Messages = NotifTemp;
+            });
+          }
+          else if (data[0] == 'clear_notifs') {
             setNotifications(false);
           }
         }
@@ -219,7 +215,16 @@ function MainNavBar(props: any) {
       return(() => {
         socket.off('start_duel');
       })
-    })
+    }, [])
+
+    // useEffect(() => {
+    //   socket.on('receive_message', (data: any) => {
+    //     socket.emit('notif_message', [data, true]);
+    //   });
+    //   return(() => {
+    //     socket.off('receive_message');
+    //   })
+    // }, [])
 
     return (
             <div>
@@ -238,6 +243,7 @@ function MainNavBar(props: any) {
                       </NavDropdown>
                       <Nav.Link href="#chat/:General">Chat</Nav.Link>
                       {(isAdmin) ? <Nav.Link href="#adminpanel">Admin Panel</Nav.Link> : <div></div>}
+                      <Nav.Link href="#chat">Chat</Nav.Link>
                       <Nav.Link href="#ladder">Ladder</Nav.Link>
                     </Nav>
                     <Nav.Link href={profilelink}>
@@ -278,6 +284,10 @@ function MainNavBar(props: any) {
                         })}
                         <hr/>
                         <h5 id='subTitle'>MESSAGES</h5>
+                        {Messages.map((listvalue) => {
+                          return (ListMsg(listvalue))
+                        })}
+                        <a style={{fontSize: 'small', textDecoration: 'none', marginLeft: '4rem'}} href='#chat'>Go to chat</a>
                     </div> : <></>}
             </div>
     )

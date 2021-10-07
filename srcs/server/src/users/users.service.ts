@@ -67,7 +67,7 @@ export class UsersService {
         throw new HttpException('User with this realname does not exist', HttpStatus.NOT_FOUND);
     }
 
-    async setUsername(realname: string, username: string) {
+    async setUsername(realname:string, username:string) {
         const user = await this.getByRealname(realname);
         if (username.length < 3 || username.length > 12 || !/^[a-zA-Z]*$/.test(username))
             throw 'Error your username must be between 3 and 12 characters and must contains only letters';

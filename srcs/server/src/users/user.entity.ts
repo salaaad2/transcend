@@ -44,6 +44,9 @@ class User {
     @Column("text", {array: true, default: []})
     public private_channels: string[];
 
+    @Column("text", {array: true, default: []})
+    public pv_msg_notifs: string[];
+
     @Column({default: ""})
     public avatar: string;
 

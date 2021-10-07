@@ -7,18 +7,10 @@ import './ProfileDetailPage.css'
 import orImage from '../media/images/or.png'
 import argentImage from '../media/images/argent.png'
 import bronzeImage from '../media/images/bronze.png'
-import darktheme from '../media/images/dark-theme.png'
-import whitetheme from '../media/images/white-theme.jpg'
-import greentheme from '../media/images/green-theme.jpg'
-import purpletheme from '../media/images/purple-theme.jpg'
-import defaultball from '../media/images/default-ball.png'
-import darkball from '../media/images/dark-ball.png'
-import natureball from '../media/images/nature-ball.png'
-import funkyball from '../media/images/funky-ball.png'
-import defaultpad from '../media/images/default-pad.jpeg'
-import darkpad from '../media/images/dark-pad.jpeg'
-import naturepad from '../media/images/nature-pad.jpeg'
-import funkypad from '../media/images/funky-pad.jpeg'
+import natureprev from '../media/images/nature.png'
+import funkyprev from '../media/images/funky.png'
+import defaultprev from '../media/images/default.png'
+import darkprev from '../media/images/dark.png'
 import { SocketContext } from '../socket/context'
 import React from "react";
 import { defaultUser, useUser } from '../components/context/UserAuthContext';
@@ -71,6 +63,7 @@ function ProfilePage(props: any) {
   const [PowerUps, setPowerUps] = useState(false);
   const [Speed, setSpeed] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
+  const [Theme, setTheme] = useState("");
 
   let username: string = param.username.substring(1);
   let idMatches = 0;
@@ -135,23 +128,9 @@ function ProfilePage(props: any) {
     let ctx = canvas.getContext("2d");
     let w = canvas.width;
     let h = canvas.height;
-    let img = document.getElementById(Canvas[1]) as CanvasImageSource
-    let ball = document.getElementById(Canvas[3]) as CanvasImageSource
-    let pad = document.getElementById(Canvas[4]) as CanvasImageSource
+    let img = document.getElementById(Theme) as CanvasImageSource
     ctx!.drawImage(img, 0, 0, w, h);
-    // ctx!.fillStyle = Canvas[1];
-    // ctx!.fillRect(0, 0, w, h);
-    ctx!.fillStyle = Canvas[0];
-    ctx!.beginPath();
-    ctx!.drawImage(ball, w/2 , h/2, w/25, w/25);
-    // ctx!.arc(w/2 , h/2, w/50, 0, 2 * Math.PI);
-    ctx!.stroke();
-    ctx!.drawImage(pad, w/100, 5 * (h/100), w/40, h/5);
-    // ctx!.fillRect(w/100, 5 * (h/100), w/40, h/5);
-    ctx!.drawImage(pad, w - w/40 - w/100, 10 * (h/100), w/40, h/5);
-    // ctx!.fillRect(w - w/40 - w/100, 10 * (h/100), w/40, h/5);
-
-  }, [Canvas])
+  }, [Theme])
 
   useEffect(() => {
       if (user.id > 0 && user.username.length > 0)
@@ -297,20 +276,16 @@ function ProfilePage(props: any) {
 
   function setCanvasColors(e: any) {
     if (e.target.value == 0) {
-      setCanvas(canvasColor[0]);
-      // user.theme = 0;
+      setTheme('default');
     }
     else if (e.target.value == 1) {
-      setCanvas(canvasColor[1]);
-      // user.theme = 1;
+      setTheme('dark');
     }
     else if (e.target.value == 2) {
-      setCanvas(canvasColor[2]);
-      // user.theme = 2;
+      setTheme('nature');
     }
     else if (e.target.value == 3) {
-      setCanvas(canvasColor[3]);
-      // user.theme = 3;
+      setTheme('funky');
     }
   }
 
@@ -493,18 +468,10 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div style={{color: 'red'}}>{errorMessage}</div>
                                 </Form></div></div>}
-                                <img id="white" src={whitetheme} style={{display:"none"}}></img>
-                                <img id="dark" src={darktheme} style={{display:"none"}}></img>
-                                <img id="green" src={greentheme} style={{display:"none"}}></img>
-                                <img id="purple" src={purpletheme} style={{display:"none"}}></img>
-                                <img id="defaultball" src={defaultball} style={{display:"none"}}></img>
-                                <img id="darkball" src={darkball} style={{display:"none"}}></img>
-                                <img id="natureball" src={natureball} style={{display:"none"}}></img>
-                                <img id="funkyball" src={funkyball} style={{display:"none"}}></img>
-                                <img id="defaultpad" src={defaultpad} style={{display:"none"}}></img>
-                                <img id="darkpad" src={darkpad} style={{display:"none"}}></img>
-                                <img id="naturepad" src={naturepad} style={{display:"none"}}></img>
-                                <img id="funkypad" src={funkypad} style={{display:"none"}}></img>
+                                <img id='default' src={defaultprev} style={{display:"none"}}/>
+                                <img id='nature' src={natureprev} style={{display:"none"}}/> 
+                                <img id='dark' src={darkprev} style={{display:"none"}}/> 
+                                <img id='funky' src={funkyprev} style={{display:"none"}}/>
                           </div>
                       </div>
                   </div>
