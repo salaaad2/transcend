@@ -1,22 +1,8 @@
-import axios from "axios";
+// import axios from "axios";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 class Utils {
 
-    intercept401(props: any) {
-        axios.interceptors.response.use(response => {
-            return response;
-        }, error => {
-            if (error.response.status === 401) {
-                props.history.push('/');
-                alert('Unauthorized');
-            }
-            else if (error.response.status === 404) {
-                console.log(404);
-            }
-            return error;
-        });
-    }
 
     getBase64(file: any | undefined) {
       if (!file)

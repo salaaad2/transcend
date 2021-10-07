@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { Redirect } from "react-router-dom";
+import React, { useEffect } from "react";
 import { SocketContext } from "../socket/context";
 import { useUser, defaultUser } from '../components/context/UserAuthContext';
 import axios from "axios";

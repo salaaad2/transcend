@@ -19,6 +19,7 @@ import RulesPage from './pages/RulesPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AdminPanel from './pages/AdminPanel';
 import BanPage from './pages/BanPage';
+
 function App() {
 
   return(

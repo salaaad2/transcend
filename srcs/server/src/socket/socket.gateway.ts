@@ -394,7 +394,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.players.push(playername);
     if (this.players.length == 1) {
       this.id++;
-      this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: ["", ""],
+      this.rooms[this.id] = ({id: this.id, start: false, end: false, custom: false, Players: ["", ""],
                        ingame: false, p1position: 40, p2position: 40, p1direction: 0,
                        p2direction: 0, p1score: 0, p2score: 0,
                        countdown: 150, speed: 1, powerups: false, powerspecs: {
@@ -414,7 +414,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const socket2 = this.tab[data[1]];
 
     this.id++;
-    this.rooms[this.id] = ({id: this.id, start: false, end: false, Players: [data[0], data[1]],
+    this.rooms[this.id] = ({id: this.id, start: false, end: false, custom: true, Players: [data[0], data[1]],
     ingame: false, p1position: 40, p2position: 40, p1direction: 0,
     p2direction: 0, p1score: 0, p2score: 0,
     countdown: 150, speed: data[3], powerups: data[2], powerspecs: {
@@ -507,14 +507,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
-      this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
     else if (this.rooms[current] && data.role == 'player2' && data.key == 'f') {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
-      this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
@@ -523,9 +523,11 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('quit_game')
   async QuitGame(@MessageBody() data: any[]) {
     if (this.rooms[data[1]]) {
-      data[0] == this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
+      data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
       this.rooms[data[1]].countdown = 100;
-      this.matchService.putmatch(this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1], this.rooms[data[1]].p1score, this.rooms[data[1]].p2score);
+      // if (data[0] === this.rooms[data[1]].Players[0])
+      //   this.matchService.putmatch(this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1],
+      //                               this.rooms[data[1]].p1score, this.rooms[data[1]].p2score, this.rooms[data[1]].custom);
       this.rooms[data[1]].ingame = false;
       this.rooms[data[1]].end = true;
     }
@@ -588,10 +590,11 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return ;
     }
     clearInterval(this.interval[room]);
-
-    if (this.rooms[room]) {
+    if (username === this.rooms[room].Players[0]) {
+      await this.matchService.putmatch(this.rooms[room].Players[0], this.rooms[room].Players[1],
+                                      this.rooms[room].p1score, this.rooms[room].p2score, this.rooms[room].custom);
       this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-        bp: this.rooms[room].ballposition, countdown: -1});
+      bp: this.rooms[room].ballposition, countdown: -1});
       delete this.rooms[room];
     }
   }

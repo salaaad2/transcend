@@ -4,7 +4,7 @@ import IUserProps from '../interface/IUserProps';
 import ISocketProps from '../interface/ISocketProps';
 import { FormEvent } from 'react';
 import ReactDOM from 'react-dom';
-import { Button, Col, Form, FormControl, InputGroup, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 import Utils from '../utils/utils';
 import { socket } from '../../socket/context';
 interface IMessageProps {

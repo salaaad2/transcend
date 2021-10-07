@@ -1,21 +1,16 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Badge, Button, ButtonGroup, Container, Dropdown, DropdownButton, Form, Nav, Navbar, NavDropdown, SplitButton } from "react-bootstrap";
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { withRouter } from "react-router-dom";
 import './MainNavBar.module.css';
 import Utils from "../utils/utils";
 import { useUser, defaultUser } from '../context/UserAuthContext';
 import React from "react";
 import { SocketContext } from '../../socket/context';
-import { AlignType } from "react-bootstrap/esm/DropdownMenu";
-import { setupMaster } from "cluster";
-import { SportsHockeyRounded } from "@material-ui/icons";
 import { toast } from "react-toastify";
 
 function MainNavBar(props: any) {
 
-    const [File, SetFile] = useState([]);
-    const [AvatarToggle, setToggle] = useState(false);
     const { user, setUser } = useUser()!;
     let profilelink = "#profile/:" + user.username;
     let avatar = user.avatar;
@@ -24,10 +19,9 @@ function MainNavBar(props: any) {
     const isAdmin = user.ismod === true;
     const [Notifications, setNotifications] = useState(false);
     const [FriendRequests, setFriendRequests] = useState<string[]>([]);
-    const [GameRequests, setGameRequests] = useState<string[]>([]);
     const [Messages, setMessages] = useState<string[]>([]);
     const [NotifToggle, setNotifToggle] = useState(false);
-    let renderVal: number = 0;
+    // let renderVal: number = 0;
     let idNotif: number = 0;
 
     function acceptGame(data: string[]) {
@@ -83,7 +77,7 @@ function MainNavBar(props: any) {
         setFriendRequests(FriendRequests => {
           return FriendRequests = NotifTemp
         });
-        renderVal++;
+        // renderVal++;
       });
     }
 
@@ -95,7 +89,7 @@ function MainNavBar(props: any) {
       setFriendRequests(FriendRequests => {
         return FriendRequests = NotifTemp
       });
-      renderVal++;
+      // renderVal++;
     }
 
     function ListRequests(notif: string) {
@@ -136,10 +130,11 @@ function MainNavBar(props: any) {
     useEffect(() => {
       axios.get(`/authentication`,
       { withCredentials: true }).then((response) => {
-        if (response.data && (response.data.friendrequests.length != 0 || response.data.pv_msg_notifs.length != 0)) {
+        if (response.data && (response.data.friendrequests.length !== 0 || response.data.pv_msg_notifs.length !== 0)) {
           console.log('msglist', response.data.pv_msg_notifs);
           setFriendRequests(response.data.friendrequests);
           setMessages(response.data.pv_msg_notifs);
+          setAvatar(response.data.avatar);
           console.log('rq:', response.data.friendrequests);
           setNotifications(true);
         }
@@ -170,12 +165,11 @@ function MainNavBar(props: any) {
       socket.on('notifications', (data: string[]) => {
         if (data) {
           if (data[0] === 'friendrequest') {
-            console.log(data);
             Utils.notifyInfo(data[1]);
             setNotifications(true);
             setFriendRequests(prevState => [...prevState, data[1]]);
           }
-          else if (data[0] == 'accept_friend') {
+          else if (data[0] === 'accept_friend') {
             Utils.notifyInfo(data[1] + ' accepted you as friend');
             user.friendlist.push(data[1]);
             setUser(user);
@@ -183,12 +177,23 @@ function MainNavBar(props: any) {
           else if (data[0] === 'game_request') {
             notifyGame(data);
           }
-          else if (data[0] == 'message') {
-              setNotifications(true);
-              setMessages(prevState =>
-                  (!prevState.find(element => element === data[1]) ?
-                   [...prevState, data[1]] : [...prevState]))
-              notifyMsg(data);
+          else if (data[0] === 'message') {
+            setNotifications(true);
+            setMessages(prevState => 
+              (!prevState.find(element => element === data[1]) ?
+              [...prevState, data[1]] : [...prevState]))
+            notifyMsg(data);
+          }
+          else if (data[0] === 'rm_msg') {
+            console.log(data[1]);
+            setMessages(Messages => {
+              let NotifTemp = [...Messages];
+              NotifTemp.splice(Messages.findIndex(element => {return element === data[1]}), 1);
+              return Messages = NotifTemp;
+            });
+          }
+          else if (data[0] === 'clear_notifs') {
+            setNotifications(false);
           }
             else if (data[0] == 'rm_msg') {
                 console.log(data[1]);
@@ -215,7 +220,7 @@ function MainNavBar(props: any) {
       return(() => {
         socket.off('start_duel');
       })
-    }, [])
+    })
 
     // useEffect(() => {
     //   socket.on('receive_message', (data: any) => {

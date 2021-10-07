@@ -1,11 +1,9 @@
-import React, { MutableRefObject, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
 import { SocketContext } from '../socket/context';
 import { useUser } from '../components/context/UserAuthContext';
-import { Redirect  }from 'react-router';
 import { useParams } from 'react-router-dom';
-import Particles from 'react-tsparticles'
 import darktheme from '../media/images/dark-theme.jpg'
 import whitetheme from '../media/images/white-theme.jpg'
 import greentheme from '../media/images/green-theme.jpg'
@@ -24,11 +22,10 @@ import powerpad from '../media/images/power-pad.png'
 import './GamePage.css'
 
 
-
 function GamePage(props: any): any {
 
     const socket = React.useContext(SocketContext);
-    const { user, setUser } = useUser()!;
+    const { user } = useUser()!;
     const param: any = useParams();
     const room: number = param.room.substring(1);
     const [Players, setPlayers] = useState(["", ""]);
@@ -40,10 +37,10 @@ function GamePage(props: any): any {
     const [Avatars, setAvatars] = useState<string[]>([]);
     var idTab = 0;
 
-    let ctx: any;
-    let canvas: any;
-    let w: number;
-    let h: number;
+    // let ctx: any;
+    // let canvas: any;
+    // let w: number;
+    // let h: number;
     let canvasColor = [
         ['black', 'white', 'defaultball', 'defaultpad'],
         ['white', 'dark', 'darkball', 'darkpad'],
@@ -56,24 +53,32 @@ function GamePage(props: any): any {
         return (<li key={idTab}><div className="col userinfo">{spectator}</div></li>)
     }
 
+    // useEffect(() => {
+    //     if (user.id > 0 && user.username.length > 0)
+    //     {
+    //         canvas = canvasRef.current;
+    //         canvas!.width = canvas!.clientWidth;
+    //         canvas!.height = canvas!.clientHeight;
+    //         ctx = canvas!.getContext("2d");
+
+    //         // ctx!.canvas.height = 3 * canvas!.width / 4;
+    //         ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+    //         w = canvas!.width;
+    //         h = canvas!.height;
+    //     }
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
         {
-            canvas = canvasRef.current;
+            let canvas = canvasRef.current;
             canvas!.width = canvas!.clientWidth;
             canvas!.height = canvas!.clientHeight;
-            ctx = canvas!.getContext("2d");
-
+            let ctx = canvas!.getContext("2d");
             // ctx!.canvas.height = 3 * canvas!.width / 4;
             ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-            w = canvas!.width;
-            h = canvas!.height;
-        }
-    }, [])
-
-    useEffect(() => {
-        if (user.id > 0 && user.username.length > 0)
-        {
+            let w = canvas!.width;
+            let h = canvas!.height;
             socket.emit('game_info', room);
             let img = document.getElementById(canvasColor[user.theme][1]) as CanvasImageSource
             let ball = document.getElementById(canvasColor[user.theme][2]) as CanvasImageSource
@@ -86,30 +91,30 @@ function GamePage(props: any): any {
                 {
                     ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
                     ctx!.drawImage(img, 0, 0, w, h);
-                    ctx.fillStyle = canvasColor[user.theme][0];
+                    ctx!.fillStyle = canvasColor[user.theme][0];
                     ctx!.beginPath();
                     // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
                     ctx!.drawImage(ball,
-                                   data.bp.x * (w/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
-                                   data.bp.y * (h/100) - (data.pw.type == -1 ? (w/100) : (w/50)),
-                                   (data.pw.type == -1 ? (w/50) : (w/25)),
-                                   (data.pw.type == -1 ? (w/50) : (w/25)));
+                                   data.bp.x * (w/100) - (data.pw.type === -1 ? (w/100) : (w/50)),
+                                   data.bp.y * (h/100) - (data.pw.type === -1 ? (w/100) : (w/50)),
+                                   (data.pw.type === -1 ? (w/50) : (w/25)),
+                                   (data.pw.type === -1 ? (w/50) : (w/25)));
                     ctx!.beginPath();
-                    ctx!.drawImage((data.pw.type == 0 ? powerSpeed : data.pw.type == 1 ? powerBall : powerPad),
+                    ctx!.drawImage((data.pw.type === 0 ? powerSpeed : data.pw.type === 1 ? powerBall : powerPad),
                                    data.pw.x * (w/100) - (w/20), data.pw.y * (h/100) - (w/20), w/10, w/10);
                     // ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
                     ctx!.stroke();
-                    ctx.fillStyle = canvasColor[user.theme][0];
-                    ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
+                    ctx!.fillStyle = canvasColor[user.theme][0];
+                    ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type === -21 ? 3/2 : 1));
                     // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
-                    ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
+                    ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type === -22 ? 3/2 : 1));
                     // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
                 }
                 else if (data.countdown > 0)
                 {
                     ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
                     ctx!.drawImage(img, 0, 0, w, h);
-                    ctx.fillStyle = canvasColor[user.theme][0];
+                    ctx!.fillStyle = canvasColor[user.theme][0];
                     ctx!.beginPath();
                     ctx!.drawImage(ball, data.bp.x * (w/100) - (w/50), data.bp.y * (h/100) - (w/50), w/25, w/25);
                     // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
@@ -127,7 +132,7 @@ function GamePage(props: any): any {
                     if (data.end) {
                         setEnd(true);
                         ctx!.font = '24px serif';
-                        ctx!.fillText((data.p1score == 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
+                        ctx!.fillText((data.p1score === 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
                         socket.emit('stop_info', room);
                         setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
                     }
@@ -145,7 +150,7 @@ function GamePage(props: any): any {
                 socket.emit('quit_game', [user.username, room]);
             })
         }
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
@@ -160,7 +165,7 @@ function GamePage(props: any): any {
                 socket.off('role');
             })
         }
-    }, [room, socket, user.username])
+    }, [room, socket, user.username]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
@@ -178,7 +183,7 @@ function GamePage(props: any): any {
             const handleKeyup = (e: any) => {
                 if (Role === 'player1' ||
                     Role === 'player2') {
-                    if (keyState == e.key) {
+                    if (keyState === e.key) {
                         socket.emit('keyup', {key: e.key, role: Role, room: room});
                         keyState = null;
                     }
@@ -196,7 +201,7 @@ function GamePage(props: any): any {
                 clearInterval(interval);
             })
         }
-    }, [Players, Role, room, socket])
+    }, [Players, Role, room, socket]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
@@ -213,7 +218,7 @@ function GamePage(props: any): any {
                 socket.off('spectators');
             })
         }
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (user.id && user.username.length > 0) {
         return (<div>
@@ -252,7 +257,7 @@ function GamePage(props: any): any {
                     <div className="col-10 row-game">
                         {!End ? <canvas id="bgCanvas" ref={canvasRef}></canvas> : 
                             <div className="waiting-div d-flex align-items-center">
-                                {Scores[0] == 5 ? 
+                                {Scores[0] === 5 ? 
                                     <><img src={Avatars[0]} alt="avatar1" width="120" height="120"/>
                                     <p className="waiting">{Players[0]} WIN</p></> :
                                     <><img src={Avatars[1]} alt="avatar2" width="120" height="120"/>
@@ -262,21 +267,21 @@ function GamePage(props: any): any {
                     </div>
                 </div>
             </div>
-            <img id="white" src={whitetheme} style={{display:"none"}}></img>
-            <img id="dark" src={darktheme} style={{display:"none"}}></img>
-            <img id="green" src={greentheme} style={{display:"none"}}></img>
-            <img id="purple" src={purpletheme} style={{display:"none"}}></img>
-            <img id="defaultball" src={defaultball} style={{display:"none"}}></img>
-            <img id="darkball" src={darkball} style={{display:"none"}}></img>
-            <img id="natureball" src={natureball} style={{display:"none"}}></img>
-            <img id="funkyball" src={funkyball} style={{display:"none"}}></img>
-            <img id="defaultpad" src={defaultpad} style={{display:"none"}}></img>
-            <img id="darkpad" src={darkpad} style={{display:"none"}}></img>
-            <img id="naturepad" src={naturepad} style={{display:"none"}}></img>
-            <img id="funkypad" src={funkypad} style={{display:"none"}}></img>
-            <img id="powerspeed" src={powerspeed} style={{display:"none"}}></img>
-            <img id="powerball" src={powerball} style={{display:"none"}}></img>
-            <img id="powerpad" src={powerpad} style={{display:"none"}}></img>
+            <img alt="theme" id="white" src={whitetheme} style={{display:"none"}}></img>
+            <img alt="theme" id="dark" src={darktheme} style={{display:"none"}}></img>
+            <img alt="theme" id="green" src={greentheme} style={{display:"none"}}></img>
+            <img alt="theme" id="purple" src={purpletheme} style={{display:"none"}}></img>
+            <img alt="ball" id="defaultball" src={defaultball} style={{display:"none"}}></img>
+            <img alt="ball" id="darkball" src={darkball} style={{display:"none"}}></img>
+            <img alt="ball" id="natureball" src={natureball} style={{display:"none"}}></img>
+            <img alt="ball" id="funkyball" src={funkyball} style={{display:"none"}}></img>
+            <img alt="pad" id="defaultpad" src={defaultpad} style={{display:"none"}}></img>
+            <img alt="pad" id="darkpad" src={darkpad} style={{display:"none"}}></img>
+            <img alt="pad" id="naturepad" src={naturepad} style={{display:"none"}}></img>
+            <img alt="pad" id="funkypad" src={funkypad} style={{display:"none"}}></img>
+            <img alt="power" id="powerspeed" src={powerspeed} style={{display:"none"}}></img>
+            <img alt="power" id="powerball" src={powerball} style={{display:"none"}}></img>
+            <img alt="power" id="powerpad" src={powerpad} style={{display:"none"}}></img>
         </div>)
     }
     else {

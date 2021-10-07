@@ -3,12 +3,11 @@ import { useEffect } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
 import { SocketContext } from '../socket/context';
 import { useUser } from '../components/context/UserAuthContext';
-import { Redirect  }from 'react-router';
 
 function GameLobby(props: any): any {
 
     const socket = React.useContext(SocketContext);
-    const { user, setUser } = useUser()!;
+    const { user } = useUser()!;
     const [isWaiting, setisWaiting] = useState(true);
 
     if (user.id > 0) {
@@ -38,7 +37,7 @@ function GameLobby(props: any): any {
                 socket.off('active_players');
             })
         }
-    }, [])
+    })
 
     if (user.id > 0 && user.username.length > 0)
         return (
