@@ -146,6 +146,11 @@ export class ChatService {
     return channel;
   }
 
+  /*
+   * create/join chan.
+   * can also change password
+   */
+
   async joinChannel(data: { username: string, channel: string, password: string}) {
     if (data.channel.length < 3 || data.channel.length > 12 || !/^[a-zA-Z]*$/.test(data.channel))
       throw 'Error your channel\'s name must be between 3 and 12 characters and must contains only letters';
@@ -170,11 +175,17 @@ export class ChatService {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
     }
+    else if (!chan.password && data.password && (chan.owner === user.username))
+    {
+      chan.password = data.password;
+      await this.chanRepository.save(chan);
+    }
     else if (chan.password && chan.password !== data.password)
     {
       throw 'Wrong password to join ' + data.channel;
     }
-    if (!user.public_channels.includes(data.channel))
+    if (!user.public_channels.includes(data.channel) &&
+        chan.clients.includes(user.username))
     {
       user.public_channels[user.public_channels.length] = data.channel;
     }

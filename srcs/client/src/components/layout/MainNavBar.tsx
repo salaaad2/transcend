@@ -141,6 +141,15 @@ function MainNavBar(props: any) {
       })
     }, [])
 
+    useEffect(() => {
+        socket.on('mod_client', (data: string) => {
+            if (data === user.username) {
+                console.log('you are now site moderator');
+                Utils.notifyInfo('You are now moderator. Reload the page to access admin panel');
+            }
+        })
+    })
+
     /* doesnt work */
     useEffect(() => {
         /* console.log('logout requested by admin'); */
@@ -157,6 +166,7 @@ function MainNavBar(props: any) {
           })
         } else {
             console.log('lucky bastard');
+            Utils.notifyInfo('lucky bastard');
         }
       })
     })

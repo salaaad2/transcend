@@ -22,7 +22,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 function AdminPanel(props: any) {
     const [Error, setError] = useState(0);
-    const [isLoading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false); /* watched by useEffects() setLoading(true) asks the backed for data */
     const [Everyone, setEveryone] = useState([]);
     const [Channels, setChannels] = useState([]);
     const [Messages, setMessages] = useState([]);
@@ -52,10 +52,17 @@ function AdminPanel(props: any) {
             if (response.data) {
                 console.log(response.data);
             }
+            if (toggle) {
+                socket.emit('request_mod_client',
+                            username
+                );
+            }
             setLoading(true);
             Utils.notifySuccess('successfully modded ' + username);
         })
     }
+
+    /* send ban request through a POST request. then log out user through websockets */
 
     function banClient(uname: string, toggle: boolean) {
         if (uname === 'fmoen') {
