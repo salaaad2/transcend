@@ -35,7 +35,7 @@ function GamePage(props: any): any {
     const [End, setEnd] = useState(false);
     const [Spectators, setSpectators] = useState<string[]>([]);
     const [Avatars, setAvatars] = useState<string[]>([]);
-    var idTab = 0;
+    let idTab = 0;
 
     // let ctx: any;
     // let canvas: any;
@@ -210,7 +210,7 @@ function GamePage(props: any): any {
             socket.on('spectators', (data: string[]) => {
                 setSpectators([]);
                 console.log(data[0]);
-                for (var i in data) {
+                for (let i in data) {
                     setSpectators([...Spectators, data[i]]);
                 }
             })

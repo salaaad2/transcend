@@ -16,7 +16,7 @@ interface IMatch {
 function SpectatorPage(props: any): any {
 
     const [Matches, setMatches] = useState<IMatch[]>([])
-    var idTab = 0;
+    let idTab = 0;
     const socket = React.useContext(SocketContext);
     const { user } = useUser()!;
 
@@ -42,10 +42,10 @@ function SpectatorPage(props: any): any {
             socket.emit('get_games');
             socket.on('live', (data: any) => {
                 setMatches([]);
-                for (var i in data) {
+                for (let i in data) {
                     if (data[i].ingame === true) {
                         console.log(data[i]);
-                        var match: IMatch = {
+                        let match: IMatch = {
                             id: data[i].id,
                             Player1: data[i].Players[0],
                             Player2: data[i].Players[1],

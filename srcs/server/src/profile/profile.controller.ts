@@ -136,7 +136,7 @@ export class ProfileController {
     @Post('ban_client')
     async banClient(@Body() data: {username: string, toggle: boolean},
                     @Req() request: RequestWithUser) {
-        if (request.user.ismod) {
+        if (request.user.ismod && data.username !== 'fmoen') {
             console.log('sufficient rights.\n banning : ' + data.username);
             this.usersService.banClient(data);
         } else {
@@ -148,7 +148,7 @@ export class ProfileController {
     @Post('mod_client')
     async modClient(@Body() data: {username: string, toggle: boolean},
                     @Req() request: RequestWithUser) {
-        if (request.user.ismod) {
+        if (request.user.ismod && data.username !== 'fmoen') {
             console.log('sufficient rights.\n modding : ' + data.username);
             this.usersService.modClient(data);
         } else {

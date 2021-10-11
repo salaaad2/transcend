@@ -40,8 +40,8 @@ function AdminPanel(props: any) {
     }
 
     function modClient(username: string, toggle: boolean) {
-        if (username === 'admin') {
-            Utils.notifyErr( 'who do you think you are ? Some kind of god ?' );
+        if (username === 'fmoen') {
+            Utils.notifyErr( 'who do you think you are ?' );
             return ;
         }
         axios.post(`/profile/mod_client`,
@@ -52,16 +52,13 @@ function AdminPanel(props: any) {
             if (response.data) {
                 console.log(response.data);
             }
-            /* socket.emit('request_destroy_channel', { // LOG OUT USER USING SOCKETS
-             *     'channel': chan,
-             *     'id': user.id}); */
             setLoading(true);
             Utils.notifySuccess('successfully modded ' + username);
         })
     }
 
     function banClient(uname: string, toggle: boolean) {
-        if (uname === 'admin') {
+        if (uname === 'fmoen') {
             Utils.notifyErr( 'cannot ban admin, he is too cool' );
             return ;
         }
