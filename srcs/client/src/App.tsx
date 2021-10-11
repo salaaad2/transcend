@@ -20,6 +20,13 @@ import NotFoundPage from './pages/NotFoundPage'
 import AdminPanel from './pages/AdminPanel';
 import BanPage from './pages/BanPage';
 
+/*
+ * App.tsx : mapping pages and components to paths
+ * default redirect is profile page
+ *
+ *
+ * */
+
 function App() {
 
   return(
