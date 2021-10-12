@@ -77,24 +77,23 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
     }
 
     makeForm() {
-        const form = <form onSubmit={this.sendMsg}>
+        const form =
+            <Form onSubmit={this.sendMsg}>
             <Row className="align-items-center">
                 <Col sm={10} className="my-1">
                     <Form.Control
                     autoFocus
-                        as="textarea"
+                    as="textarea"
                     rows={5}
                     style={{ width: '100%', resize: "none" }}
                     placeholder="Message"
                     value={this.state.message}
                     onChange={(e) => this.handleChange(e, e.target.value)}/>
-                </Col>
-                <Col xs="auto" className="my-1">
                     <Button type="submit">Submit</Button>
                 </Col>
             </Row>
 
-        </form>;
+        </Form>;
         return (form);
     }
 

@@ -129,7 +129,7 @@ function GamePage(props: any): any {
                         ctx!.font = '48px serif';
                         ctx!.fillText(`${Math.trunc(data.countdown / 50) + 1}`, w/2 - w/50, h/3);
                     }
-                    if (data.end) {
+                    if (data.end || (data.p1score >= 5 || data.p2score >= 5)) {
                         setEnd(true);
                         ctx!.font = '24px serif';
                         ctx!.fillText((data.p1score === 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
@@ -145,7 +145,7 @@ function GamePage(props: any): any {
                 }
             })
             return (() => {
-                socket.emit('stop_info', room);
+                    socket.emit('stop_info', room);
                 socket.off('game');
                 socket.emit('quit_game', [user.username, room]);
             })

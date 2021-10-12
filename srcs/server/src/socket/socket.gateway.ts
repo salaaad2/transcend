@@ -392,6 +392,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async newplayer(@MessageBody() playername: string) {
     this.players.push(playername);
     if (this.players.length == 1) {
+      console.log('creation', this.id);
       this.id++;
       this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: false, Players: ["", ""],
                        ingame: false, p1position: 40, p2position: 40, p1direction: 0,
@@ -412,6 +413,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const socket1 = this.tab[data[0]];
     const socket2 = this.tab[data[1]];
 
+    console.log('creation2', this.id);
     this.id++;
     this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: true, Players: [data[0], data[1]],
     ingame: false, p1position: 40, p2position: 40, p1direction: 0,
@@ -570,10 +572,12 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('game_info')
   async GameInfo(@MessageBody() room: number) {
     if (!this.interval[room]) {
-      this.interval[room] = setInterval(() => {
+      this.interval[room] = setInterval(async () => {
         this.pongService.calculateBallPosition(this.rooms[room]);
         if (this.rooms[room].powerups)
+        {
           this.pongService.calculatePowerUp(this.rooms[room]);
+        }
         if (!this.rooms[room].countdown) {
           for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
             this.rooms[room].sockets[i].socket.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
@@ -628,13 +632,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('get_games')
   async GetGames(@ConnectedSocket() socket: Socket) {
     const data: {id: number, player1: string, player2: string, p1score: number, p2score: number, ingame: boolean}[] = []
+    setInterval(() => {
     for (let i in this.rooms) {
-      data.push({id: this.rooms[i].id, player1: this.rooms[i].Players[0], 
-        player2: this.rooms[i].Players[1], p1score: this.rooms[i].p1score, p2score: this.rooms[i].p2score, ingame: this.rooms[i].ingame})
+      data.push({id: this.rooms[i].id, player1: this.rooms[i].Players[0],
+                 player2: this.rooms[i].Players[1], p1score: this.rooms[i].p1score, p2score: this.rooms[i].p2score, ingame: this.rooms[i].ingame})
     }
       socket.emit('live', data);
-    setInterval(() => {
-      socket.emit('live', data);
+    data.splice(0, data.length)
     }, 2000);
   }
 

@@ -42,7 +42,7 @@ function GameLobby(props: any): any {
                 // socket.off('game_off');
             })
         }
-    })
+    }, [])
 
     if (user.id > 0 && user.username.length > 0)
         return (
