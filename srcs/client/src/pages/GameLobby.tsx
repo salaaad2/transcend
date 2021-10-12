@@ -27,6 +27,10 @@ function GameLobby(props: any): any {
                         socket.emit('rm_from_lobby', user.username);
                         props.history.push(`/game/:${player.id}`);
                     })
+                    // socket.on('game_off', () => {
+                    //     console.log('off');
+                    //     props.history.push('/');
+                    // })
                 }
                 else
                     setisWaiting(true);
@@ -35,6 +39,7 @@ function GameLobby(props: any): any {
                 socket.emit('player_leave', user.username);
                 socket.off('nb_players');
                 socket.off('active_players');
+                // socket.off('game_off');
             })
         }
     })

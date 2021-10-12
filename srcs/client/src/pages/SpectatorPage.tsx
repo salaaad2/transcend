@@ -42,13 +42,14 @@ function SpectatorPage(props: any): any {
             socket.emit('get_games');
             socket.on('live', (data: any) => {
                 setMatches([]);
+                console.log(data);
                 for (var i in data) {
                     if (data[i].ingame === true) {
                         console.log(data[i]);
                         var match: IMatch = {
                             id: data[i].id,
-                            Player1: data[i].Players[0],
-                            Player2: data[i].Players[1],
+                            Player1: data[i].player1,
+                            Player2: data[i].player2,
                             P1Score: data[i].p1score,
                             P2Score: data[i].p2score
                         };

@@ -1,4 +1,10 @@
+import { Socket } from 'socket.io';
+
 export interface Room {
+  sockets: {
+    user: string,
+    socket: Socket
+  }[]
   id: number;
   start: boolean;
   end: boolean;
