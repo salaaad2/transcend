@@ -644,13 +644,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('request_logout_client')
-    async logHimOut(@ConnectedSocket() socket: Socket,
+    async logOutRequested(@ConnectedSocket() socket: Socket,
                     @MessageBody() username: string) {
       this.server.emit('log_out', username);
   }
 
   @SubscribeMessage('request_mod_client')
-    async logHimOut(@ConnectedSocket() socket: Socket,
+    async modRequested(@ConnectedSocket() socket: Socket,
                     @MessageBody() username: string) {
       this.server.emit('mod_client', username);
   }

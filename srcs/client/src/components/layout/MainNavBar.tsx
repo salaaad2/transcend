@@ -150,7 +150,7 @@ function MainNavBar(props: any) {
         })
     })
 
-    /* doesnt work */
+    /* 100% works I swear*/
     useEffect(() => {
         /* console.log('logout requested by admin'); */
         socket.on('log_out', (data: string) => {
