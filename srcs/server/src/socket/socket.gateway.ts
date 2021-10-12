@@ -513,6 +513,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
+      this.rooms[current].speed = 0;
       // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
@@ -520,6 +521,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else if (this.rooms[current] && data.role == 'player2' && data.key == 'f') {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
+      this.rooms[current].speed = 0;
       // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
@@ -530,7 +532,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async QuitGame(@MessageBody() data: any[], @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     if (this.rooms[data[1]] && (username == this.rooms[data[1]].Players[0] || username == this.rooms[data[1]].Players[1])) {
-      data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
+      if (this.rooms[data[1]].p1score != 5 && this.rooms[data[1]].p2score != 5)
+        data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
       this.rooms[data[1]].countdown = 100;
       this.rooms[data[1]].ingame = false;
       this.rooms[data[1]].end = true;
@@ -572,7 +575,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('game_info')
   async GameInfo(@MessageBody() room: number) {
     if (!this.interval[room]) {
-      this.interval[room] = setInterval(async () => {
+      this.interval[room] = setInterval(() => {
         this.pongService.calculateBallPosition(this.rooms[room]);
         if (this.rooms[room].powerups)
         {
