@@ -164,11 +164,7 @@ function MainNavBar(props: any) {
               setUser(defaultUser);
               props.history.push('/login');
           })
-        } else {
-            console.log('lucky bastard');
-            Utils.notifyInfo('lucky bastard');
-        }
-      })
+        }      })
     })
 
     useEffect(() => {

@@ -127,6 +127,7 @@ export class PongService {
                 if (room.p1score == 5 || room.p2score == 5)
                 {
                     // this.matchService.putmatch(room.Players[0], room.Players[1], room.p1score, room.p2score);
+                    room.speed = 0;
                     room.end = true;
                     room.ingame = false;
                 }

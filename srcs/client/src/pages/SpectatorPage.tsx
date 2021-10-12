@@ -53,7 +53,7 @@ function SpectatorPage(props: any): any {
                             P1Score: data[i].p1score,
                             P2Score: data[i].p2score
                         };
-                        setMatches([...Matches, match]);
+                        setMatches(Matches => [...Matches, match]);
                     }
                 }
             })

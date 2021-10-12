@@ -133,7 +133,6 @@ function GamePage(props: any): any {
                         setEnd(true);
                         ctx!.font = '24px serif';
                         ctx!.fillText((data.p1score === 5 ? `${Players[0]} WIN` : `${Players[1]} WIN`), w/2 - w/50, h/3);
-                        socket.emit('stop_info', room);
                         setTimeout(() => {props.history.push(`/profile/:${user.username}`)}, 2000);
                     }
                 }
@@ -146,6 +145,7 @@ function GamePage(props: any): any {
                 }
             })
             return (() => {
+                socket.emit('stop_info', room);
                 socket.off('game');
                 socket.emit('quit_game', [user.username, room]);
             })
