@@ -54,7 +54,7 @@ export class ChatController {
     @UseGuards(JwtAuthenticationGuard)
     async deleteChan(@Body() data: {channel: string},
                       @Req() request: RequestWithUser) {
-        if (request.user.id !== 1) {
+        if (request.user.ismod === false || data.channel === 'General') {
             return ;
         }
         await this.chatService.deleteChannel(data.channel);

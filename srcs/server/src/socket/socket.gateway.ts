@@ -322,11 +322,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_destroy_channel')
   async destroyChannel(
     @ConnectedSocket() socket: Socket,
-  @MessageBody() data: {channel: string, id: number}) {
+  @MessageBody() data: {channel: string}) {
     try {
-      if (data.id === 1) {
-        this.server.emit('send_destroy_channel', data.channel);
-      }
+      this.server.emit('send_destroy_channel', data.channel);
     }
     catch(e) {
       socket.emit('send error', e);

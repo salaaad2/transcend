@@ -71,8 +71,13 @@ export class ChatService {
       }
       for (const d of data) {
         await this.leaveChannel(d); // DONE: somehow this only makes one person leave
-                              // note : await.... AWAIIIIIT
+                                    // note : await.... AWAIIIIIT
       }
+    }
+    const msg = await this.messagesRepository.delete({channel: chan});
+    const ch = await this.chanRepository.delete({name: chan.name});
+    if (msg && ch) {
+      return ('');
     }
   }
 

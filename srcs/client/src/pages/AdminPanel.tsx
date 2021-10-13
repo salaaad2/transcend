@@ -117,8 +117,7 @@ function AdminPanel(props: any) {
         { withCredentials: true })
         .then(() => {
             socket.emit('request_destroy_channel', {
-                'channel': chan,
-                'id': user.id});
+                'channel': chan});
             setLoading(true);
             Utils.notifySuccess('successfully deleted channel ' + chan);
         })
