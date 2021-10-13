@@ -443,7 +443,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.rooms[this.id].sockets.push({user: playername, socket: socket});
     let id = this.id;
     console.log("players:", this.rooms[this.id].Players)
-    this.server.emit('active_players', {playername, index, id});
+    socket.emit('active_players', {playername, index, id});
   }
 
   @SubscribeMessage('rm_from_lobby')
@@ -594,6 +594,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('stop_info')
   async GameStop(@MessageBody() room: number, @ConnectedSocket() socket: Socket) {
+    console.log('gamestop');
     const username = Object.keys(this.tab).find(k => this.tab[k] === socket);
     if (this.rooms[room] &&
       this.rooms[room].Players[0] != username &&
@@ -605,11 +606,17 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return ;
     }
     clearInterval(this.interval[room]);
+      console.log('username', username, this.rooms[room].Players[0]);
     if (username === this.rooms[room].Players[0]) {
       await this.matchService.putmatch(this.rooms[room].Players[0], this.rooms[room].Players[1],
                                       this.rooms[room].p1score, this.rooms[room].p2score, this.rooms[room].custom);
-      this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-      bp: this.rooms[room].ballposition, countdown: -1});
+      // this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+      // bp: this.rooms[room].ballposition, countdown: -1});
+      for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
+        this.rooms[room].sockets[i].socket.emit('game',
+             {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
+              bp: this.rooms[room].ballposition, countdown: -1});
+      }
       delete this.rooms[room];
     }
   }
@@ -620,7 +627,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('get_games')
   async GetGames(@ConnectedSocket() socket: Socket) {
-    let data: {id: number, player1: string, player2: string, p1score: number, p2score: number, ingame: boolean}[] = []
+    const data: {id: number, player1: string, player2: string, p1score: number, p2score: number, ingame: boolean}[] = []
     for (let i in this.rooms) {
       data.push({id: this.rooms[i].id, player1: this.rooms[i].Players[0], 
         player2: this.rooms[i].Players[1], p1score: this.rooms[i].p1score, p2score: this.rooms[i].p2score, ingame: this.rooms[i].ingame})
