@@ -45,7 +45,6 @@ function ProfilePage(props: any) {
   const [Loading, setLoading] = useState(false);
   const [Error, setError] = useState(0);
   // const [Edit, setEdit] = useState(false);
-  const [DisplayName, setDisplayName] = useState("");
   const socket = React.useContext(SocketContext);
   const { user } = useUser()!;
   const param: any = useParams();
@@ -224,11 +223,9 @@ function ProfilePage(props: any) {
         res = JSON.stringify(result);
         res = res.substring(1, res.length - 1);
           axios.post(`/profile/update_profile`,
-                     [user.realname, res, Theme, DisplayName], { withCredentials: true })
+                     [user.realname, res, Theme, user.username], { withCredentials: true })
                .then(() => {
                    user.avatar = res;
-                   if (DisplayName.length)
-                       user.username = DisplayName;
                    setTimeout(() => {props.history.push('/')}, 200);
                })
                .catch((e) => {
@@ -238,9 +235,7 @@ function ProfilePage(props: any) {
     }
       else {
           return axios.post(`/profile/update_profile`,
-        [user.realname, "", Theme, DisplayName], { withCredentials: true }).then(() => {
-        if (DisplayName.length)
-          user.username = DisplayName;
+        [user.realname, "", Theme, user.username], { withCredentials: true }).then(() => {
       setTimeout(() => {props.history.push('/')}, 200);
     })
     .catch((e) => {
@@ -413,7 +408,7 @@ function ProfilePage(props: any) {
                                       <option value="3">Funky</option>
                                     </Form.Control>
                                     {/* <canvas ref={canvasRef}></canvas> */}
-                                    {Theme == 0 ? <img src={defaultprev} className="img-fluid" alt="default"/> : Theme == 1 ? <img src={darkprev} className="img-fluid" alt="dark"/> : Theme == 2 ? <img src={natureprev} className="img-fluid" alt="nature"/> : <img src={funkyprev} className="img-fluid" alt="funky"/>}
+                                    {Theme === 0 ? <img src={defaultprev} className="img-fluid" alt="default"/> : Theme === 1 ? <img src={darkprev} className="img-fluid" alt="dark"/> : Theme === 2 ? <img src={natureprev} className="img-fluid" alt="nature"/> : <img src={funkyprev} className="img-fluid" alt="funky"/>}
                                   </div></div>
                                   <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button>
                                       <Button className='btn' onClick={(e) => {

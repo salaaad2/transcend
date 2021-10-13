@@ -1,27 +1,15 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import MainNavBar from "../components/layout/MainNavBar";
 import Utils from "../components/utils/utils"
 import './ProfileDetailPage.css'
-import orImage from '../media/images/or.png'
-import argentImage from '../media/images/argent.png'
-import bronzeImage from '../media/images/bronze.png'
 import { SocketContext } from '../socket/context'
 import React from "react";
-import { defaultUser, useUser } from '../components/context/UserAuthContext';
+import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router';
-import { Button, Form } from "react-bootstrap";
-import Avatars from "@dicebear/avatars";
-
-import Message from '../components/chat/message';
-
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
+import { Button } from "react-bootstrap";
 
 function AdminPanel(props: any) {
-    const [Error, setError] = useState(0);
     const [isLoading, setLoading] = useState(false); /* watched by useEffects() setLoading(true) asks the backed for data */
     const [Everyone, setEveryone] = useState([]);
     const [Channels, setChannels] = useState([]);
@@ -217,7 +205,7 @@ function AdminPanel(props: any) {
                      }
                  })
         }
-    }, [isLoading, socket, user.username, props, user.id])
+    }, [isLoading, socket, user.username, props, user.id, user.ismod])
 
     useEffect(() => {
         if (user.ismod === true)
@@ -232,7 +220,7 @@ function AdminPanel(props: any) {
                      }
                  })
         }
-    }, [isLoading, socket, user.username, props, user.id])
+    }, [isLoading, socket, user.username, props, user.id, user.ismod])
 
     useEffect(() => {
         if (user.ismod === true)
@@ -247,7 +235,7 @@ function AdminPanel(props: any) {
                      }
                  })
         }
-    }, [chanView, socket, user.username, props, user.id])
+    }, [chanView, socket, user.username, props, user.id, user.ismod])
 
     if (user.ismod === false) {
         return (<Redirect to={{ pathname: "/profile/:"+user.username, state: { from: props.location} }} />);

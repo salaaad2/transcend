@@ -45,7 +45,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             adminlist: [],
             mutelist: [],
             banlist: [],
-            owner: '',
+            owner: false,
             admin: false,
             muted: false,
             toggle: 'public',
@@ -121,12 +121,12 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             console.log(this.state.adminlist);
             if (this.state.toggle === 'public')
             {
-                if (this.state.owner === cl)
+                if (this.state.owner === cl && this.state.currentChan !== 'General')
                 {
                     link.textContent += ' (OWNER)';
                     link.classList.add('owneruser');
                 }
-                else if (this.state.adminlist.includes(cl))
+                else if (this.state.adminlist.includes(cl) && this.state.currentChan !== 'General')
                 {
                     link.textContent += ' (ADMIN)';
                     link.classList.add('adminuser');
@@ -144,8 +144,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                         btn.id = 'btn-unban' + this.state.currentChan;
                         btn.addEventListener("click", (e:Event) => this.btnUnban(e, btn.id.substring(9), cl));
                         image.src = greencrossImage;
-                        image.width = 10;
-                        image.height = 10;
+                        image.width = 20;
+                        image.height = 20;
                         image.alt = '';
                         btn.appendChild(image);
                         div.appendChild(btn);
@@ -158,8 +158,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                         btn.id = 'btn-kick' + this.state.currentChan;
                         btn.addEventListener("click", (e:Event) => this.btnKickClient(e, btn.id.substring(8), cl));
                         image.src = redcrossImage;
-                        image.width = 10;
-                        image.height = 10;
+                        image.width = 20;
+                        image.height = 20;
                         image.alt = '';
                         btn.appendChild(image);
                         div.appendChild(btn);
@@ -180,8 +180,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                             }
                             btn_mute.className = 'btn';
                             btn_mute.id = 'btn-mute' + this.state.currentChan;
-                            img_mute.width = 10;
-                            img_mute.height = 10;
+                            img_mute.width = 20;
+                            img_mute.height = 20;
                             img_mute.alt = '';
                             btn_mute.appendChild(img_mute);
                             div.appendChild(btn_mute);
@@ -192,8 +192,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                             img_ban.src = banImage;
                             btn_ban.className = 'btn';
                             btn_ban.id = 'btn-ban' + this.state.currentChan;
-                            img_ban.width = 10;
-                            img_ban.height = 10;
+                            img_ban.width = 20;
+                            img_ban.height = 20;
                             img_ban.alt = '';
                             btn_ban.appendChild(img_ban);
                             div.appendChild(btn_ban);
@@ -215,8 +215,8 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                             }
                             btn_grade.className = 'btn';
                             btn_grade.id = 'btn-grade' + this.state.currentChan;
-                            imgthumb.width = 10;
-                            imgthumb.height = 10;
+                            imgthumb.width = 20;
+                            imgthumb.height = 20;
                             imgthumb.alt = '';
                             btn_grade.appendChild(imgthumb);
                             div.appendChild(btn_grade);
@@ -352,7 +352,6 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
     sendLeftChannel(chan: string, username: string) {
             if (username !== this.props.user.username && this.state.currentChan === chan) // for other client of channel
             {
-                alert('LEFT CHANNEL');
                 const cllist: string[] = this.state.cllist;
                 const lastIndex = cllist.indexOf(username);
                 this.setState({ cllist: cllist.filter((item: string, index: number) => index !== lastIndex) });
@@ -584,7 +583,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                               value={this.state.inputChannel} onChange={(e) => this.setState({inputChannel: e.target.value})} />
                 <Form.Control size="sm" type="password" placeholder="Password (optional)"
                               value={this.state.inputPassword} onChange={(e) => this.setState({inputPassword: e.target.value})}/>
-                <Button type="submit" className="btn btn-secondary">Create</Button>
+                <Button type="submit" className="btn btn-secondary" id="btn-create">Create</Button>
             </Form>
         </div>
             </div>;
@@ -617,7 +616,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                     'dst': this.state.inputChannel })}}>
                 <Form.Control size="sm" type="text" placeholder="Username" autoFocus
                               value={this.state.inputChannel} onChange={(e) => this.setState({inputChannel: e.target.value})} />
-                <Button type="submit" className="btn btn-secondary">Create</Button>
+                <Button type="submit" className="btn btn-secondary" id="btn-create">Find</Button>
             </Form>
         </div>
             </div>;

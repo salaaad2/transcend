@@ -205,15 +205,15 @@ function MainNavBar(props: any) {
           else if (data[0] === 'clear_notifs') {
             setNotifications(false);
           }
-            else if (data[0] == 'rm_msg') {
+            else if (data[0] === 'rm_msg') {
                 console.log(data[1]);
                 setMessages(Messages => {
                     let NotifTemp = [...Messages];
-                    NotifTemp.splice(Messages.findIndex(element => {return element == data[1]}), 1);
+                    NotifTemp.splice(Messages.findIndex(element => {return element === data[1]}), 1);
                     return Messages = NotifTemp;
                 });
             }
-            else if (data[0] == 'clear_notifs') {
+            else if (data[0] === 'clear_notifs') {
                 setNotifications(false);
             }
         }

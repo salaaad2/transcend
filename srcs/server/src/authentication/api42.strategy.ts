@@ -3,8 +3,8 @@ import { HttpService, Injectable} from '@nestjs/common';
 import { Strategy } from 'passport-42';
 import { AuthenticationService } from './authentication.service';
 import { stringify } from 'querystring';
-const clientID = "4df460dc2607d44b778cc9ff3befb750cc2e302560abb2d93c1d4114f7e909cf"
-const clientSecret = "7f439a3acdafa142785d906b64db8bdf54b09de4e69cd2ad726fabdeca0389e7";
+const clientID = "bd6ff1c4c3e4091081ae555d9885fa7b5a5cb68782cce3890ca445d0afb23dfd"
+const clientSecret = "8000c1b72b7d80030b4b982f1d39681b850f64c89675b64eeac445c3bdffc087";
 const callbackURL = 'http://'+process.env.HOST+':'+process.env.PORT+'/authentication/redirect';
 
 @Injectable()

@@ -12,6 +12,7 @@ function Logout(props: any) {
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
         {
+            props.history.push('/logout');
             axios.post(`/authentication/log-out`, { withCredentials: true})
                  .then((response) => {
                      console.log(response)

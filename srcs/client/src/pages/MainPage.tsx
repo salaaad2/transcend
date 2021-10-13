@@ -59,15 +59,16 @@ function MainPage(props: any) {
         {
             return (
                 <div>
-                    <h4>Choose username, it will be visible for other users</h4>
                     <Form onSubmit={submitHandler}>
-                        <div className="otp-code">
+                        <div className="textbox">
                             <Form.Control
                                 autoFocus
                                 type="text"
                                 value={username}
                                 placeholder="Username"
                                 onChange={(e) => setUsername(e.target.value)} />
+                        </div>
+                        <div className="submit-btn">
                             <Button variant="primary" type="submit" disabled={!validateForm()}>
                                 Submit
                             </Button>

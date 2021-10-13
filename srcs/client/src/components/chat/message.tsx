@@ -20,6 +20,7 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
         this.listMsg = this.listMsg.bind(this);
         this.sendMsg = this.sendMsg.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
         this.makeForm = this.makeForm.bind(this);
         this.props.msglist[0] = 0;
         this.state = {
@@ -47,6 +48,7 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                 message.appendChild(div);
                 chat?.appendChild(message);
                 this.props.msglist.push(req.id);
+                message.scrollIntoView();
             }
         }
     }
@@ -64,10 +66,11 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                 console.log(this.props.currentChan, this.state.message);
                 socket.emit('pv_msg', [this.props.currentChan, this.state.message]);
             }
+
         }
         else
         {
-            Utils.notifyErr('You are muted');
+            Utils.notifyErr('You are muted on ' + this.props.currentChan);
         }
     }
 
@@ -76,13 +79,19 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
         this.setState({message: text});
     }
 
+    handleKeyPress(e: any) {
+        console.log(e);
+        if (e.key === "Enter" && !e.shiftKey)
+            this.sendMsg(e);
+    }
+
     makeForm() {
-        const form = <form onSubmit={this.sendMsg}>
+        const form = <form onSubmit={this.sendMsg} onKeyPress={this.handleKeyPress}>
             <Row className="align-items-center">
                 <Col sm={10} className="my-1">
                     <Form.Control
                     autoFocus
-                        as="textarea"
+                    as="textarea"
                     rows={5}
                     style={{ width: '100%', resize: "none" }}
                     placeholder="Message"
@@ -90,7 +99,7 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                     onChange={(e) => this.handleChange(e, e.target.value)}/>
                 </Col>
                 <Col xs="auto" className="my-1">
-                    <Button type="submit">Submit</Button>
+                    <Button variant="primary" type="submit" value="Submit">Send</Button>
                 </Col>
             </Row>
 
@@ -118,7 +127,6 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
             });
         this.setState({message: ""})
         this.props.socket.on('receive_message',  (data:any) => {
-            console.log('author ' + data.author)
             if (data &&
                 data.channel.name === this.props.currentChan &&
                 !this.props.user.blocklist.includes(data.author))

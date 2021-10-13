@@ -29,9 +29,14 @@ button {
   color: white;
 }
 
+#btn-create {
+  width: 100%;
+}
+
 .togglechan {
   align-items: center;
   display: flex;
+  flex-direction: column;
   height: 160px;
   justify-content: center;
   position: relative;
@@ -41,8 +46,9 @@ button {
 .options {
   cursor: pointer;
   text-align: center;
-  width: 33.33%;
+  width: 33.3%;
 }
+
 button:focus { outline: none; }
 
 .bar {
@@ -188,18 +194,13 @@ hr:not([size]) {
 }
 
 .userinfo {
-    color: white;
     padding: 0px 0px 0px 0px !important;
-}
-
-.userinfo {
-  color: white;
-  text-decoration: none;
-  margin-left: 12px;
-}
-
-.userinfo {
-  color: rgb(170, 170, 170);
+    text-decoration: none;
+    margin-left: 12px;
+    color: rgb(170, 170, 170);
+    grid-auto-flow: column;
+    display: grid;
+    align-items:center
 }
 
 
@@ -208,6 +209,7 @@ hr:not([size]) {
     color: white;
     padding-left: 30px;
 }
+
 .selectedchan {
   background-color: #0e7c8f;
 }
@@ -216,6 +218,10 @@ hr:not([size]) {
 .chanlist ul li:hover {
     background-color: #6c757d;
     color:white !important;
+}
+
+#chanlist {
+  padding: 0;
 }
 
 .userinfo p {
@@ -341,6 +347,7 @@ hr:not([size]) {
     display:inline-block;
     text-align:left;
     border-radius:5px;
+    word-break: break-word;
   }
   #chat .me{
     text-align:right;

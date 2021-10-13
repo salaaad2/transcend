@@ -10,7 +10,9 @@ import makeid from './utils/randomString';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const session = require('express-session');
-  app.use(session({secret: makeid(16)}));
+  app.use(session({secret: makeid(16),
+                  resave: true,
+                  saveUninitialized: true}));
   app.useGlobalPipes(new ValidationPipe({
     skipMissingProperties: true }));
   app.use(cookieParser());

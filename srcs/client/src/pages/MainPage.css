@@ -1,10 +1,11 @@
+
 .textbox {
-    width: 25%;
-    margin-left: 30%;
-    padding-top: 10%;
+    width: 15%;
+    margin-left: 40%;
+    padding-top: 20%;
 }
 
-h4 {
-    margin-left: 35%;
-    padding-top: 10%;
+.submit-btn {
+    margin-top: -1.8%;
+    margin-left: 56%;
 }

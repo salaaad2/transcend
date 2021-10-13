@@ -28,8 +28,8 @@ export class ChatService {
       throw 'You must chose a channel first';
     if (content.content.length < 1)
       throw 'Error your cannot send blank message';
-    else if (content.content.length > 250)
-      throw 'Error you cannot send more than 250 characters'
+    else if (content.content.length > 160)
+      throw 'Error you cannot send more than 160 characters'
     const message = this.messagesRepository.create({
       author: username,
       content: content.content,
@@ -137,8 +137,8 @@ export class ChatService {
   async createChannel(data: { owner: string, name: string, password: string}) {
     const channel = new Channel();
     channel.name = data.name;
-    channel.owner = data.owner;
-    channel.admin = [data.owner];
+    channel.owner = channel.name === 'General' ? '' : data.owner;
+    channel.admin = channel.name === 'General' ? [''] : [data.owner];
     channel.password = data.password;
     channel.clients = [data.owner];
     channel.message = [];
