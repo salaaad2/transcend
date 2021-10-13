@@ -73,7 +73,7 @@ export class AuthenticationService {
     }
 
     login(user: User): { acess_token: string } {
-        const payload = { username: user.username, sub: user.id };
+        const payload = { realname: user.realname, sub: user.id };
         if (user.isbanned === true)
         {
             throw new HttpException('You are banned', HttpStatus.FORBIDDEN);
@@ -88,6 +88,11 @@ export class AuthenticationService {
                 acess_token: this.jwtService.sign(payload),
             };
         }
+    }
+
+    logout(user: User) {
+        user.status = "offline";
+        this.usersService.save(user);
     }
 
     async findUserFromApi42Id(data:any): Promise<any> {

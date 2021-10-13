@@ -414,10 +414,6 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div style={{color: 'red'}}>{errorMessage}</div>
                                 </Form></div></div>}
-                                {/* <img alt="default" id='default' src={defaultprev} style={{display:"none"}}/>
-                                <img alt="nature" id='nature' src={natureprev} style={{display:"none"}}/> 
-                                <img alt="dark" id='dark' src={darkprev} style={{display:"none"}}/> 
-                                <img alt="funky" id='funky' src={funkyprev} style={{display:"none"}}/> */}
                           </div>
                       </div>
                   </div>

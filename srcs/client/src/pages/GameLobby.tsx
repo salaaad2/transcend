@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import MainNavBar from '../components/layout/MainNavBar';
 import { SocketContext } from '../socket/context';
 import { useUser } from '../components/context/UserAuthContext';
+import { Redirect } from 'react-router-dom';
 
 function GameLobby(props: any): any {
 
@@ -50,6 +51,8 @@ function GameLobby(props: any): any {
               </div> : <></>}
             </>
         )
+    else if (user.id > 0 && user.username.length > 0)
+        return (<Redirect to={{ pathname: "/login", state: { from: props.location} }} />);
     else
     {
         props.history.push('/login');

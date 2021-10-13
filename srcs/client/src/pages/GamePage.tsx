@@ -118,9 +118,10 @@ function GamePage(props: any): any {
                 }
             })
             return (() => {
-                    socket.emit('stop_info', room);
+                // socket.emit('stop_info', room);
                 socket.off('game');
                 socket.emit('quit_game', [user.username, room]);
+                user.status = "online";
             })
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps

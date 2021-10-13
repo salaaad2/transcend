@@ -31,7 +31,6 @@ export class AuthenticationController {
     async redirect(@Req() req:any, @Res({passthrough: true}) res:Response) {
         if (req.user) {
             try {
-
                 const token = this.authenticationService.login(req.user);
                 res.cookie('access_token', token.acess_token, {
                     httpOnly: false,
@@ -76,6 +75,7 @@ export class AuthenticationController {
     @Post('log-out')
     async logOut(@Req() request: any) {
         request.res.setHeader('Set-Cookie', await this.authenticationService.getCookiesForLogOut());
+        // this.authenticationService.logout(req.user);
     }
 
 }

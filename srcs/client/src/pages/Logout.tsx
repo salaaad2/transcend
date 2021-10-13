@@ -14,8 +14,8 @@ function Logout(props: any) {
         {
             axios.post(`/authentication/log-out`, { withCredentials: true})
                  .then(() => {
-                     setUser(defaultUser);
                      socket.emit('logout', user.username);
+                     setUser(defaultUser);
                      socket.off();
                      props.history.push('/login');
                  })
