@@ -44,19 +44,14 @@ function ProfilePage(props: any) {
   const [Matches, setMatches] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [Error, setError] = useState(0);
-  // const [Edit, setEdit] = useState(false);
   const [DisplayName, setDisplayName] = useState("");
   const socket = React.useContext(SocketContext);
   const { user } = useUser()!;
   const param: any = useParams();
   const [File, SetFile] = useState([]);
-  // const [Canvas, setCanvas] = useState<string[]>([]);
   const [Friends, setFriends] = useState([]);
-  // const canvasRef = useRef<HTMLCanvasElement>(null);
   const [Status, setStatus] = useState<IStatus>({});
-  // const [Notifications, setNotifications] = useState<string[]>([]);
   const [modalShow, setModalShow] = useState(false);
-  // const [otpBox, setOtpBox] = useState(false);
   const [PowerUps, setPowerUps] = useState(false);
   const [Speed, setSpeed] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
@@ -121,13 +116,15 @@ function ProfilePage(props: any) {
                        setMatches(response.data.ret.matches);
                        if (response.data.ret.friendrequests.find((element: string) => {return element === user.username}))
                            setIsFriend("pending");
-                       else if (response.data.ret.current.friendlist.find((element: string) => {return (element === username)}))
+                       else if (user.friendlist.find((element: string) => {return (element === username)}))
                            setIsFriend("yes");
+                        else
+                          setIsFriend("no");
                        setIsBlocked(false);
                        setStatus(Status => ({...Status, [response.data.ret.username]: response.data.ret.status}));
                        setnewUser(response.data.ret);
                        setTheme(response.data.ret.theme);
-                       if (response.data.ret.current.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
+                       if (user.blocklist.find((element: string) => {return (element === response.data.ret.username)}))
                            setIsBlocked(true);
                        setLoading(false);
                }})
@@ -327,8 +324,8 @@ function ProfilePage(props: any) {
                             {newUser.username !== user.username ?
                             <div className="col-6 px-4 py-3">
                               <div className="row btn-profil">
-                                {IsFriend === "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button> 
-                                : IsFriend === "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
+                                {IsFriend == "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button> 
+                                : IsFriend == "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
                                 <button id="marge" type="button" onClick={Unfriend} className="btn btn-outline-primary">Unfriend {newUser.username}</button>}
                                 {!IsBlocked ? <button id="marge" type="button" onClick={Block} className="btn btn-danger">Block</button> 
                                 : <button id="marge" type="button" onClick={Unblock} className="btn btn-outline-danger">Unblock {newUser.username}</button>}

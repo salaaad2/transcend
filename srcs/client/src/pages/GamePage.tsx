@@ -37,10 +37,6 @@ function GamePage(props: any): any {
     const [Avatars, setAvatars] = useState<string[]>([]);
     let idTab = 0;
 
-    // let ctx: any;
-    // let canvas: any;
-    // let w: number;
-    // let h: number;
     let canvasColor = [
         ['black', 'white', 'defaultball', 'defaultpad'],
         ['white', 'dark', 'darkball', 'darkpad'],
@@ -53,21 +49,6 @@ function GamePage(props: any): any {
         return (<li key={idTab}><div className="col userinfo">{spectator}</div></li>)
     }
 
-    // useEffect(() => {
-    //     if (user.id > 0 && user.username.length > 0)
-    //     {
-    //         canvas = canvasRef.current;
-    //         canvas!.width = canvas!.clientWidth;
-    //         canvas!.height = canvas!.clientHeight;
-    //         ctx = canvas!.getContext("2d");
-
-    //         // ctx!.canvas.height = 3 * canvas!.width / 4;
-    //         ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-    //         w = canvas!.width;
-    //         h = canvas!.height;
-    //     }
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
         {
@@ -75,7 +56,6 @@ function GamePage(props: any): any {
             canvas!.width = canvas!.clientWidth;
             canvas!.height = canvas!.clientHeight;
             let ctx = canvas!.getContext("2d");
-            // ctx!.canvas.height = 3 * canvas!.width / 4;
             ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
             let w = canvas!.width;
             let h = canvas!.height;
@@ -93,7 +73,6 @@ function GamePage(props: any): any {
                     ctx!.drawImage(img, 0, 0, w, h);
                     ctx!.fillStyle = canvasColor[user.theme][0];
                     ctx!.beginPath();
-                    // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50 * (data.pw.type == -1 ? 0.5 : 1), 0, 2 * Math.PI);
                     ctx!.drawImage(ball,
                                    data.bp.x * (w/100) - (data.pw.type === -1 ? (w/100) : (w/50)),
                                    data.bp.y * (h/100) - (data.pw.type === -1 ? (w/100) : (w/50)),
@@ -102,13 +81,10 @@ function GamePage(props: any): any {
                     ctx!.beginPath();
                     ctx!.drawImage((data.pw.type === 0 ? powerSpeed : data.pw.type === 1 ? powerBall : powerPad),
                                    data.pw.x * (w/100) - (w/20), data.pw.y * (h/100) - (w/20), w/10, w/10);
-                    // ctx!.arc(data.pw.x * (w/100) , data.pw.y * (h/100), w/10, 0, 2 * Math.PI);
                     ctx!.stroke();
                     ctx!.fillStyle = canvasColor[user.theme][0];
                     ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type === -21 ? 3/2 : 1));
-                    // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5  * (data.pw.type == -21 ? 3/2 : 1));
                     ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type === -22 ? 3/2 : 1));
-                    // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5  * (data.pw.type == -22 ? 3/2 : 1));
                 }
                 else if (data.countdown > 0)
                 {
@@ -117,13 +93,10 @@ function GamePage(props: any): any {
                     ctx!.fillStyle = canvasColor[user.theme][0];
                     ctx!.beginPath();
                     ctx!.drawImage(ball, data.bp.x * (w/100) - (w/50), data.bp.y * (h/100) - (w/50), w/25, w/25);
-                    // ctx!.arc(data.bp.x * (w/100) , data.bp.y * (h/100), w/50, 0, 2 * Math.PI);
                     ctx!.fill();
                     ctx!.stroke();
                     ctx!.drawImage(pad, w/100, data.p1 * (h/100), w/40, h/5);
-                    // ctx!.fillRect(w/100, data.p1 * (h/100), w/40, h/5);
                     ctx!.drawImage(pad, w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
-                    // ctx!.fillRect(w - w/40 - w/100, data.p2 * (h/100), w/40, h/5);
                     setScores([data.p1score, data.p2score]);
                     if (!data.start) {
                         ctx!.font = '48px serif';
@@ -177,7 +150,6 @@ function GamePage(props: any): any {
                 if (Role === 'player1' ||
                     Role === 'player2') {
                     keyState = e.key;
-                    // socket.emit('send_key', {key: e.key, role: Role, room: room});
                 }
             }
             const handleKeyup = (e: any) => {

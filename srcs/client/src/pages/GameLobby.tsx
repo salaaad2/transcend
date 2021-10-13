@@ -19,7 +19,6 @@ function GameLobby(props: any): any {
         {
             socket.emit('newplayer', user.username);
             socket.on('nb_players', (nb: number) => {
-                console.log(nb);
                 if (nb % 2 === 0) {
                     socket.emit('game_on', user.username);
                     socket.on('active_players', (player: {playername: string, index: number, id: number}) => {
@@ -27,10 +26,6 @@ function GameLobby(props: any): any {
                         socket.emit('rm_from_lobby', user.username);
                         props.history.push(`/game/:${player.id}`);
                     })
-                    // socket.on('game_off', () => {
-                    //     console.log('off');
-                    //     props.history.push('/');
-                    // })
                 }
                 else
                     setisWaiting(true);
@@ -39,10 +34,9 @@ function GameLobby(props: any): any {
                 socket.emit('player_leave', user.username);
                 socket.off('nb_players');
                 socket.off('active_players');
-                // socket.off('game_off');
             })
         }
-    }, [])
+    }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (user.id > 0 && user.username.length > 0)
         return (

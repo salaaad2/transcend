@@ -137,7 +137,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const f_socket: Socket = this.tab[data[0]];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
 
-    f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
+    if (f_socket)
+      f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
   }
 
   //////////
@@ -405,6 +406,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                        }
                       })
     }
+    console.log(this.players);
     this.server.emit('nb_players', this.players.length);
   }
 
@@ -514,7 +516,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
       this.rooms[current].speed = 0;
-      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
@@ -522,7 +523,6 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
       this.rooms[current].speed = 0;
-      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
@@ -614,11 +614,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     clearInterval(this.interval[room]);
       console.log('username', username, this.rooms[room].Players[0]);
-    if (username === this.rooms[room].Players[0]) {
+    if (this.rooms[room] && username === this.rooms[room].Players[0]) {
       await this.matchService.putmatch(this.rooms[room].Players[0], this.rooms[room].Players[1],
                                       this.rooms[room].p1score, this.rooms[room].p2score, this.rooms[room].custom);
-      // this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-      // bp: this.rooms[room].ballposition, countdown: -1});
       for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
         this.rooms[room].sockets[i].socket.emit('game',
              {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
@@ -668,5 +666,4 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     @MessageBody() username: string) {
       this.server.emit('mod_client', username);
   }
-
 }
