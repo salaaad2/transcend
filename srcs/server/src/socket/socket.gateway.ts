@@ -31,6 +31,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public rooms: {[key: number]: Room} = {}
   public interval: any[] = [];
   public id: number = 0;
+  public req_user: string[] = [];
 
   /////////////////
   // Connection //
@@ -135,8 +136,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const f_socket: Socket = this.tab[data[0]];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
 
-    if (f_socket)
-      f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
+    if (this.req_user.includes(user))
+      socket.emit('notifications', ['reject_game_request']);
+    else {
+      this.req_user.push(user);
+      if (f_socket)
+        f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
+    }
   }
 
   //////////
@@ -376,7 +382,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('newplayer')
   async newplayer(@MessageBody() playername: string) {
-    this.players.push(playername);
+      this.players.push(playername);
     if (this.players.length == 1) {
       this.id++;
       this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: false, Players: ["", ""],
@@ -390,29 +396,36 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                        }
                       })
     }
-    this.server.emit('nb_players', this.players.length);
+    this.server.emit('nb_players', { username: this.players,
+                                     nb: this.players.length});
   }
 
   @SubscribeMessage('newplayer2')
   async newplayer2(@MessageBody() data: any[]) {
     const socket1 = this.tab[data[0]];
     const socket2 = this.tab[data[1]];
+    const user1 = await this.userService.getByUsername(data[0]);
+    const user2 = await this.userService.getByUsername(data[1]);
 
-    this.id++;
-    this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: true, Players: [data[0], data[1]],
-    ingame: false, p1position: 40, p2position: 40, p1direction: 0,
-    p2direction: 0, p1score: 0, p2score: 0,
-    countdown: 150, speed: data[3], powerups: data[2], powerspecs: {
-      type: 0, x: -100, y: -100
-    },spectators: [],
-    ballposition: {
-      x: 50, y: 50, dir: 1, coeff: 2
+
+    if (user1 && user2 && user1.status === "online" && user2.status === "online")
+    {
+      this.id++;
+      this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: true, Players: [data[0], data[1]],
+                              ingame: false, p1position: 40, p2position: 40, p1direction: 0,
+                              p2direction: 0, p1score: 0, p2score: 0,
+                              countdown: 150, speed: data[3], powerups: data[2], powerspecs: {
+                                type: 0, x: -100, y: -100
+                              },spectators: [],
+                              ballposition: {
+                                x: 50, y: 50, dir: 1, coeff: 2
+                              }
+                             })
+      this.rooms[this.id].sockets.push({user: data[0], socket: socket1});
+      this.rooms[this.id].sockets.push({user: data[1], socket: socket2});
+      socket1.emit('start_duel', this.id);
+      socket2.emit('start_duel', this.id);
     }
-   })
-   this.rooms[this.id].sockets.push({user: data[0], socket: socket1});
-   this.rooms[this.id].sockets.push({user: data[1], socket: socket2});
-   socket1.emit('start_duel', this.id);
-   socket2.emit('start_duel', this.id);
   }
 
   @SubscribeMessage('player_leave')
@@ -439,6 +452,17 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //////////
   // GAME //
   //////////
+
+  @SubscribeMessage('req_add')
+  async ReqAdd(@MessageBody() data: string) {
+    this.req_user.push(data);
+  }
+
+  @SubscribeMessage('req_splice')
+  async ReqSplice(@MessageBody() data: string) {
+    this.req_user.splice(this.req_user.findIndex(
+    element => element === data), 1);
+  }
 
   @SubscribeMessage('game_start')
   async GiveRole(@ConnectedSocket() socket: Socket,
@@ -549,15 +573,15 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (username == this.rooms[data[1]].Players[0])
         await this.matchService.putmatch(this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1],
           this.rooms[data[1]].p1score, this.rooms[data[1]].p2score, this.rooms[data[1]].custom);
-      for (let i = 0 ; i < this.rooms[data[1]].sockets.length ; i++) {
-        if(this.rooms[data[1]])
-        {
+      if(this.rooms[data[1]])
+      {
+        for (let i = 0 ; i < this.rooms[data[1]].sockets.length ; i++) {
           this.rooms[data[1]].sockets[i].socket.emit('game',
                                                      {p1: this.rooms[data[1]].p1position, p2: this.rooms[data[1]].p2position,
                                                       bp: this.rooms[data[1]].ballposition, countdown: 100, end: true});
         }
       }
-        setTimeout(() => {delete this.rooms[data[1]]}, 500);
+      setTimeout(() => {delete this.rooms[data[1]]}, 500);
   }
     const user = await this.userService.getByUsername(username);
     if (user)

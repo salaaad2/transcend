@@ -19,8 +19,8 @@ function GameLobby(props: any): any {
         if (user.id > 0 && user.username.length > 0 && user.status !== "ingame")
         {
             socket.emit('newplayer', user.username);
-            socket.on('nb_players', (nb: number) => {
-                if (nb % 2 === 0) {
+            socket.on('nb_players', (data: {username:string[], nb: number}) => {
+                if (data.nb % 2 === 0 && data.username.includes(user.username)) {
                     socket.emit('game_on', user.username);
                     socket.on('active_players', (player: {playername: string, index: number, id: number}) => {
                         setisWaiting(false);

@@ -182,10 +182,11 @@ function GamePage(props: any): any {
             socket.on('spectators', (data: string[]) => {
                 setSpectators([]);
                 for (let i in data) {
-                    setSpectators([...Spectators, data[i]]);
+                    setSpectators(Spectators => [...Spectators, data[i]]);
                 }
             })
             return (() => {
+                setSpectators([]);
                 socket.off('spectators');
             })
         }

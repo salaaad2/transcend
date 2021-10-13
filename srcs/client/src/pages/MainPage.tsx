@@ -39,6 +39,7 @@ function MainPage(props: any) {
         if (data.realname === user.realname)
         {
             user.username = data.username;
+            user.currentChannel = "";
             setUser(user);
             socket.emit('login', data.username);
             props.history.push('/');

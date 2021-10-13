@@ -306,6 +306,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                 });
             this.props.socket.emit('request_get_channel_clients', chan);
             this.props.socket.emit('request_get_banned_clients', chan);
+            this.props.user.currentChannel = chan;
             Utils.notifySuccess('You joined ' + chan);
         }
         else if (chan === this.state.currentChan && this.props.user.username !== username
@@ -335,6 +336,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
                 owner: '',
                 admin: false,
                 });
+            this.props.user.currentChannel = chan;
             this.props.socket.emit('request_get_channel_clients', chan);
         }
         else if (this.props.user.username === dst && this.state.currentChan !== chan)
@@ -721,6 +723,7 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.props.socket.removeAllListeners('send_chan_banned_client');
             this.props.socket.removeAllListeners('send_private_channels');
             this.props.socket.removeAllListeners('send_private_channel_joined');
+            this.props.user.currentChannel = "";
         }
 
     };

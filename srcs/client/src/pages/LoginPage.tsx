@@ -20,7 +20,10 @@ function LoginPage(props: any): any {
             axios.get('/authentication/logged', { withCredentials: true })
                  .then((res:any) => {
                      if (res.data)
+                     {
+                         res.data.currentChannel = "";
                          setUser(res.data);
+                     }
                  })
                  .catch(() => {
                  });
