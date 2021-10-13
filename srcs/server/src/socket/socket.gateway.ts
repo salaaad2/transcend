@@ -137,7 +137,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const f_socket: Socket = this.tab[data[0]];
     const user = Object.keys(this.tab).find(k => this.tab[k] === socket);
 
-    f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
+    if (f_socket)
+      f_socket.emit('notifications', ['game_request', user, data[1], data[2]]);
   }
 
   //////////
@@ -392,6 +393,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async newplayer(@MessageBody() playername: string) {
     this.players.push(playername);
     if (this.players.length == 1) {
+      console.log('creation', this.id);
       this.id++;
       this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: false, Players: ["", ""],
                        ingame: false, p1position: 40, p2position: 40, p1direction: 0,
@@ -404,6 +406,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                        }
                       })
     }
+    console.log(this.players);
     this.server.emit('nb_players', this.players.length);
   }
 
@@ -412,6 +415,7 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const socket1 = this.tab[data[0]];
     const socket2 = this.tab[data[1]];
 
+    console.log('creation2', this.id);
     this.id++;
     this.rooms[this.id] = ({sockets: [], id: this.id, start: false, end: false, custom: true, Players: [data[0], data[1]],
     ingame: false, p1position: 40, p2position: 40, p1direction: 0,
@@ -511,14 +515,14 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.rooms[current].p2score = 5;
       this.rooms[current].countdown = 100;
-      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].speed = 0;
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
     else if (this.rooms[current] && data.role == 'player2' && data.key == 'f') {
       this.rooms[current].p1score = 5;
       this.rooms[current].countdown = 100;
-      // this.matchService.putmatch(this.rooms[current].Players[0], this.rooms[current].Players[1], this.rooms[current].p1score, this.rooms[current].p2score);
+      this.rooms[current].speed = 0;
       this.rooms[current].ingame = false;
       this.rooms[current].end = true;
     }
@@ -528,7 +532,8 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async QuitGame(@MessageBody() data: any[], @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
     if (this.rooms[data[1]] && (username == this.rooms[data[1]].Players[0] || username == this.rooms[data[1]].Players[1])) {
-      data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
+      if (this.rooms[data[1]].p1score != 5 && this.rooms[data[1]].p2score != 5)
+        data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
       this.rooms[data[1]].countdown = 100;
       this.rooms[data[1]].ingame = false;
       this.rooms[data[1]].end = true;
@@ -573,7 +578,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.interval[room] = setInterval(() => {
         this.pongService.calculateBallPosition(this.rooms[room]);
         if (this.rooms[room].powerups)
+        {
           this.pongService.calculatePowerUp(this.rooms[room]);
+        }
         if (!this.rooms[room].countdown) {
           for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
             this.rooms[room].sockets[i].socket.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
@@ -607,11 +614,9 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     clearInterval(this.interval[room]);
       console.log('username', username, this.rooms[room].Players[0]);
-    if (username === this.rooms[room].Players[0]) {
+    if (this.rooms[room] && username === this.rooms[room].Players[0]) {
       await this.matchService.putmatch(this.rooms[room].Players[0], this.rooms[room].Players[1],
                                       this.rooms[room].p1score, this.rooms[room].p2score, this.rooms[room].custom);
-      // this.server.emit('game', {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-      // bp: this.rooms[room].ballposition, countdown: -1});
       for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
         this.rooms[room].sockets[i].socket.emit('game',
              {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
@@ -628,13 +633,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('get_games')
   async GetGames(@ConnectedSocket() socket: Socket) {
     const data: {id: number, player1: string, player2: string, p1score: number, p2score: number, ingame: boolean}[] = []
+    setInterval(() => {
     for (let i in this.rooms) {
-      data.push({id: this.rooms[i].id, player1: this.rooms[i].Players[0], 
-        player2: this.rooms[i].Players[1], p1score: this.rooms[i].p1score, p2score: this.rooms[i].p2score, ingame: this.rooms[i].ingame})
+      data.push({id: this.rooms[i].id, player1: this.rooms[i].Players[0],
+                 player2: this.rooms[i].Players[1], p1score: this.rooms[i].p1score, p2score: this.rooms[i].p2score, ingame: this.rooms[i].ingame})
     }
       socket.emit('live', data);
-    setInterval(() => {
-      socket.emit('live', data);
+    data.splice(0, data.length)
     }, 2000);
   }
 
@@ -661,5 +666,4 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     @MessageBody() username: string) {
       this.server.emit('mod_client', username);
   }
-
 }

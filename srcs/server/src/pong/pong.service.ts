@@ -38,12 +38,12 @@ export class PongService {
     }
 
     intersectcircle(room: Room) {
-        var ball = {radius: 2 / this.ballpower, x: room.ballposition.x, y: room.ballposition.y};
-        var powerup = {radius: 5, x: room.powerspecs.x, y: room.powerspecs.y};
+        let ball = {radius: 2 / this.ballpower, x: room.ballposition.x, y: room.ballposition.y};
+        let powerup = {radius: 5, x: room.powerspecs.x, y: room.powerspecs.y};
 
-        var dx = ball.x - powerup.x;
-        var dy = ball.y - powerup.y;
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        let dx = ball.x - powerup.x;
+        let dy = ball.y - powerup.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < ball.radius + powerup.radius) {
             this.powerActive = true;
@@ -52,9 +52,9 @@ export class PongService {
         return false;
     }
 
-    calculateBallPosition(room: Room) {
+    async calculateBallPosition(room: Room) {
 
-        var intersect: boolean = false;
+        let intersect: boolean = false;
 
         if (room.countdown != 0) {
             room.countdown -= 1;
@@ -119,12 +119,15 @@ export class PongService {
             }
             else if (room.ballposition.x >= 98 || room.ballposition.x <= 2)
             {
-                room.ballposition.x >= 98 ? room.p1score++ : room.p2score++;
+                if (room.ballposition.x >= 98 && room.p1score < 5)
+                    room.p1score++;
+                else if (room.p2score < 5)
+                    room.p2score++;
                 if (this.powerspeed == true) {
                     room.speed /= 2;
                     this.powerspeed = false;
                 }
-                if (room.p1score == 5 || room.p2score == 5)
+                if (room.p1score >= 5 || room.p2score >= 5)
                 {
                     // this.matchService.putmatch(room.Players[0], room.Players[1], room.p1score, room.p2score);
                     room.speed = 0;
@@ -147,7 +150,7 @@ export class PongService {
         }
     }
 
-    calculatePowerUp(room: Room) {
+    async calculatePowerUp(room: Room) {
         if (room.powerspecs.x == -100 && this.powerActive == false) {
             if (Math.random() < 0.005) {
                 room.powerspecs.x = Math.floor(Math.random() * (80 - 20) + 20);

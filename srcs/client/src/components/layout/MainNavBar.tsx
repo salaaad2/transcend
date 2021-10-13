@@ -50,6 +50,7 @@ function MainNavBar(props: any) {
       toast(<Msg />, {
         className:"dark-toast",
         autoClose:false,
+        toastId: 'unique',
   });
     }
 

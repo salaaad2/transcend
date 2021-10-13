@@ -102,7 +102,6 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
                     <Button variant="primary" type="submit" value="Submit">Send</Button>
                 </Col>
             </Row>
-
         </form>;
         return (form);
     }
