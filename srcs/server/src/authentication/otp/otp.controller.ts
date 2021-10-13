@@ -64,9 +64,7 @@ export class OtpController {
     @UseGuards(JwtAuthenticationGuard)
     async generate(@Req() request: RequestWithUser) {
         const { otpauthUrl } = await this.otpService.generateOtpSecret(request.user);
-        console.log('RETURN ' + otpauthUrl);
         return (otpauthUrl);
-        // return this.otpService.pipeQrCodeStream(response, otpauthUrl);
     }
 
   @Post('authenticate')

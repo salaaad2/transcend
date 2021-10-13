@@ -15,7 +15,7 @@ function GameLobby(props: any): any {
     }
     
     useEffect(() => {
-        if (user.id > 0 && user.username.length > 0)
+        if (user.id > 0 && user.username.length > 0 && user.status !== "ingame")
         {
             socket.emit('newplayer', user.username);
             socket.on('nb_players', (nb: number) => {
@@ -23,6 +23,7 @@ function GameLobby(props: any): any {
                     socket.emit('game_on', user.username);
                     socket.on('active_players', (player: {playername: string, index: number, id: number}) => {
                         setisWaiting(false);
+                        user.status = "ingame";
                         socket.emit('rm_from_lobby', user.username);
                         props.history.push(`/game/:${player.id}`);
                     })
@@ -38,7 +39,7 @@ function GameLobby(props: any): any {
         }
     }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (user.id > 0 && user.username.length > 0)
+    if (user.id > 0 && user.username.length > 0 && user.status !== "ingame")
         return (
             <>
                 <MainNavBar />

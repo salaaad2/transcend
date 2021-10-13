@@ -145,7 +145,6 @@ function GamePage(props: any): any {
         {
             let keyState: any;
             const handleKey = (e: any) => {
-                console.log('event', Role);
 
                 if (Role === 'player1' ||
                     Role === 'player2') {
@@ -181,7 +180,6 @@ function GamePage(props: any): any {
             socket.emit('get_spectators', room);
             socket.on('spectators', (data: string[]) => {
                 setSpectators([]);
-                console.log(data[0]);
                 for (let i in data) {
                     setSpectators([...Spectators, data[i]]);
                 }

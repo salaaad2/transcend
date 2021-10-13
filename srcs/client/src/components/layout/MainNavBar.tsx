@@ -25,12 +25,10 @@ function MainNavBar(props: any) {
     let idNotif: number = 0;
 
     function acceptGame(data: string[]) {
-      console.log('accept' + data[1]);
       socket.emit('newplayer2', [user.username, data[1], data[2], data[3]]);
     }
 
     function rejectGame() {
-      console.log('reject');
     }
 
     function notifyGame(data: string[]) {
@@ -74,7 +72,6 @@ function MainNavBar(props: any) {
         socket.emit('accept_friend', {username, notif});
         let NotifTemp = [...FriendRequests];
         NotifTemp.splice(FriendRequests.findIndex(element => {return element === notif}), 1);
-        console.log('temp:', NotifTemp);
         setFriendRequests(FriendRequests => {
           return FriendRequests = NotifTemp
         });
@@ -95,7 +92,6 @@ function MainNavBar(props: any) {
 
     function ListRequests(notif: string) {
       idNotif++;
-      console.log(notif);
       return (
         <div key={idNotif} className="friendlist">
         <ul className="ul">
@@ -132,11 +128,9 @@ function MainNavBar(props: any) {
       axios.get(`/authentication`,
       { withCredentials: true }).then((response) => {
         if (response.data && (response.data.friendrequests.length !== 0 || response.data.pv_msg_notifs.length !== 0)) {
-          console.log('msglist', response.data.pv_msg_notifs);
           setFriendRequests(response.data.friendrequests);
           setMessages(response.data.pv_msg_notifs);
           setAvatar(response.data.avatar);
-          console.log('rq:', response.data.friendrequests);
           setNotifications(true);
         }
       })
@@ -145,7 +139,6 @@ function MainNavBar(props: any) {
     useEffect(() => {
         socket.on('mod_client', (data: string) => {
             if (data === user.username) {
-                console.log('you are now site moderator');
                 Utils.notifyInfo('You are now moderator. Reload the page to access admin panel');
             }
         })
@@ -153,15 +146,12 @@ function MainNavBar(props: any) {
 
     /* 100% works I swear*/
     useEffect(() => {
-        /* console.log('logout requested by admin'); */
         socket.on('log_out', (data: string) => {
         if (data === user.username) {
-          console.log('logout');
           socket.emit('logout', user.username);
           socket.off();
           axios.post(`/authentication/log-out`, {})
-          .then((response) => {
-              console.log(response.data);
+          .then(() => {
               setUser(defaultUser);
               props.history.push('/login');
           })
@@ -192,7 +182,6 @@ function MainNavBar(props: any) {
             notifyMsg(data);
           }
           else if (data[0] === 'rm_msg') {
-            console.log(data[1]);
             setMessages(Messages => {
               let NotifTemp = [...Messages];
               NotifTemp.splice(Messages.findIndex(element => {return element === data[1]}), 1);
@@ -203,7 +192,6 @@ function MainNavBar(props: any) {
             setNotifications(false);
           }
             else if (data[0] === 'rm_msg') {
-                console.log(data[1]);
                 setMessages(Messages => {
                     let NotifTemp = [...Messages];
                     NotifTemp.splice(Messages.findIndex(element => {return element === data[1]}), 1);

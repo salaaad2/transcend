@@ -60,8 +60,8 @@ export class AuthenticationController {
     @UseGuards(OtpGuard)
     @Get('logged')
     async logged(@Req() req:any) {
-        const user = req.user;
-        return user;
+            const user = req.user;
+            return user;
     }
 
     @UseGuards(JwtAuthenticationGuard)
@@ -74,7 +74,7 @@ export class AuthenticationController {
     @UseGuards(JwtAuthenticationGuard)
     @HttpCode(200)
     @Post('log-out')
-    async logOut(@Req() request: RequestWithUser) {
+    async logOut(@Req() request: any) {
         request.res.setHeader('Set-Cookie', await this.authenticationService.getCookiesForLogOut());
     }
 

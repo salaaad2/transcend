@@ -158,7 +158,6 @@ function ProfilePage(props: any) {
 
   useEffect(() => {
 		socket.on('status', (data: any) => {
-      console.log(data);
       setStatus(Status => ({...Status, [data.username]: data.status}))
     })
     return(() => {
@@ -319,8 +318,8 @@ function ProfilePage(props: any) {
                             {newUser.username !== user.username ?
                             <div className="col-6 px-4 py-3">
                               <div className="row btn-profil">
-                                {IsFriend == "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button> 
-                                : IsFriend == "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
+                                {IsFriend === "no" ? <button id="marge" type="button" onClick={addAsFriend} className="btn btn-primary">Send Friend Request</button>
+                                : IsFriend === "pending" ? <button id="marge" type="button" className="btn btn-outline-primary" disabled>Invitation pending...</button> :
                                 <button id="marge" type="button" onClick={Unfriend} className="btn btn-outline-primary">Unfriend {newUser.username}</button>}
                                 {!IsBlocked ? <button id="marge" type="button" onClick={Block} className="btn btn-danger">Block</button> 
                                 : <button id="marge" type="button" onClick={Unblock} className="btn btn-outline-danger">Unblock {newUser.username}</button>}
@@ -364,7 +363,7 @@ function ProfilePage(props: any) {
                                     type="switch"
                                     id="custom-switch"
                                     label="Power-ups"
-                                    onClick={() => {setPowerUps(!PowerUps); console.log(PowerUps);}}
+                                    onClick={() => {setPowerUps(!PowerUps);}}
                                   />
                                   </Col>
                                   <Row>
@@ -398,14 +397,14 @@ function ProfilePage(props: any) {
                                   </div>
                                   <div className="col-6">
                                     <Form.Label>Select Theme</Form.Label>
-                                    <Form.Control defaultValue={user.theme} as="select" aria-label="Default select example" onChange={(e: any) => {console.log(e.target.value); setTheme(e.target.value)}}>
+                                    <Form.Control defaultValue={user.theme} as="select" aria-label="Default select example" onChange={(e: any) => {setTheme(e.target.value)}}>
                                       <option value="0">Default</option>
                                       <option value="1">Dark</option>
                                       <option value="2">Nature</option>
                                       <option value="3">Funky</option>
                                     </Form.Control>
                                     {/* <canvas ref={canvasRef}></canvas> */}
-                                    {Theme === 0 ? <img src={defaultprev} className="img-fluid" alt="default"/> : Theme === 1 ? <img src={darkprev} className="img-fluid" alt="dark"/> : Theme === 2 ? <img src={natureprev} className="img-fluid" alt="nature"/> : <img src={funkyprev} className="img-fluid" alt="funky"/>}
+                                    {Theme.toString() === "0" ? <img src={defaultprev} className="img-fluid" alt="default"/> : Theme.toString() === "1" ? <img src={darkprev} className="img-fluid" alt="dark"/> : Theme.toString() === "2" ? <img src={natureprev} className="img-fluid" alt="nature"/> : <img src={funkyprev} className="img-fluid" alt="funky"/>}
                                   </div></div>
                                   <div className="btn-profil"><Button type="submit" className="btn btn-secondary">Save</Button>
                                       <Button className='btn' onClick={(e) => {

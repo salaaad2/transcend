@@ -36,10 +36,7 @@ function AdminPanel(props: any) {
         { username: username,
           toggle: !toggle },
         { withCredentials: true })
-        .then((response) => {
-            if (response.data) {
-                console.log(response.data);
-            }
+        .then(() => {
             if (toggle) {
                 socket.emit('request_mod_client',
                             username
@@ -62,10 +59,7 @@ function AdminPanel(props: any) {
         { username: uname,
              toggle: !toggle},
         { withCredentials: true })
-        .then((response) => {
-            if (response.data) {
-                console.log(response.data);
-            }
+        .then(() => {
             if (!toggle)
             {
                 socket.emit('request_logout_client',
@@ -114,7 +108,6 @@ function AdminPanel(props: any) {
     }
 
     function deleteChan(chan: string) {
-        console.log('trying to delete chan : ' + chan);
         if (chan === 'General') {
             Utils.notifyErr('cannot delete general');
             return ;
@@ -122,10 +115,7 @@ function AdminPanel(props: any) {
         axios.post(`/chat/deletechan`,
         { channel: chan },
         { withCredentials: true })
-        .then((response) => {
-            if (response.data) {
-                console.log(response.data);
-            }
+        .then(() => {
             socket.emit('request_destroy_channel', {
                 'channel': chan,
                 'id': user.id});
@@ -244,7 +234,6 @@ function AdminPanel(props: any) {
         return (<MainNavBar />)
     }
     else if (user.ismod === true){
-        console.log('you are admin') ;
         return (
             <div>
                 <MainNavBar />

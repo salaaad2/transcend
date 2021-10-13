@@ -73,12 +73,6 @@ export class ChatService {
         await this.leaveChannel(d); // DONE: somehow this only makes one person leave
                               // note : await.... AWAIIIIIT
       }
-      const delmsg = await this.messagesRepository.delete({channel: chan});
-      const delch = await this.chanRepository.delete({name: chan.name});
-      const qwe = await this.chanRepository.save(delch?.raw);
-      if (delmsg && delch && qwe) {
-        console.log('channel ' + channame + ' delete successful');
-      }
     }
   }
 
@@ -263,12 +257,10 @@ export class ChatService {
   async promoteClient(data: { channel: string, client: string }) {
     const chan = await this.chanRepository.findOne({ name: data.channel });
     const user = await this.userService.getByUsername(data.client);
-    console.log('promote ' + data.client + ' to admin on channel : ' + data.channel);
     if (chan && user)
     {
       if (!chan.admin.includes(data.client))
          chan.admin.push((data.client));
-      console.log('promoted ' + data.client);
       await this.chanRepository.save(chan);
     }
     else

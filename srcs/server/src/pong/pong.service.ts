@@ -156,7 +156,6 @@ export class PongService {
                 room.powerspecs.x = Math.floor(Math.random() * (80 - 20) + 20);
                 room.powerspecs.y = Math.floor(Math.random() * (80 - 20) + 20);
                 room.powerspecs.type = Math.floor(Math.random() * 3);
-                console.log('log', room.powerspecs.x, room.powerspecs.y, room.powerspecs.type);
             }
         }
     }

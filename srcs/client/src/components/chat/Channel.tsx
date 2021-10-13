@@ -117,8 +117,6 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             link.href = '#profile/:' + cl;
             link.textContent = cl;
             link.className = 'userinfo';
-            console.log('adminlist : ');
-            console.log(this.state.adminlist);
             if (this.state.toggle === 'public')
             {
                 if (this.state.owner === cl && this.state.currentChan !== 'General')
@@ -323,7 +321,6 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
     sendPrivateChannelJoined(src: string, dst: string,chan: string) {
         if (chan !== this.state.currentChan && this.props.user.username === src)
         {
-            console.log('chan to joined ' + chan);
             socket.emit('remove_msg', [src, chan]);
             const chan_title = document.getElementById('channel-title');
             if (chan_title)
@@ -662,7 +659,6 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             if (this.state.currentChan === channel) {
                 this.setState({currentChan: 'General'});
             }
-            console.log('channel ' + channel + ' destroyed, get chans');
             this.props.socket.emit('request_get_channels', this.props.user.username);
         });
         this.props.socket.on('send_channel_clients', (cllist: string[]) => {
@@ -675,7 +671,6 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
             this.sendLeftChannel(channel, username);
         });
         this.props.socket.on('send_promoted_client', (channel: string, username: string) => {
-            console.log('promote this guy');
             this.sendPromotedClient(channel, username);
         });
         this.props.socket.on('send_demoted_client', (channel: string, username: string) => {

@@ -136,7 +136,6 @@ export class ProfileController {
     async banClient(@Body() data: {username: string, toggle: boolean},
                     @Req() request: RequestWithUser) {
         if (request.user.ismod && data.username !== 'fmoen') {
-            console.log('sufficient rights.\n banning : ' + data.username);
             this.usersService.banClient(data);
         } else {
             throw new HttpException('Insufficient Rights to ban or unban user', HttpStatus.I_AM_A_TEAPOT);
@@ -148,7 +147,6 @@ export class ProfileController {
     async modClient(@Body() data: {username: string, toggle: boolean},
                     @Req() request: RequestWithUser) {
         if (request.user.ismod && data.username !== 'fmoen') {
-            console.log('sufficient rights.\n modding : ' + data.username);
             this.usersService.modClient(data);
         } else {
             throw new HttpException('Insufficient Rights to give or take away moderation rights', HttpStatus.I_AM_A_TEAPOT);

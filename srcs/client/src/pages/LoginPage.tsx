@@ -15,13 +15,17 @@ function LoginPage(props: any): any {
 
 
     useEffect(() => {
-        axios.get('/authentication/logged', { withCredentials: true })
-             .then((res:any) => {
-                     setUser(res.data);
-             })
-             .catch(() => {
-             });
-    })
+        if (user.id < 0)
+        {
+            axios.get('/authentication/logged', { withCredentials: true })
+                 .then((res:any) => {
+                     if (res.data)
+                         setUser(res.data);
+                 })
+                 .catch(() => {
+                 });
+        }
+    }, [user, setUser])
 
     if (user.id < 0)
     {
@@ -41,7 +45,9 @@ function LoginPage(props: any): any {
         );
     }
     else
+    {
         return (<Redirect to={{ pathname: "/", state: { from: props.location} }} />);
+    }
 }
 
 export default LoginPage;

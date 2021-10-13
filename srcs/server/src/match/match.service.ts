@@ -32,7 +32,6 @@ export class MatchService {
         match.o_points = p2score;
         await this.matchRepository.save(match);
         if (!custom) {
-            console.log('players:', player1, player2);
             const user1 = await this.userService.getByUsername(player1);
             const user2 = await this.userService.getByUsername(player2);
             if (p1score > p2score) {

@@ -63,7 +63,6 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
             })
             this.setState({message: ""});
             if (this.props.ispriv === 'private') {
-                console.log(this.props.currentChan, this.state.message);
                 socket.emit('pv_msg', [this.props.currentChan, this.state.message]);
             }
 
@@ -80,7 +79,6 @@ export class Message extends React.Component<IUserProps & ISocketProps & IMessag
     }
 
     handleKeyPress(e: any) {
-        console.log(e);
         if (e.key === "Enter" && !e.shiftKey)
             this.sendMsg(e);
     }

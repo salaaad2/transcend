@@ -12,14 +12,12 @@ function Logout(props: any) {
     useEffect(() => {
         if (user.id > 0 && user.username.length > 0)
         {
-            props.history.push('/logout');
             axios.post(`/authentication/log-out`, { withCredentials: true})
-                 .then((response) => {
-                     console.log(response)
+                 .then(() => {
                      setUser(defaultUser);
-                     props.history.push('/login');
                      socket.emit('logout', user.username);
                      socket.off();
+                     props.history.push('/login');
                  })
         }
         else

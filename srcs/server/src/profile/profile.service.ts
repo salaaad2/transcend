@@ -59,10 +59,6 @@ export class ProfileService {
                 throw new HttpException('Only image files are allowed!', HttpStatus.BAD_REQUEST);
         }
         user.theme = data[2];
-        if (await this.usersRepository.findOne({username: data[3]}))
-            throw new HttpException('This username is already taken', HttpStatus.NOT_FOUND);
-        if (data[3] != "")
-            user.username = data[3];
         await this.usersRepository.save(user);
         return ;
     }
