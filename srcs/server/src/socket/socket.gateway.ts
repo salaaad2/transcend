@@ -531,19 +531,37 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('quit_game')
   async QuitGame(@MessageBody() data: any[], @ConnectedSocket() socket: Socket) {
     const username = Object.keys(this.tab).find((k) => this.tab[k] === socket);
-    if (this.rooms[data[1]] && (username == this.rooms[data[1]].Players[0] || username == this.rooms[data[1]].Players[1])) {
-      if (this.rooms[data[1]].p1score != 5 && this.rooms[data[1]].p2score != 5)
-        data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
-      this.rooms[data[1]].countdown = 100;
-      this.rooms[data[1]].ingame = false;
-      this.rooms[data[1]].end = true;
+    if (this.rooms[data[1]] &&
+      this.rooms[data[1]].Players[0] != username &&
+      this.rooms[data[1]].Players[1] != username)
+    {
+      this.rooms[data[1]].spectators.splice(
+        this.rooms[data[1]].spectators.findIndex((element) => {return (element == username)})
+      )
       for (let i = 0 ; i < this.rooms[data[1]].sockets.length ; i++) {
-        console.log('rooms');
         if (this.rooms[data[1]].sockets[i].user == username) {
           console.log(this.rooms[data[1]].sockets[i].user);
           this.rooms[data[1]].sockets.splice(i, 1);
           return ;
         }
+      }
+      return ;
+    }
+    else if (this.rooms[data[1]] && (username == this.rooms[data[1]].Players[0] || username == this.rooms[data[1]].Players[1])) {
+      console.log('info:', data[1], username, this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1]);
+      if (this.rooms[data[1]].p1score != 5 && this.rooms[data[1]].p2score != 5)
+        data[0] === this.rooms[data[1]].Players[0] ? this.rooms[data[1]].p2score = 5 : this.rooms[data[1]].p1score = 5;
+      this.rooms[data[1]].countdown = 100;
+      this.rooms[data[1]].speed = 0;
+      this.rooms[data[1]].ingame = false;
+      this.rooms[data[1]].end = true;
+      if (username == this.rooms[data[1]].Players[0])
+        await this.matchService.putmatch(this.rooms[data[1]].Players[0], this.rooms[data[1]].Players[1],
+          this.rooms[data[1]].p1score, this.rooms[data[1]].p2score, this.rooms[data[1]].custom);
+      for (let i = 0 ; i < this.rooms[data[1]].sockets.length ; i++) {
+        this.rooms[data[1]].sockets[i].socket.emit('game',
+              {p1: this.rooms[data[1]].p1position, p2: this.rooms[data[1]].p2position,
+              bp: this.rooms[data[1]].ballposition, countdown: 100, end: true});
       }
     }
   }
@@ -599,32 +617,13 @@ export class ServerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('stop_info')
-  async GameStop(@MessageBody() room: number, @ConnectedSocket() socket: Socket) {
-    console.log('gamestop');
-    const username = Object.keys(this.tab).find(k => this.tab[k] === socket);
-    if (this.rooms[room] &&
-      this.rooms[room].Players[0] != username &&
-      this.rooms[room].Players[1] != username)
-    {
-      this.rooms[room].spectators.splice(
-        this.rooms[room].spectators.findIndex((element) => {return (element == username)})
-      )
-      return ;
-    }
-    clearInterval(this.interval[room]);
-      console.log('username', username, this.rooms[room].Players[0]);
-    if (this.rooms[room] && username === this.rooms[room].Players[0]) {
-      await this.matchService.putmatch(this.rooms[room].Players[0], this.rooms[room].Players[1],
-                                      this.rooms[room].p1score, this.rooms[room].p2score, this.rooms[room].custom);
-      for (let i = 0 ; i < this.rooms[room].sockets.length ; i++) {
-        this.rooms[room].sockets[i].socket.emit('game',
-             {p1: this.rooms[room].p1position, p2: this.rooms[room].p2position,
-              bp: this.rooms[room].ballposition, countdown: -1});
-      }
-      delete this.rooms[room];
-    }
-  }
+  // @SubscribeMessage('stop_info')
+  // async GameStop(@MessageBody() room: number, @ConnectedSocket() socket: Socket) {
+  //   clearInterval(this.interval[room]);
+  //   if (this.rooms[room] && username === this.rooms[room].Players[0]) {
+  //     delete this.rooms[room];
+  //   }
+  // }
 
   ///////////////
   // SPECTATOR //
