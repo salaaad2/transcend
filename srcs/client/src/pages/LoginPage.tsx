@@ -7,11 +7,12 @@ import axios from 'axios';
 import { useUser } from '../components/context/UserAuthContext';
 import { Redirect } from 'react-router-dom';
 import React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function LoginPage(props: any): any {
 
     const { user, setUser } = useUser()!;
+    const [ click, setClick ] = useState(false);
 
 
     useEffect(() => {
@@ -32,20 +33,26 @@ function LoginPage(props: any): any {
 
     if (user.id < 0)
     {
-        return (
-            <div className="Login">
-                <Container>
-                    <Row>
-                        <Col>
-                            <Button variant="primary" type="submit" onClick={() => {
-                                window.location.href = `http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/authentication/log-in`;
-                            }}>42 Login
-                            </Button>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        );
+        if (click === false)
+        {
+            return (
+                <div className="Login">
+                    <Container>
+                        <Row>
+                            <Col>
+                                <Button variant="primary" type="submit" onClick={() => {
+                                    window.location.href = `http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/authentication/log-in`;
+                                    setClick(true);
+                                }}>42 Login
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            );
+        }
+        else
+            return (<div/>)
     }
     else
     {
