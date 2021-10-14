@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Redirect } from "react-router-dom";
 import MainNavBar from "../components/layout/MainNavBar";
 import Utils from "../components/utils/utils"
 import './ProfileDetailPage.css'
@@ -422,8 +422,7 @@ function ProfilePage(props: any) {
       )
   }
   else {
-    props.history.push('/login');
-    return(<div/>);
+      return (<Redirect to={{ pathname: "/login", state: { from: props.location} }} />);
   }
 }
 

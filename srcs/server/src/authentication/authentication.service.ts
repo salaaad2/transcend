@@ -67,8 +67,8 @@ export class AuthenticationService {
 
     public async  getCookiesForLogOut() {
         return [
-            `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-            `connect.sid=; HttpOnly; Path=/; Max-Age=0`
+            `Authentication=; HttpOnly; Path=/; Max-Age=0;SameSite=Strict`,
+            `connect.sid=; HttpOnly; Path=/; Max-Age=0;SameSite=Strict`
         ];
     }
 

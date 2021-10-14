@@ -7,7 +7,7 @@ import {
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import ChatPage from './pages/ChatPage2';
-import Logout from './pages/Logout';
+import LogoutPage from './pages/Logout';
 import GameLobby from './pages/GameLobby';
 import GamePage from './pages/GamePage';
 import ProfilePage from './pages/ProfileDetailPage';
@@ -44,7 +44,7 @@ function App() {
           <Route exact path='/game/:room' component={GamePage}/>
           <Route exact path='/spectator' component={SpectatorPage}/>
           <Route exact path='/rules' component={RulesPage}/>
-          <Route path="/logout" component={Logout}/>
+          <Route path="/logout" component={LogoutPage}/>
           <Route exact path="/" component={MainPage}/>
           <Route exact path="/ban" component={BanPage}/>
           <Route component={NotFoundPage}/>

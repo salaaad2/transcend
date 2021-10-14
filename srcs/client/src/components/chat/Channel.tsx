@@ -556,6 +556,9 @@ export class Channel extends React.Component<IUserProps & ISocketProps, any> {
     }
 
     makeHTMLPublic() {
+        const chan_title = document.getElementById('channel-title');
+        if (chan_title)
+            chan_title.textContent = this.state.currentChan;
         const html =
             <div>
                 <div className="togglechan">
