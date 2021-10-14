@@ -139,7 +139,7 @@ export class ChatService {
     channel.name = data.name;
     channel.owner = channel.name === 'General' ? '' : data.owner;
     channel.admin = channel.name === 'General' ? [''] : [data.owner];
-    if (data.password.length >= 1)
+    if (data.password && data.password.length >= 1)
       channel.password = await bcrypt.hash(data.password, 10);
     else
       channel.password = data.password;
@@ -157,7 +157,7 @@ export class ChatService {
   async joinChannel(data: { username: string, channel: string, password: string}) {
     if (data.channel.length < 3 || data.channel.length > 12 || !/^[a-zA-Z]*$/.test(data.channel))
       throw 'Error your channel\'s name must be between 3 and 12 characters and must contains only letters';
-    else if (data.password && data.password.length > 16)
+    else if (data.password != null && data.password.length > 16)
       throw 'Error your channel\'s password may contain a maximum of 16 characters';
     const user = await this.userService.getByUsername(data.username);
     let chan = await this.chanRepository.findOne({ name: data.channel});
