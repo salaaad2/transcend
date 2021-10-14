@@ -34,7 +34,7 @@ services:
       - ${PORT}:${PORT}
     volumes:
       - ./srcs/server/src:/srv/app/overkillpong-server/src
-    command: npm run start:dev
+    command: npm run start
     depends_on:
       - postgres
 
