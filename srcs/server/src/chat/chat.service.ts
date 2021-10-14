@@ -5,6 +5,7 @@ import User from '../users/user.entity';
 import { Repository } from 'typeorm';
 import Channel from './channel.entity';
 import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChatService {
@@ -138,7 +139,10 @@ export class ChatService {
     channel.name = data.name;
     channel.owner = channel.name === 'General' ? '' : data.owner;
     channel.admin = channel.name === 'General' ? [''] : [data.owner];
-    channel.password = data.password;
+    if (data.password.length >= 1)
+      channel.password = await bcrypt.hash(data.password, 10);
+    else
+      channel.password = data.password;
     channel.clients = [data.owner];
     channel.message = [];
     await this.chanRepository.save(channel);
@@ -153,9 +157,10 @@ export class ChatService {
   async joinChannel(data: { username: string, channel: string, password: string}) {
     if (data.channel.length < 3 || data.channel.length > 12 || !/^[a-zA-Z]*$/.test(data.channel))
       throw 'Error your channel\'s name must be between 3 and 12 characters and must contains only letters';
+    else if (data.password && data.password.length > 16)
+      throw 'Error your channel\'s password may contain a maximum of 16 characters';
     const user = await this.userService.getByUsername(data.username);
     let chan = await this.chanRepository.findOne({ name: data.channel});
-
     if (!chan)
     {
       chan = await this.createChannel({ owner: data.username, name: data.channel, password: data.password });
@@ -164,20 +169,20 @@ export class ChatService {
     {
       throw 'You are banned from ' + data.channel;
     }
+    else if (!chan.password && data.password && (chan.owner === user.username))
+    {
+      chan.password = await bcrypt.hash(data.password, 10);
+      await this.chanRepository.save(chan);
+    }
     else if (chan.clients.includes(data.username))
     {
       ;
     }
     else if ((!chan.clients.includes(data.username)) &&
-      (!chan.password || (chan.password === data.password)))
+      (!chan.password || (await bcrypt.compare(data.password, chan.password))))
     {
         chan.clients.push(data.username);
         await this.chanRepository.save(chan);
-    }
-    else if (!chan.password && data.password && (chan.owner === user.username))
-    {
-      chan.password = data.password;
-      await this.chanRepository.save(chan);
     }
     else if (chan.password && chan.password !== data.password)
     {
