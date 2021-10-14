@@ -163,7 +163,7 @@ function MainNavBar(props: any) {
       socket.on('notifications', (data: string[]) => {
         if (data) {
           if (data[0] === 'friendrequest') {
-            Utils.notifyInfo(data[1]);
+            Utils.notifyInfo(data[1]+ ' sent you a friend request');
             setNotifications(true);
             setFriendRequests(prevState => [...prevState, data[1]]);
           }

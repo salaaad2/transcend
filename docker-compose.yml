@@ -52,7 +52,6 @@ services:
     volumes:
       - ./srcs/client/src:/srv/app/overkillpong-client/src
       - ./srcs/client/public:/srv/app/overkillpong-client/public
-      - ./srcs/client/public-chat:/srv/app/overkillpong-client/public-chat
     links:
       - server
     command: npm run start
